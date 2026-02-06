@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Регистрация через Telegram</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { background:#0c0c0e; color:#fff; }
+      .gold-gradient { background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-md w-full bg-[#141417] border border-white/10 rounded-[2.5rem] p-10">
+      <h1 class="text-2xl font-black text-center mb-6">Регистрация через Telegram</h1>
+      <p class="text-white/60 text-sm mb-6">Введите данные для завершения регистрации.</p>
+      <form id="telegram-form" class="space-y-5">
+        <div>
+          <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Email</label>
+          <input id="email" type="email" required class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#d4af37]/60" placeholder="your@email.com">
+        </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Полное имя</label>
+          <input id="full_name" type="text" required class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#d4af37]/60" placeholder="Иван Иванов">
+        </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Пароль</label>
+          <input id="password" type="password" required minlength="8" class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#d4af37]/60" placeholder="Минимум 8 символов">
+        </div>
+        <label class="flex items-center gap-3 text-sm text-white/60">
+          <input id="agree_terms" type="checkbox" required class="w-5 h-5 accent-[#d4af37]">
+          Я согласен с офертой
+        </label>
+        <div id="error" class="text-red-400 text-sm"></div>
+        <button class="w-full gold-gradient text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs">
+          Завершить регистрацию
+        </button>
+      </form>
+    </div>
+    <script>
+      const apiBase = window.__IPG_API_BASE || 'http://localhost:3001';
+      const params = new URLSearchParams(window.location.search);
+      const registration_code = params.get('code');
+      const form = document.getElementById('telegram-form');
+      const errorEl = document.getElementById('error');
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        errorEl.textContent = '';
+        try {
+          const res = await fetch(apiBase + '/auth/register/telegram', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: document.getElementById('email').value,
+              full_name: document.getElementById('full_name').value,
+              password: document.getElementById('password').value,
+              agree_terms: document.getElementById('agree_terms').checked,
+              registration_code
+            })
+          });
+          if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            throw new Error(body.error || 'Ошибка регистрации');
+          }
+          const result = await res.json();
+          localStorage.setItem('ipg_token', result.tokens.accessToken);
+          localStorage.setItem('ipg_user_id', String(result.user.id));
+          window.location.href = '/settings.html';
+        } catch (err) {
+          errorEl.textContent = err.message || 'Ошибка регистрации';
+        }
+      });
+    </script>
+  </body>
+</html>

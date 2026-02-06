@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Настройки профиля</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { background:#0c0c0e; color:#fff; }
+      .gold-gradient { background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-2xl w-full bg-[#141417] border border-white/10 rounded-[2.5rem] p-10">
+      <h1 class="text-2xl font-black mb-8">Настройки профиля</h1>
+      <form class="space-y-6">
+        <div>
+          <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Полное имя</label>
+          <input type="text" class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#d4af37]/60">
+        </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Email</label>
+          <input type="email" disabled class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60">
+        </div>
+        <div>
+          <label class="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">Телефон</label>
+          <input type="tel" class="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#d4af37]/60" placeholder="+971 50 123 4567">
+        </div>
+        <button type="button" class="gold-gradient text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs w-full">
+          Сохранить
+        </button>
+      </form>
+      <button id="go-dashboard" class="mt-8 text-white/60 hover:text-white text-xs uppercase tracking-widest">
+        Перейти в личный кабинет
+      </button>
+    </div>
+    <script>
+      document.getElementById('go-dashboard').addEventListener('click', () => {
+        window.location.href = '/';
+      });
+    </script>
+  </body>
+</html>

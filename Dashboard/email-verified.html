@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Email подтвержден</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      body { background:#0c0c0e; color:#fff; }
+      .gold-gradient { background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); }
+    </style>
+  </head>
+  <body class="min-h-screen flex items-center justify-center px-6">
+    <div class="max-w-md w-full bg-[#141417] border border-white/10 rounded-[2.5rem] p-10 text-center">
+      <div class="text-3xl mb-4">✅ Email подтвержден!</div>
+      <p class="text-white/60 mb-8">Ваш аккаунт активирован. Теперь вы можете войти в личный кабинет.</p>
+      <button id="go-login" class="w-full gold-gradient text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs">
+        Перейти в личный кабинет
+      </button>
+      <p class="text-white/40 mt-6 text-xs">Или войдите через страницу логина.</p>
+    </div>
+    <script>
+      document.getElementById('go-login').addEventListener('click', () => {
+        window.location.href = '/login.html';
+      });
+    </script>
+  </body>
+</html>

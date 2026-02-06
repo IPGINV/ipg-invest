@@ -1,0 +1,26 @@
+{
+  "name": "ipg-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node index.js",
+    "bot": "node telegram-bot.js",
+    "db:apply": "node scripts/apply-schema.js",
+    "db:seed:test": "node scripts/create-test-user.js"
+  },
+  "dependencies": {
+    "axios": "latest",
+    "bcryptjs": "latest",
+    "cors": "latest",
+    "dotenv": "latest",
+    "express": "latest",
+    "jsonwebtoken": "latest",
+    "node-telegram-bot-api": "latest",
+    "nodemailer": "latest",
+    "pg": "latest",
+    "redis": "latest"
+  }
+}

@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Imperial Pure Gold — Host</title>
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        background: #0a0a0a;
+        color: #fff;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      }
+      .host-shell {
+        display: grid;
+        gap: 20px;
+        padding: 20px;
+      }
+      .host-title {
+        font-size: 14px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #b58f2d;
+      }
+      ipg-mfe {
+        display: block;
+        border: 1px solid #1c1c1c;
+        border-radius: 16px;
+        overflow: hidden;
+        min-height: 320px;
+        background: #111;
+      }
+    </style>
+  </head>
+  <body data-host-token="ipg-admin-access" data-admin-url="http://localhost:5177">
+    <div class="host-shell">
+      <div class="host-title">Imperial Pure Gold Host</div>
+
+      <ipg-mfe
+        data-element="ipg-info"
+        data-src="http://localhost:5173/index.tsx"
+        data-api-base="http://localhost:3001"
+        data-user-id="1"
+      ></ipg-mfe>
+
+      <ipg-mfe
+        data-element="ipg-dashboard"
+        data-src="http://localhost:5174/index.tsx"
+        data-api-base="http://localhost:3001"
+        data-user-id="1"
+      ></ipg-mfe>
+
+      <ipg-mfe
+        data-element="ipg-wallet"
+        data-src="http://localhost:5175/index.tsx"
+        data-api-base="http://localhost:3001"
+        data-user-id="1"
+      ></ipg-mfe>
+
+      <ipg-mfe
+        data-element="ipg-invest"
+        data-src="http://localhost:5176/index.tsx"
+        data-api-base="http://localhost:3001"
+        data-user-id="1"
+      ></ipg-mfe>
+
+      <ipg-mfe
+        data-element="ipg-calculator"
+        data-src="http://localhost:5178/index.tsx"
+        data-api-base="http://localhost:3001"
+        data-dashboard-url="http://localhost:5174"
+      ></ipg-mfe>
+
+      <ipg-mfe
+        data-element="ipg-admin"
+        data-src="http://localhost:5177/index.tsx"
+        data-api-base="http://localhost:3001"
+        data-user-id="1"
+      ></ipg-mfe>
+    </div>
+
+    <script type="module" src="./ipg.js"></script>
+  </body>
+</html>
