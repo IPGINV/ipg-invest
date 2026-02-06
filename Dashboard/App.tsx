@@ -45,34 +45,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
   const [lang, setLang] = useState<'en' | 'ru'>('ru');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [requiresLogin, setRequiresLogin] = useState(false);
-  const [usePrefillFallback, setUsePrefillFallback] = useState(false);
   const t = locales[lang];
-  const prefillParams = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
-    const investorId = params.get('investorId')?.trim() || '';
-    const email = params.get('email')?.trim() || '';
-    const fullName = params.get('fullName')?.trim() || '';
-    if (!investorId && !email && !fullName) return null;
-    const resolvedId = investorId || 'local';
-    return {
-      investorId: resolvedId,
-      email,
-      fullName
-    };
-  }, []);
-  const prefillUser = useMemo<User | null>(() => {
-    if (!prefillParams) return null;
-    return {
-      id: prefillParams.investorId,
-      email: prefillParams.email || '',
-      investorId: prefillParams.investorId,
-      tokenBalance: 0,
-      fullName: prefillParams.fullName || '',
-      passportData: '',
-      telegram: '',
-      cryptoWallet: ''
-    };
-  }, [prefillParams]);
   const buildFallbackContract = useCallback((investorId?: string): Contract => {
     const startDate = formatDate(new Date());
     const endDate = formatDate(new Date(new Date().setMonth(new Date().getMonth() + 6)));
@@ -92,22 +65,9 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
       const storedUserId = localStorage.getItem('ipg_user_id');
       const resolvedUserId = userId || storedUserId || '';
 
-      if (usePrefillFallback && token && resolvedUserId) {
-        setUsePrefillFallback(false);
-      } else if (usePrefillFallback) {
-        return;
-      }
-
+      // Всегда требуем реальный токен и userId для доступа к Dashboard
       if (!token || !resolvedUserId) {
-        if (prefillUser) {
-          setUser(prefillUser);
-          setContract(buildFallbackContract(prefillUser.investorId));
-          setTransactions([]);
-          setAuthStatus(AuthStatus.AUTHENTICATED);
-          setActiveTab('profile');
-          setUsePrefillFallback(true);
-          return;
-        }
+        setAuthStatus(AuthStatus.UNAUTHENTICATED);
         if (isHost) {
           setRequiresLogin(true);
           return;
@@ -168,19 +128,21 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
         setTransactions(nextTransactions);
         setAuthStatus(AuthStatus.AUTHENTICATED);
       } catch (err) {
-        console.error(err);
-        if (prefillUser) {
-          setUser(prefillUser);
-          setContract(buildFallbackContract(prefillUser.investorId));
-          setTransactions([]);
-          setAuthStatus(AuthStatus.AUTHENTICATED);
-          setActiveTab('profile');
-          setUsePrefillFallback(true);
+        console.error('Failed to fetch user data:', err);
+        // При ошибке API всегда требуем повторный вход
+        localStorage.removeItem('ipg_token');
+        localStorage.removeItem('ipg_refresh_token');
+        localStorage.removeItem('ipg_user_id');
+        setAuthStatus(AuthStatus.UNAUTHENTICATED);
+        if ((window as any).__IPG_HOST) {
+          setRequiresLogin(true);
           return;
         }
-        setAuthStatus(AuthStatus.UNAUTHENTICATED);
+        if (window.location.pathname !== '/login.html') {
+          window.location.href = '/login.html';
+        }
       }
-  }, [apiBase, userId, buildFallbackContract, prefillUser, usePrefillFallback]);
+  }, [apiBase, userId, buildFallbackContract]);
 
   useEffect(() => {
     fetchUserData();
@@ -233,11 +195,6 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
 
   const handleUpdateUser = async (updatedData: Partial<User>) => {
     if (!user) return;
-    if (usePrefillFallback) {
-      const nextUser = { ...user, ...updatedData };
-      setUser(nextUser);
-      return;
-    }
     const base = apiBase || (window as any).__IPG_API_BASE || 'http://localhost:3001';
     const payload: Record<string, string> = {};
     if (updatedData.email !== undefined) payload.email = updatedData.email;
@@ -260,9 +217,6 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
 
   const handlePasswordChange = async (currentPassword: string, newPassword: string) => {
     if (!user) return;
-    if (usePrefillFallback) {
-      throw new Error('Password update unavailable without session');
-    }
     const base = apiBase || (window as any).__IPG_API_BASE || 'http://localhost:3001';
     const res = await fetch(`${base}/users/${user.id}/password`, {
       method: 'POST',

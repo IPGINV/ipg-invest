@@ -22,9 +22,8 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
   const [currencyRates, setCurrencyRates] = useState({ AED: '3.67', RUB: '91.42' });
 
   useEffect(() => {
-    const METAL_PRICE_API_KEY = 'd74227f0722d7eb9cf7b1dd6ebc5cad6';
-    const CACHE_KEY = 'imperial_gold_price_data_v4';
-    const CACHE_EXPIRY = 1000 * 60 * 60;
+    const CACHE_KEY = 'imperial_gold_price_data_v5';
+    const CACHE_EXPIRY = 1000 * 60 * 60; // 1 час
 
     const applyPrice = (price: number, rates: { AED: number; RUB: number }) => {
       setCurrentPrice(price);
@@ -48,25 +47,37 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
           }
         }
 
-        const response = await fetch(
-          `https://api.metalpriceapi.com/v1/latest?api_key=${METAL_PRICE_API_KEY}&base=USD&currencies=XAU,AED,RUB`
-        );
-        const result = await response.json();
-        if (result.success && result.rates) {
-          const goldPricePerOunce = 1 / result.rates.XAU;
-          const livePrice = Math.round(goldPricePerOunce || 2780);
-          const newRates = {
-            AED: Number(result.rates.AED.toFixed(2)) || 3.67,
-            RUB: Number(result.rates.RUB.toFixed(2)) || 91.42
-          };
-          applyPrice(livePrice, newRates);
-          localStorage.setItem(
-            CACHE_KEY,
-            JSON.stringify({ timestamp: Date.now(), lastPrice: livePrice, rates: newRates })
-          );
+        // Используем публичный API для цен на металлы (бесплатный)
+        const [metalResponse, currencyResponse] = await Promise.all([
+          fetch('https://data-asg.goldprice.org/dbXRates/USD'),
+          fetch('https://api.exchangerate-api.com/v4/latest/USD')
+        ]);
+        
+        const metalData = await metalResponse.json();
+        const currencyData = await currencyResponse.json();
+        
+        if (metalData && metalData.items && metalData.items.length > 0) {
+          // Находим цену золота (XAU)
+          const goldItem = metalData.items.find((item: any) => item.curr === 'XAU');
+          if (goldItem) {
+            const goldPricePerOunce = Math.round(goldItem.xauPrice || 2780);
+            
+            const newRates = {
+              AED: Number(currencyData.rates?.AED?.toFixed(2)) || 3.67,
+              RUB: Number(currencyData.rates?.RUB?.toFixed(2)) || 91.42
+            };
+            
+            applyPrice(goldPricePerOunce, newRates);
+            localStorage.setItem(
+              CACHE_KEY,
+              JSON.stringify({ timestamp: Date.now(), lastPrice: goldPricePerOunce, rates: newRates })
+            );
+          }
         }
       } catch (err) {
-        // keep defaults on error
+        console.error('Price fetch error:', err);
+        // Используем актуальные дефолтные значения при ошибке
+        applyPrice(2780, { AED: 3.67, RUB: 91.42 });
       }
     };
 
@@ -93,13 +104,15 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
   
   const openDashboard = () => {
     setIsMenuOpen(false);
-    // Редирект на личный кабинет (Dashboard app)
-    if (onNavigate) onNavigate('profile'); // Открываем профиль
+    // Редирект на страницу входа в Dashboard
+    const isLocal = window.location.hostname === 'localhost';
+    const dashboardUrl = isLocal ? 'http://localhost:3002' : 'https://dashboard.ipg-invest.ae';
+    window.location.href = dashboardUrl;
   };
 
   const openInfoApp = (view: 'project' | 'company') => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:3002' : 'https://info.ipg-invest.ae';
+    const base = isLocal ? 'http://localhost:3003' : 'https://info.ipg-invest.ae';
     const url = new URL(base);
     url.searchParams.set('view', view);
     url.searchParams.set('lang', lang);
@@ -109,9 +122,9 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
 
   const openCalculator = () => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5182' : 'https://ipg-invest.ae';
+    const base = isLocal ? 'http://localhost:5183' : 'https://ipg-invest.ae';
     setIsMenuOpen(false);
-    window.location.href = base;
+    window.location.href = `${base}?view=calculator`;
   };
 
   return (

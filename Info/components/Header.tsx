@@ -89,10 +89,10 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
     const isLocal = window.location.hostname === 'localhost';
     if (isLocal) {
       const ports: Record<typeof app, number> = {
-        dashboard: 3000,
-        wallet: 3003,
-        invest: 5182,
-        info: 3002
+        dashboard: 3002,
+        wallet: 3004,
+        invest: 5183,
+        info: 3003
       };
       return `http://localhost:${ports[app]}`;
     }
@@ -115,9 +115,9 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
 
   const openCalculator = () => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5182' : 'https://ipg-invest.ae';
+    const base = isLocal ? 'http://localhost:5183' : 'https://ipg-invest.ae';
     setIsMenuOpen(false);
-    window.location.href = base;
+    window.location.href = `${base}?view=calculator`;
   };
 
   return (

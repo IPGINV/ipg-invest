@@ -28,27 +28,27 @@ const Header: React.FC<HeaderProps> = ({
     const isLocal = window.location.hostname === 'localhost';
     if (isLocal) {
       const ports: Record<typeof app, number> = {
-        dashboard: 5174,
-        info: 5173,
-        invest: 5176,
-        wallet: 5175
+        dashboard: 3002,
+        info: 3003,
+        invest: 5183,
+        wallet: 3004
       };
       return `http://localhost:${ports[app]}`;
     }
 
-    const base = 'https://ipg-invest.ae';
-    const paths: Record<typeof app, string> = {
-      dashboard: '/dashboard',
-      info: '/info',
-      invest: '/',
-      wallet: '/wallet'
+    // Production: поддомены
+    const subdomains: Record<typeof app, string> = {
+      dashboard: 'dashboard.ipg-invest.ae',
+      info: 'info.ipg-invest.ae',
+      invest: 'ipg-invest.ae',
+      wallet: 'wallet.ipg-invest.ae'
     };
-    return `${base}${paths[app]}`;
+    return `https://${subdomains[app]}`;
   };
 
   const openInfoView = (view: 'company' | 'project') => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5173' : 'https://ipg-invest.ae/info';
+    const base = isLocal ? 'http://localhost:3003' : 'https://info.ipg-invest.ae';
     const url = new URL(base);
     url.searchParams.set('view', view);
     setIsMenuOpen(false);
@@ -62,9 +62,9 @@ const Header: React.FC<HeaderProps> = ({
 
   const openCalculator = () => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5178' : 'https://ipg-invest.ae/calculator';
+    const base = isLocal ? 'http://localhost:5183' : 'https://ipg-invest.ae';
     setIsMenuOpen(false);
-    window.location.href = base;
+    window.location.href = `${base}?view=calculator`;
   };
 
   return (

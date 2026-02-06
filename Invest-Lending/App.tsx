@@ -356,16 +356,16 @@ const HeroTextSlider = ({ slides }: { slides: string[] }) => {
   }, [slides.length]);
 
   return (
-    <div className="relative h-32 md:h-40 w-full max-w-2xl mb-12 overflow-hidden flex flex-col justify-center">
+    <div className="relative h-32 md:h-40 w-full max-w-2xl mb-8 md:mb-12 overflow-hidden flex flex-col justify-center px-2">
       {slides.map((text, i) => (
         <div 
           key={i}
-          className={`absolute inset-0 flex items-center justify-center lg:justify-start transition-all duration-1000 ease-in-out ${
+          className={`absolute inset-0 flex items-center justify-center lg:justify-start transition-all duration-1000 ease-in-out px-2 ${
             i === current ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95 pointer-events-none'
           }`}
         >
-          <div className="flex gap-4 items-start border-l-4 border-[#d4af37] pl-6 md:pl-8 py-2">
-            <p className="text-[#f0f0f0]/90 text-xl md:text-3xl font-medium leading-tight md:leading-snug italic drop-shadow-lg text-center lg:text-left">
+          <div className="flex gap-4 items-start border-l-4 border-[#d4af37] pl-4 md:pl-8 py-2 max-w-full">
+            <p className="text-[#f0f0f0]/90 text-lg md:text-3xl font-medium leading-tight md:leading-snug italic drop-shadow-lg text-center lg:text-left break-words">
               {text}
             </p>
           </div>
@@ -465,6 +465,19 @@ export default function App({ apiBase }: AppProps) {
     if (!apiBase) return;
     fetch(`${apiBase}/health`).catch(() => {});
   }, [apiBase]);
+
+  // Проверка URL параметров для прямого открытия калькулятора
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const view = params.get('view');
+    const stepParam = params.get('step');
+    
+    if (view === 'calculator' || stepParam === 'SIMULATION') {
+      setStep('SIMULATION');
+      // Очищаем параметры из URL после обработки
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem('ipg:locked-amount');
@@ -613,30 +626,24 @@ export default function App({ apiBase }: AppProps) {
   };
 
   const handleOpenDashboard = () => {
-    if (registrationData) {
-      const isLocal = window.location.hostname === 'localhost';
-      const base = isLocal ? 'http://localhost:3000' : 'https://dashboard.ipg-invest.ae';
-      const url = new URL(base);
-      url.searchParams.set('investorId', registrationData.investorId);
-      url.searchParams.set('email', registrationData.email);
-      window.location.href = url.toString();
-      return;
-    }
-    window.location.href = buildLoginUrl();
+    // Всегда редирект на страницу входа Dashboard
+    const isLocal = window.location.hostname === 'localhost';
+    const dashboardUrl = isLocal ? 'http://localhost:3002' : 'https://dashboard.ipg-invest.ae';
+    window.location.href = dashboardUrl;
   };
 
   const openInfoView = (view: 'company' | 'project') => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:3002' : 'https://info.ipg-invest.ae';
+    const base = isLocal ? 'http://localhost:3003' : 'https://info.ipg-invest.ae';
     const url = new URL(base);
     url.searchParams.set('view', view);
+    url.searchParams.set('lang', lang);
     window.location.href = url.toString();
   };
 
   const openCalculator = () => {
-    const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:3003' : 'https://wallet.ipg-invest.ae';
-    window.location.href = base;
+    setIsMenuOpen(false);
+    nextStep('SIMULATION');
   };
 
 
@@ -644,7 +651,7 @@ export default function App({ apiBase }: AppProps) {
   const yearlyGrowth = marketData.length > 1 ? (((marketData[marketData.length - 1].price - marketData[0].price) / marketData[0].price) * 100).toFixed(1) : '8.4';
 
   return (
-    <div className="min-h-screen flex flex-col selection:bg-[#d4af37] selection:text-black font-inter text-[#f0f0f0]">
+    <div className="min-h-screen flex flex-col selection:bg-[#d4af37] selection:text-black font-inter text-[#f0f0f0] overflow-x-hidden">
       <InteractiveBackground />
 
       {/* 1. TOP MARQUEE */}
@@ -660,7 +667,7 @@ export default function App({ apiBase }: AppProps) {
       </div>
 
       {/* 2. HEADER */}
-      <header className="fixed top-10 w-full z-[90] bg-[#141417]/25 backdrop-blur-3xl border-b border-white/5 px-4 md:px-12 h-20 flex justify-between items-center">
+      <header className="fixed top-10 w-full z-[90] bg-[#141417]/25 backdrop-blur-3xl border-b border-white/5 px-4 md:px-12 h-20 flex justify-between items-center overflow-hidden">
         <div className="flex items-center gap-3 md:gap-5 cursor-pointer group" onClick={() => setIsMenuOpen(true)}>
           <div className="flex items-center gap-2 md:gap-3 bg-white/5 p-1 pr-4 rounded-2xl border border-white/10 group-hover:bg-white/10 transition-all">
             <div className="w-10 h-10 md:w-11 md:h-11 gold-gradient rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
@@ -747,17 +754,17 @@ export default function App({ apiBase }: AppProps) {
       )}
 
       {/* MAIN CONTAINER */}
-      <main className="relative z-10 pt-40 md:pt-56 pb-24 px-6 md:px-12 flex-1 flex flex-col items-center">
+      <main className="relative z-10 pt-40 md:pt-56 pb-24 px-4 md:px-12 flex-1 flex flex-col items-center overflow-hidden">
         {step === 'HERO' && (
-          <div ref={heroRef} className="w-full max-w-7xl grid lg:grid-cols-2 gap-24 items-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-              <div className="inline-flex items-center gap-4 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full mb-12 pulse-gold">
+          <div ref={heroRef} className="w-full max-w-7xl grid lg:grid-cols-2 gap-12 md:gap-24 items-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full overflow-hidden px-2">
+              <div className="inline-flex items-center gap-4 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full mb-8 md:mb-12 pulse-gold">
                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_12px_green]"></span>
                  <span className="text-[11px] text-white/80 font-bold tracking-[0.2em] uppercase">{t.heroBadge}</span>
               </div>
-              <h1 className="text-5xl md:text-8xl lg:text-9xl font-playfair font-black text-white mb-10 leading-[1.1] md:leading-[1] drop-shadow-md">{t.heroTitle} <br/> <span className="text-gold italic">{t.heroTitleGold}</span></h1>
+              <h1 className="text-4xl md:text-7xl lg:text-9xl font-playfair font-black text-white mb-8 md:mb-10 leading-[1.15] md:leading-[1] drop-shadow-md break-words w-full">{t.heroTitle} <br/> <span className="text-gold italic">{t.heroTitleGold}</span></h1>
               <HeroTextSlider slides={t.heroSlider} />
-              <div className="flex flex-col sm:flex-row gap-6 w-full max-w-lg lg:max-w-none items-center lg:items-start px-4 md:px-0">
+              <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full max-w-lg lg:max-w-none items-center lg:items-start px-2 md:px-0">
                 <button onClick={() => nextStep('SIMULATION')} className="gold-gradient w-full lg:w-auto lg:px-16 py-7 rounded-3xl text-black font-extrabold text-xl uppercase tracking-widest shadow-2xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center">{t.heroBtnStart} <ChevronRight className="inline ml-2" size={28} /></button>
                 <div className="flex gap-4 w-full">
                   <button
@@ -780,8 +787,8 @@ export default function App({ apiBase }: AppProps) {
                 <div className="flex items-center gap-4"><Layers size={30} className="text-[#d4af37]" /><span className="text-[10px] font-black uppercase text-white tracking-[0.4em]">{t.heroCompliance[2]}</span></div>
               </div>
             </div>
-            <div className="relative group lg:mt-0 mt-12 w-full max-w-2xl mx-auto px-2 md:px-0">
-              <div className="glass-card rounded-[3.5rem] p-8 md:p-12 border-white/[0.08] relative overflow-hidden group shadow-2xl">
+            <div className="relative group lg:mt-0 mt-8 md:mt-12 w-full max-w-2xl mx-auto px-2 md:px-0">
+              <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-12 border-white/[0.08] relative overflow-hidden group shadow-2xl">
                  <div className="flex justify-between items-center mb-10">
                     <div className="flex flex-col">
                       <span className="text-[#d4af37] text-[10px] font-black uppercase tracking-[0.4em] mb-2">{t.heroCardValuation}</span>
@@ -800,31 +807,31 @@ export default function App({ apiBase }: AppProps) {
         )}
 
         {step === 'SIMULATION' && (
-          <div className="w-full max-w-7xl animate-in slide-in-from-right duration-700 flex flex-col items-center">
+          <div className="w-full max-w-7xl animate-in slide-in-from-right duration-700 flex flex-col items-center px-2">
             <div className="hidden lg:block text-center mb-20 px-4">
-               <h2 className="text-4xl md:text-7xl font-playfair font-black text-white mb-8 tracking-tight">{t.calcTitle} <span className="text-gold italic">{t.calcTitleGold}</span></h2>
-               <p className="text-white/50 text-base md:text-xl max-w-3xl mx-auto font-medium">{t.calcDesc}</p>
+               <h2 className="text-4xl md:text-7xl font-playfair font-black text-white mb-8 tracking-tight break-words">{t.calcTitle} <span className="text-gold italic">{t.calcTitleGold}</span></h2>
+               <p className="text-white/50 text-base md:text-xl max-w-3xl mx-auto font-medium break-words">{t.calcDesc}</p>
             </div>
 
-            <div className="grid lg:grid-cols-12 gap-12 items-stretch w-full px-4 md:px-0">
+            <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-stretch w-full px-2 md:px-4 lg:px-0">
               <div className="lg:col-span-7 order-1 lg:order-1">
-                <div className="glass-card rounded-[3.5rem] h-full flex flex-col border-white/[0.08] relative overflow-hidden group shadow-2xl min-h-[500px] md:min-h-[600px]">
+                <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] h-full flex flex-col border-white/[0.08] relative overflow-hidden group shadow-2xl min-h-[500px] md:min-h-[600px]">
                   <div className="absolute inset-0 z-0">
                     <img src={companyCards[currentCard].image} className="w-full h-full object-cover transition-opacity duration-1000 opacity-40 group-hover:scale-105 transition-transform duration-[4s]" alt="Context" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-transparent"></div>
                   </div>
-                  <div className="relative z-10 flex flex-col h-full p-10 md:p-16">
-                    <div className="flex items-center gap-6 mb-auto">
-                      <div className="w-16 h-16 gold-gradient rounded-2xl flex items-center justify-center shadow-2xl flex-shrink-0">
+                  <div className="relative z-10 flex flex-col h-full p-6 md:p-16">
+                    <div className="flex items-center gap-4 md:gap-6 mb-auto">
+                      <div className="w-14 h-14 md:w-16 md:h-16 gold-gradient rounded-2xl flex items-center justify-center shadow-2xl flex-shrink-0">
                         {React.cloneElement(companyCards[currentCard].icon as React.ReactElement, { className: "text-black" })}
                       </div>
                       <div>
-                        <h3 className="text-2xl md:text-4xl font-playfair font-black text-white uppercase tracking-tight">Imperial Pure Gold</h3>
+                        <h3 className="text-xl md:text-4xl font-playfair font-black text-white uppercase tracking-tight break-words">Imperial Pure Gold</h3>
                         <p className="text-[#d4af37] text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Institutional Standard</p>
                       </div>
                     </div>
-                    <div className="mt-12 mb-16 space-y-12 relative">
-                      <h4 className="text-3xl md:text-5xl font-playfair font-black text-white leading-tight mb-8">{companyCards[currentCard].title}</h4>
+                    <div className="mt-8 md:mt-12 mb-12 md:mb-16 space-y-8 md:space-y-12 relative">
+                      <h4 className="text-2xl md:text-5xl font-playfair font-black text-white leading-tight mb-6 md:mb-8 break-words">{companyCards[currentCard].title}</h4>
                       <AnimatedParagraphs keyId={`${lang}-${currentCard}`} paragraphs={companyCards[currentCard].paragraphs} />
                     </div>
                     <div className="mt-auto flex items-center justify-between">
@@ -843,7 +850,7 @@ export default function App({ apiBase }: AppProps) {
               </div>
               
               <div className="lg:col-span-5 order-2 lg:order-2 flex flex-col">
-                <div className="glass-card rounded-[3.5rem] p-8 md:p-12 border-white/[0.08] flex flex-col h-full shadow-2xl">
+                <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-12 border-white/[0.08] flex flex-col h-full shadow-2xl">
                    <div className="mb-8">
                       <button onClick={openRegistrationGeneric} className="gold-gradient w-full py-7 rounded-[2rem] text-black font-black text-lg md:text-xl uppercase tracking-[0.15em] shadow-xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center group">
                         {t.calcBtnActivate} <ChevronRight className="inline ml-2 group-hover:translate-x-1 transition-transform" size={24} />
@@ -913,19 +920,19 @@ export default function App({ apiBase }: AppProps) {
         )}
 
         {step === 'REGISTRATION' && (
-           <div className="w-full max-w-6xl flex flex-col items-center animate-in zoom-in-95 duration-700 mt-12 text-center px-4">
-              <div className="flex flex-col gap-8 text-center mb-16">
-                 <h2 className="text-5xl md:text-7xl font-playfair font-black text-white leading-tight">{t.regTitle} <br/> <span className="text-gold italic">{t.regTitleGold}</span></h2>
-                 <p className="text-lg md:text-2xl text-white/60 leading-relaxed max-w-2xl font-medium mx-auto">{t.regDesc}</p>
+           <div className="w-full max-w-6xl flex flex-col items-center animate-in zoom-in-95 duration-700 mt-12 text-center px-4 overflow-hidden">
+              <div className="flex flex-col gap-8 text-center mb-16 w-full">
+                 <h2 className="text-4xl md:text-7xl font-playfair font-black text-white leading-tight break-words px-2">{t.regTitle} <br/> <span className="text-gold italic">{t.regTitleGold}</span></h2>
+                 <p className="text-base md:text-2xl text-white/60 leading-relaxed max-w-2xl font-medium mx-auto break-words px-2">{t.regDesc}</p>
                  <div className="flex flex-col items-center gap-4 mt-8 cursor-pointer group" onClick={() => registrationRef.current?.scrollIntoView({ behavior: 'smooth' })}>
                     <span className="text-[#d4af37] font-black uppercase tracking-[0.4em] text-sm group-hover:scale-105 transition-transform">{t.regScrollLabel}</span>
                     <ArrowDown className="text-[#d4af37] animate-bounce" size={32} />
                  </div>
               </div>
 
-              <div ref={registrationRef} className="glass-card p-10 md:p-16 rounded-[4rem] relative overflow-hidden max-w-md mx-auto w-full border-[#d4af37]/15 mb-24">
+              <div ref={registrationRef} className="glass-card p-6 md:p-16 rounded-[2rem] md:rounded-[4rem] relative overflow-hidden max-w-md mx-auto w-full border-[#d4af37]/15 mb-24">
                 <div className="w-20 h-20 md:w-24 md:h-24 gold-gradient rounded-[2rem] flex items-center justify-center mx-auto mb-12 shadow-2xl border-4 border-[#141417]/30"><Lock className="text-black" size={36} /></div>
-                <h2 className="text-3xl md:text-5xl font-playfair font-black text-white text-center mb-10 uppercase tracking-tighter">{t.regFormTitle}</h2>
+                <h2 className="text-2xl md:text-5xl font-playfair font-black text-white text-center mb-10 uppercase tracking-tighter break-words px-2">{t.regFormTitle}</h2>
                 {lockedAmount !== null && (
                   <div className="mb-10 text-center">
                     <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">
@@ -1017,13 +1024,13 @@ export default function App({ apiBase }: AppProps) {
         )}
 
         {step === 'SUCCESS' && (
-          <div className="w-full max-w-5xl flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000 mt-20 text-center px-4">
+          <div className="w-full max-w-5xl flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000 mt-20 text-center px-4 overflow-hidden">
             <div className="w-40 h-40 md:w-48 md:h-48 bg-green-500/15 rounded-full flex items-center justify-center mb-16 border border-green-500/30 relative">
               <Check className="text-green-500" size={80} strokeWidth={3} />
               <div className="absolute -top-4 -right-4 md:-top-6 md:-right-6 bg-[#d4af37] text-black font-black px-4 py-2 md:px-5 md:py-3 rounded-2xl text-xs md:text-base animate-bounce">{t.successBadge}</div>
             </div>
-            <h2 className="text-5xl md:text-8xl font-playfair font-black text-white mb-8 tracking-tighter">{t.successTitle}</h2>
-            <p className="text-xl md:text-3xl font-medium text-white/50 mb-16 max-w-3xl">{t.successDesc}</p>
+            <h2 className="text-4xl md:text-8xl font-playfair font-black text-white mb-8 tracking-tighter break-words px-2">{t.successTitle}</h2>
+            <p className="text-lg md:text-3xl font-medium text-white/50 mb-16 max-w-3xl break-words px-2">{t.successDesc}</p>
             <div className="grid md:grid-cols-2 gap-10 w-full max-w-4xl">
                <div className="glass-card p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center gap-4 border-white/[0.08]"><span className="text-[12px] font-bold uppercase tracking-[0.4em] text-white/30">{t.successLabelTarget}</span><span className="text-4xl md:text-7xl font-black text-white tracking-tighter">${finalAmount.toLocaleString()}</span></div>
                <div className="glass-card p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center justify-center gap-8 border-[#d4af37]/25">
@@ -1041,38 +1048,45 @@ export default function App({ apiBase }: AppProps) {
       </main>
 
       {/* DYNAMIC BOTTOM SHEET (GOLD CHART) */}
-      <div className={`fixed left-0 right-0 bottom-0 z-[150] flex flex-col items-center transition-transform duration-700 cubic-bezier(0.19, 1, 0.22, 1) ${drawerState === 'hidden' ? 'translate-y-full' : drawerState === 'preview' ? 'translate-y-[calc(100%-80px)]' : 'translate-y-0'}`}>
-        <div className="w-full max-w-5xl bg-[#141417]/98 backdrop-blur-3xl border-x border-t border-white/10 rounded-t-[3rem] shadow-[0_-40px_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col h-[98vh]">
-          <div className="flex items-center justify-between px-8 md:px-12 py-6 cursor-pointer border-b border-white/5 active:bg-white/5 transition-colors" onClick={() => setDrawerState(prev => prev === 'expanded' ? 'preview' : 'expanded')}>
-            <div className="flex items-center gap-6">
-              <div className="w-10 h-10 gold-gradient rounded-xl flex items-center justify-center shadow-lg"><Gem className="text-black" size={20} /></div>
+      <div className={`fixed left-0 right-0 bottom-0 z-[150] flex flex-col items-center transition-transform duration-700 cubic-bezier(0.19, 1, 0.22, 1) ${drawerState === 'hidden' ? 'translate-y-full' : drawerState === 'preview' ? 'translate-y-[calc(100%-70px)]' : 'translate-y-0'} px-2 md:px-0`}>
+        <div className="w-full max-w-5xl bg-[#141417]/98 backdrop-blur-3xl border-x border-t border-white/10 rounded-t-[2rem] md:rounded-t-[3rem] shadow-[0_-40px_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col h-[95vh] md:h-[98vh]">
+          <div className="flex items-center justify-between px-4 md:px-12 py-4 md:py-6 cursor-pointer border-b border-white/5 active:bg-white/5 transition-colors" onClick={() => setDrawerState(prev => prev === 'expanded' ? 'preview' : 'expanded')}>
+            <div className="flex items-center gap-3 md:gap-6">
+              <div className="w-9 h-9 md:w-10 md:h-10 gold-gradient rounded-xl flex items-center justify-center shadow-lg"><Gem className="text-black" size={18} /></div>
               <div className="flex flex-col">
-                <span className="text-[#d4af37] text-[10px] font-black uppercase tracking-[0.4em]">{t.drawerLabelBench}</span>
-                <div className="flex items-baseline gap-3"><span className="text-2xl md:text-3xl font-black text-white tracking-tighter">${currentPrice.toLocaleString()}</span><span className="text-[10px] md:text-[12px] text-green-500 font-bold">+{yearlyGrowth}% {t.drawerLabelYear}</span></div>
+                <span className="text-[#d4af37] text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em]">{t.drawerLabelBench}</span>
+                <div className="flex items-baseline gap-2 md:gap-3">
+                  <span className="text-xl md:text-3xl font-black text-white tracking-tighter">${currentPrice.toLocaleString()}</span>
+                  <span className="text-[9px] md:text-[12px] text-green-500 font-bold">+{yearlyGrowth}%</span>
+                </div>
               </div>
             </div>
-            <button className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#d4af37]">{drawerState === 'expanded' ? <ChevronDown size={28} /> : <ChevronUp size={28} />}</button>
+            <button className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#d4af37]">{drawerState === 'expanded' ? <ChevronDown size={24} /> : <ChevronUp size={24} />}</button>
           </div>
 
-          <div className="flex-1 p-8 md:p-12 flex flex-col overflow-hidden">
-            <div className="flex flex-col items-center text-center mb-10 gap-8">
-               <div className="max-w-2xl">
-                  <h3 className="text-3xl md:text-5xl font-playfair font-black text-white mb-4 tracking-tight">{t.drawerChartTitle} <span className="text-gold italic">{t.drawerChartTitleGold}</span></h3>
-                  <p className="text-white/40 text-sm md:text-lg font-medium">{t.drawerChartDesc}</p>
+          <div className="flex-1 p-4 md:p-12 flex flex-col overflow-hidden">
+            <div className="hidden md:flex flex-col items-center text-center mb-10 gap-8 px-2">
+               <div className="max-w-2xl w-full">
+                  <h3 className="text-2xl md:text-5xl font-playfair font-black text-white mb-4 tracking-tight break-words px-2">{t.drawerChartTitle} <span className="text-gold italic">{t.drawerChartTitleGold}</span></h3>
+                  <p className="text-white/40 text-xs md:text-lg font-medium break-words px-2">{t.drawerChartDesc}</p>
                </div>
             </div>
-            <div className="bg-white/5 border border-white/10 rounded-2xl p-6 w-full h-[40%] min-h-[260px] max-h-[420px] flex flex-col relative overflow-hidden group">
-              <div className="absolute top-0 right-0 w-32 h-32 bg-[#d4af37]/5 blur-[60px] rounded-full pointer-events-none" />
-              <div className="flex justify-between items-center mb-6 z-10">
-                <h3 className="text-sm font-bold uppercase tracking-widest text-white/80">
-                  Gold Price (USD/oz)
-                </h3>
-                <div className="flex bg-black/20 p-1 rounded-lg">
+            <div className="chart-container bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-6 w-full h-[55%] md:h-[40%] min-h-[280px] md:min-h-[320px] max-h-[500px] flex flex-col relative overflow-hidden group shadow-lg">
+              <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-[#d4af37]/5 blur-[60px] rounded-full pointer-events-none" />
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 md:mb-6 gap-3 md:gap-0 z-10">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="w-2 h-2 md:w-3 md:h-3 bg-[#d4af37] rounded-full animate-pulse"></div>
+                  <h3 className="text-xs md:text-sm font-bold uppercase tracking-wider md:tracking-widest text-white/80">
+                    Gold Price
+                  </h3>
+                  <span className="hidden md:inline text-white/40 text-xs">(USD/oz)</span>
+                </div>
+                <div className="flex bg-black/30 p-0.5 md:p-1 rounded-lg border border-white/5">
                   {(['1D', '1W', '1M', '1Y'] as TimeRange[]).map((r) => (
                     <button
                       key={r}
                       onClick={() => setRange(r)}
-                      className={`px-3 py-1 text-[10px] font-bold rounded-md transition-all ${
+                      className={`px-2 md:px-3 py-1 text-[9px] md:text-[10px] font-bold rounded-md transition-all ${
                         range === r
                           ? 'bg-[#d4af37] text-black shadow-lg shadow-[#d4af37]/20'
                           : 'text-white/40 hover:text-white'
@@ -1085,37 +1099,39 @@ export default function App({ apiBase }: AppProps) {
               </div>
               <div className="flex-1 w-full min-h-0 z-10">
                 {drawerState !== 'hidden' && (
-                  <ResponsiveContainer width="100%" height="100%" minHeight={260} minWidth={0}>
-                    <AreaChart data={chartData}>
+                  <ResponsiveContainer width="100%" height="100%" minHeight={220} minWidth={0}>
+                    <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
                     <defs>
                       <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#d4af37" stopOpacity={0.3} />
+                        <stop offset="5%" stopColor="#d4af37" stopOpacity={0.4} />
                         <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
                       </linearGradient>
                     </defs>
-                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="rgba(255,255,255,0.05)" />
+                    <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="rgba(255,255,255,0.03)" />
                     <XAxis
                       dataKey="date"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
-                      dy={10}
+                      tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 600 }}
+                      dy={8}
+                      interval="preserveStartEnd"
                     />
                     <YAxis
                       domain={['auto', 'auto']}
                       orientation="right"
                       axisLine={false}
                       tickLine={false}
-                      tick={{ fill: 'rgba(255,255,255,0.3)', fontSize: 10 }}
-                      dx={10}
+                      tick={{ fill: 'rgba(212,175,55,0.6)', fontSize: 10, fontWeight: 700 }}
+                      dx={8}
                       tickFormatter={(val) => `$${val}`}
+                      width={55}
                     />
                     <Tooltip
                       content={({ active, payload, label }) =>
                         active && payload?.length ? (
-                          <div className="bg-[#141417] border border-[#d4af37]/30 p-2 rounded shadow-xl backdrop-blur-md">
-                            <p className="text-[10px] text-white/60 mb-1">{label}</p>
-                            <p className="text-sm font-bold text-[#d4af37]">
+                          <div className="bg-[#141417]/95 border border-[#d4af37]/40 p-3 rounded-lg shadow-2xl backdrop-blur-md">
+                            <p className="text-[9px] text-white/50 mb-1 font-bold uppercase tracking-wider">{label}</p>
+                            <p className="text-lg font-black text-[#d4af37] tracking-tight">
                               ${payload[0].value?.toFixed(2)}
                             </p>
                           </div>
@@ -1126,25 +1142,40 @@ export default function App({ apiBase }: AppProps) {
                       type="monotone"
                       dataKey="price"
                       stroke="#d4af37"
-                      strokeWidth={2}
+                      strokeWidth={2.5}
                       fillOpacity={1}
                       fill="url(#colorPrice)"
+                      animationDuration={800}
                     />
                     </AreaChart>
                   </ResponsiveContainer>
                 )}
               </div>
             </div>
-            <div className="mt-4 flex justify-between items-center opacity-40">
-               <div className="flex items-center gap-3"><TrendingUp size={16} className="text-[#d4af37]" /><span className="text-[10px] font-bold uppercase tracking-[0.3em]">{t.drawerChartFeed}</span></div>
+            <div className="mt-3 md:mt-4 flex justify-between items-center px-1">
+               <div className="flex items-center gap-2 md:gap-3 opacity-40">
+                 <TrendingUp size={12} className="text-[#d4af37]" />
+                 <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]">{t.drawerChartFeed}</span>
+               </div>
+               <div className="hidden md:flex items-center gap-2 opacity-30">
+                 <div className="w-1.5 h-1.5 bg-[#d4af37] rounded-full"></div>
+                 <span className="text-[8px] font-bold uppercase tracking-wider text-white/60">Live</span>
+               </div>
+            </div>
+            <div className="md:hidden mt-3 px-1">
+              <div className="flex items-center justify-between bg-white/5 rounded-lg p-2 border border-white/5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-white/40">Current</span>
+                <span className="text-base font-black text-[#d4af37]">${currentPrice.toLocaleString()}</span>
+                <span className="text-[9px] font-bold text-green-500">+{yearlyGrowth}%</span>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
       {/* FOOTER */}
-      <footer className="relative z-10 py-12 px-6 md:px-20 bg-[#141417]/90 border-t border-white/5 mt-auto">
-        <div className="max-w-7xl mx-auto flex flex-col gap-12">
+      <footer className="relative z-10 py-12 px-4 md:px-20 bg-[#141417]/90 border-t border-white/5 mt-auto overflow-hidden">
+        <div className="max-w-7xl mx-auto flex flex-col gap-12 w-full">
            <div className="grid grid-cols-2 gap-0 w-full relative">
               <div className="absolute left-1/2 top-2 bottom-2 w-[1px] bg-white/10 -translate-x-1/2"></div>
               <div className="space-y-6 flex flex-col items-center lg:items-start pr-4 md:pr-16 text-center lg:text-left">
