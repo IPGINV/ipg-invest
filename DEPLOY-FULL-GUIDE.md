@@ -226,10 +226,10 @@ mkdir -p ~/projects
 cd ~/projects
 
 # Клонируйте репозиторий (SSH)
-git clone git@github.com:ваш-username/ipg-invest.git
+git clone git@github.com:IPGINV/ipg-invest.git
 
 # Или через HTTPS (если SSH не настроен)
-git clone https://github.com/ваш-username/ipg-invest.git
+git clone https://github.com/IPGINV/ipg-invest.git
 
 # Перейдите в папку проекта
 cd ipg-invest

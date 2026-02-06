@@ -83,7 +83,18 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
 
   const handleNav = (view: string) => {
     setIsMenuOpen(false);
-    if (onNavigate) onNavigate(view);
+    if (view === 'dashboard' || view === 'profile') {
+      // Если уже в Dashboard app, просто переключаем вкладку
+      if (onNavigate) onNavigate(view);
+    } else {
+      if (onNavigate) onNavigate(view);
+    }
+  };
+  
+  const openDashboard = () => {
+    setIsMenuOpen(false);
+    // Редирект на личный кабинет (Dashboard app)
+    if (onNavigate) onNavigate('profile'); // Открываем профиль
   };
 
   const openInfoApp = (view: 'project' | 'company') => {
@@ -202,7 +213,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
           </button>
           
           <div className="flex flex-col gap-12 w-full max-w-lg text-center">
-            <button onClick={() => handleNav('dashboard')} className="group flex flex-col items-center gap-2">
+            <button onClick={openDashboard} className="group flex flex-col items-center gap-2">
               <span className="text-2xl md:text-4xl font-['Playfair_Display'] font-black uppercase tracking-[0.1em] text-black group-hover:text-[#d4af37] transition-all">
                 {t.dashboard}
               </span>
@@ -230,7 +241,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
               <div className="h-[2px] w-0 group-hover:w-24 bg-[#d4af37] transition-all duration-300"></div>
             </button>
 
-            <div className="-mt-[8vh] pt-12 border-t border-black/10 flex flex-col gap-6">
+            <div className="mt-[2vh] md:-mt-[8vh] pt-12 border-t border-black/10 flex flex-col gap-6">
               <a
                 href="https://imperialpuregold.ae"
                 target="_blank"
