@@ -739,7 +739,7 @@ export default function App({ apiBase }: AppProps) {
                 <span className="text-xl font-bold text-white uppercase tracking-wider">{item.label}</span>
               </button>
             ))}
-            <div className="-mt-[8vh] pt-8 border-t border-white/10 flex flex-col gap-4">
+            <div className="mt-[12vh] pt-8 border-t border-white/10 flex flex-col gap-4">
               <a
                 href="https://imperialpuregold.ae"
                 target="_blank"
