@@ -356,16 +356,16 @@ const HeroTextSlider = ({ slides }: { slides: string[] }) => {
   }, [slides.length]);
 
   return (
-    <div className="relative h-32 md:h-40 w-full max-w-2xl mb-8 md:mb-12 overflow-hidden flex flex-col justify-center px-2">
+    <div className="relative h-32 md:h-40 w-full max-w-2xl mb-8 md:mb-12 overflow-hidden flex flex-col justify-center px-4 md:px-2">
       {slides.map((text, i) => (
         <div 
           key={i}
-          className={`absolute inset-0 flex items-center justify-center lg:justify-start transition-all duration-1000 ease-in-out px-2 ${
+          className={`absolute inset-0 flex items-center justify-center lg:justify-start transition-all duration-1000 ease-in-out px-4 md:px-2 ${
             i === current ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-12 scale-95 pointer-events-none'
           }`}
         >
-          <div className="flex gap-4 items-start border-l-4 border-[#d4af37] pl-4 md:pl-8 py-2 max-w-full">
-            <p className="text-[#f0f0f0]/90 text-lg md:text-3xl font-medium leading-tight md:leading-snug italic drop-shadow-lg text-center lg:text-left break-words">
+          <div className="flex gap-4 items-start border-l-4 border-[#d4af37] pl-6 md:pl-8 py-2 max-w-full">
+            <p className="text-[#f0f0f0]/90 text-lg md:text-3xl font-medium leading-tight md:leading-snug italic drop-shadow-lg text-center lg:text-left break-words max-w-full">
               {text}
             </p>
           </div>
@@ -754,17 +754,17 @@ export default function App({ apiBase }: AppProps) {
       )}
 
       {/* MAIN CONTAINER */}
-      <main className="relative z-10 pt-40 md:pt-56 pb-24 px-4 md:px-12 flex-1 flex flex-col items-center overflow-hidden">
+      <main className="relative z-10 pt-40 md:pt-56 pb-24 px-6 md:px-12 flex-1 flex flex-col items-center overflow-hidden">
         {step === 'HERO' && (
           <div ref={heroRef} className="w-full max-w-7xl grid lg:grid-cols-2 gap-12 md:gap-24 items-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full overflow-hidden px-2">
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full overflow-hidden px-4 md:px-2">
               <div className="inline-flex items-center gap-4 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full mb-8 md:mb-12 pulse-gold">
                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_12px_green]"></span>
                  <span className="text-[11px] text-white/80 font-bold tracking-[0.2em] uppercase">{t.heroBadge}</span>
               </div>
-              <h1 className="text-4xl md:text-7xl lg:text-9xl font-playfair font-black text-white mb-8 md:mb-10 leading-[1.15] md:leading-[1] drop-shadow-md break-words w-full">{t.heroTitle} <br/> <span className="text-gold italic">{t.heroTitleGold}</span></h1>
+              <h1 className="text-4xl md:text-7xl lg:text-9xl font-playfair font-black text-white mb-8 md:mb-10 leading-[1.15] md:leading-[1] drop-shadow-md break-words w-full max-w-full">{t.heroTitle} <br/> <span className="text-gold italic">{t.heroTitleGold}</span></h1>
               <HeroTextSlider slides={t.heroSlider} />
-              <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full max-w-lg lg:max-w-none items-center lg:items-start px-2 md:px-0">
+              <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full max-w-lg lg:max-w-none items-center lg:items-start">
                 <button onClick={() => nextStep('SIMULATION')} className="gold-gradient w-full lg:w-auto lg:px-16 py-7 rounded-3xl text-black font-extrabold text-xl uppercase tracking-widest shadow-2xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center">{t.heroBtnStart} <ChevronRight className="inline ml-2" size={28} /></button>
                 <div className="flex gap-4 w-full">
                   <button
@@ -787,8 +787,8 @@ export default function App({ apiBase }: AppProps) {
                 <div className="flex items-center gap-4"><Layers size={30} className="text-[#d4af37]" /><span className="text-[10px] font-black uppercase text-white tracking-[0.4em]">{t.heroCompliance[2]}</span></div>
               </div>
             </div>
-            <div className="relative group lg:mt-0 mt-8 md:mt-12 w-full max-w-2xl mx-auto px-2 md:px-0">
-              <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-12 border-white/[0.08] relative overflow-hidden group shadow-2xl">
+            <div className="relative group lg:mt-0 mt-8 md:mt-12 w-full max-w-2xl mx-auto px-4 md:px-0">
+              <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-8 md:p-12 border-white/[0.08] relative overflow-hidden group shadow-2xl">
                  <div className="flex justify-between items-center mb-10">
                     <div className="flex flex-col">
                       <span className="text-[#d4af37] text-[10px] font-black uppercase tracking-[0.4em] mb-2">{t.heroCardValuation}</span>
@@ -807,26 +807,26 @@ export default function App({ apiBase }: AppProps) {
         )}
 
         {step === 'SIMULATION' && (
-          <div className="w-full max-w-7xl animate-in slide-in-from-right duration-700 flex flex-col items-center px-2">
+          <div className="w-full max-w-7xl animate-in slide-in-from-right duration-700 flex flex-col items-center px-4 md:px-6 lg:px-0">
             <div className="hidden lg:block text-center mb-20 px-4">
                <h2 className="text-4xl md:text-7xl font-playfair font-black text-white mb-8 tracking-tight break-words">{t.calcTitle} <span className="text-gold italic">{t.calcTitleGold}</span></h2>
                <p className="text-white/50 text-base md:text-xl max-w-3xl mx-auto font-medium break-words">{t.calcDesc}</p>
             </div>
 
-            <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-stretch w-full px-2 md:px-4 lg:px-0">
+            <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-stretch w-full px-0 md:px-4 lg:px-0">
               <div className="lg:col-span-7 order-1 lg:order-1">
                 <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] h-full flex flex-col border-white/[0.08] relative overflow-hidden group shadow-2xl min-h-[500px] md:min-h-[600px]">
                   <div className="absolute inset-0 z-0">
                     <img src={companyCards[currentCard].image} className="w-full h-full object-cover transition-opacity duration-1000 opacity-40 group-hover:scale-105 transition-transform duration-[4s]" alt="Context" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-transparent"></div>
                   </div>
-                  <div className="relative z-10 flex flex-col h-full p-6 md:p-16">
+                  <div className="relative z-10 flex flex-col h-full p-8 md:p-16">
                     <div className="flex items-center gap-4 md:gap-6 mb-auto">
                       <div className="w-14 h-14 md:w-16 md:h-16 gold-gradient rounded-2xl flex items-center justify-center shadow-2xl flex-shrink-0">
                         {React.cloneElement(companyCards[currentCard].icon as React.ReactElement, { className: "text-black" })}
                       </div>
-                      <div>
-                        <h3 className="text-xl md:text-4xl font-playfair font-black text-white uppercase tracking-tight break-words">Imperial Pure Gold</h3>
+                      <div className="max-w-full">
+                        <h3 className="text-lg md:text-4xl font-playfair font-black text-white uppercase tracking-tight break-words">Imperial Pure Gold</h3>
                         <p className="text-[#d4af37] text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Institutional Standard</p>
                       </div>
                     </div>
@@ -850,7 +850,7 @@ export default function App({ apiBase }: AppProps) {
               </div>
               
               <div className="lg:col-span-5 order-2 lg:order-2 flex flex-col">
-                <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-6 md:p-12 border-white/[0.08] flex flex-col h-full shadow-2xl">
+                <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-8 md:p-12 border-white/[0.08] flex flex-col h-full shadow-2xl">
                    <div className="mb-8">
                       <button onClick={openRegistrationGeneric} className="gold-gradient w-full py-7 rounded-[2rem] text-black font-black text-lg md:text-xl uppercase tracking-[0.15em] shadow-xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center group">
                         {t.calcBtnActivate} <ChevronRight className="inline ml-2 group-hover:translate-x-1 transition-transform" size={24} />
@@ -920,17 +920,17 @@ export default function App({ apiBase }: AppProps) {
         )}
 
         {step === 'REGISTRATION' && (
-           <div className="w-full max-w-6xl flex flex-col items-center animate-in zoom-in-95 duration-700 mt-12 text-center px-4 overflow-hidden">
+           <div className="w-full max-w-6xl flex flex-col items-center animate-in zoom-in-95 duration-700 mt-12 text-center px-6 md:px-4 overflow-hidden">
               <div className="flex flex-col gap-8 text-center mb-16 w-full">
-                 <h2 className="text-4xl md:text-7xl font-playfair font-black text-white leading-tight break-words px-2">{t.regTitle} <br/> <span className="text-gold italic">{t.regTitleGold}</span></h2>
-                 <p className="text-base md:text-2xl text-white/60 leading-relaxed max-w-2xl font-medium mx-auto break-words px-2">{t.regDesc}</p>
+                 <h2 className="text-4xl md:text-7xl font-playfair font-black text-white leading-tight break-words px-4 md:px-2">{t.regTitle} <br/> <span className="text-gold italic">{t.regTitleGold}</span></h2>
+                 <p className="text-base md:text-2xl text-white/60 leading-relaxed max-w-2xl font-medium mx-auto break-words px-4 md:px-2">{t.regDesc}</p>
                  <div className="flex flex-col items-center gap-4 mt-8 cursor-pointer group" onClick={() => registrationRef.current?.scrollIntoView({ behavior: 'smooth' })}>
                     <span className="text-[#d4af37] font-black uppercase tracking-[0.4em] text-sm group-hover:scale-105 transition-transform">{t.regScrollLabel}</span>
                     <ArrowDown className="text-[#d4af37] animate-bounce" size={32} />
                  </div>
               </div>
 
-              <div ref={registrationRef} className="glass-card p-6 md:p-16 rounded-[2rem] md:rounded-[4rem] relative overflow-hidden max-w-md mx-auto w-full border-[#d4af37]/15 mb-24">
+              <div ref={registrationRef} className="glass-card p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] relative overflow-hidden max-w-md mx-auto w-full border-[#d4af37]/15 mb-24">
                 <div className="w-20 h-20 md:w-24 md:h-24 gold-gradient rounded-[2rem] flex items-center justify-center mx-auto mb-12 shadow-2xl border-4 border-[#141417]/30"><Lock className="text-black" size={36} /></div>
                 <h2 className="text-2xl md:text-5xl font-playfair font-black text-white text-center mb-10 uppercase tracking-tighter break-words px-2">{t.regFormTitle}</h2>
                 {lockedAmount !== null && (
@@ -1024,14 +1024,14 @@ export default function App({ apiBase }: AppProps) {
         )}
 
         {step === 'SUCCESS' && (
-          <div className="w-full max-w-5xl flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000 mt-20 text-center px-4 overflow-hidden">
+          <div className="w-full max-w-5xl flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000 mt-20 text-center px-6 md:px-4 overflow-hidden">
             <div className="w-40 h-40 md:w-48 md:h-48 bg-green-500/15 rounded-full flex items-center justify-center mb-16 border border-green-500/30 relative">
               <Check className="text-green-500" size={80} strokeWidth={3} />
               <div className="absolute -top-4 -right-4 md:-top-6 md:-right-6 bg-[#d4af37] text-black font-black px-4 py-2 md:px-5 md:py-3 rounded-2xl text-xs md:text-base animate-bounce">{t.successBadge}</div>
             </div>
-            <h2 className="text-4xl md:text-8xl font-playfair font-black text-white mb-8 tracking-tighter break-words px-2">{t.successTitle}</h2>
-            <p className="text-lg md:text-3xl font-medium text-white/50 mb-16 max-w-3xl break-words px-2">{t.successDesc}</p>
-            <div className="grid md:grid-cols-2 gap-10 w-full max-w-4xl">
+            <h2 className="text-4xl md:text-8xl font-playfair font-black text-white mb-8 tracking-tighter break-words px-4 md:px-2 max-w-full">{t.successTitle}</h2>
+            <p className="text-lg md:text-3xl font-medium text-white/50 mb-16 max-w-3xl break-words px-4 md:px-2">{t.successDesc}</p>
+            <div className="grid md:grid-cols-2 gap-10 w-full max-w-4xl px-4 md:px-0">
                <div className="glass-card p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center gap-4 border-white/[0.08]"><span className="text-[12px] font-bold uppercase tracking-[0.4em] text-white/30">{t.successLabelTarget}</span><span className="text-4xl md:text-7xl font-black text-white tracking-tighter">${finalAmount.toLocaleString()}</span></div>
                <div className="glass-card p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center justify-center gap-8 border-[#d4af37]/25">
                  <button

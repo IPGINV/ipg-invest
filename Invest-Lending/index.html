@@ -19,6 +19,11 @@
         * {
             word-wrap: break-word;
             overflow-wrap: break-word;
+            box-sizing: border-box;
+        }
+        html {
+            overflow-x: hidden;
+            width: 100%;
         }
         body {
             font-family: 'Inter', sans-serif;
@@ -30,6 +35,13 @@
             -webkit-tap-highlight-color: transparent;
             letter-spacing: -0.01em;
             max-width: 100vw;
+            width: 100%;
+            position: relative;
+        }
+        #root {
+            overflow-x: hidden;
+            width: 100%;
+            min-height: 100vh;
         }
         .font-playfair {
             font-family: 'Playfair Display', serif;
@@ -139,18 +151,33 @@
                 line-height: 1.15 !important; 
                 word-break: break-word !important;
                 hyphens: auto !important;
+                text-align: center !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
             }
             h2, h3 { 
                 word-break: break-word !important;
                 hyphens: auto !important;
+                text-align: center !important;
             }
             body {
                 font-size: 14px;
             }
+            p {
+                text-align: center !important;
+                padding-left: 1rem !important;
+                padding-right: 1rem !important;
+            }
+            button, a {
+                margin-left: auto !important;
+                margin-right: auto !important;
+            }
         }
         @media (max-width: 380px) {
             h1 { 
-                font-size: 2rem !important; 
+                font-size: 2rem !important;
+                padding-left: 1.5rem !important;
+                padding-right: 1.5rem !important;
             }
         }
 
