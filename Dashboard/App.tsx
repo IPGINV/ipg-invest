@@ -175,22 +175,9 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
   }, []);
 
   if (requiresLogin) {
-    return (
-      <div className="min-h-screen bg-[#0c0c0e] flex items-center justify-center p-6 text-center">
-        <div className="max-w-md w-full bg-[#141417] p-10 rounded-[2.5rem] border border-white/5 shadow-2xl">
-          <h2 className="text-xl md:text-2xl font-black mb-4 tracking-tight text-white">Требуется вход</h2>
-          <p className="text-white/40 text-xs md:text-sm mb-8 leading-relaxed font-medium">
-            Для доступа в личный кабинет выполните вход.
-          </p>
-          <a
-            href={loginUrl()}
-            className="block w-full gold-gradient text-black py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-xl active:scale-95 transition-all"
-          >
-            Перейти к логину
-          </a>
-        </div>
-      </div>
-    );
+    // Автоматический редирект на страницу входа
+    window.location.href = loginUrl();
+    return null;
   }
 
   const handleUpdateUser = async (updatedData: Partial<User>) => {
@@ -281,29 +268,11 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
   }
 
   if (authStatus === AuthStatus.UNAUTHENTICATED) {
-    return (
-      <div className="fixed inset-0 bg-[#0c0c0e] flex flex-col items-center justify-center p-6 text-center z-[200]">
-        <div className="max-w-md w-full bg-[#141417] p-10 md:p-12 rounded-[2.5rem] border border-white/5 shadow-2xl animate-in fade-in zoom-in duration-500">
-          <div className="mb-10">
-             <span className="text-2xl md:text-3xl font-black tracking-tighter leading-none font-['Playfair_Display'] text-white">
-                IMPERIAL <span className="gold-text">PURE GOLD</span>
-              </span>
-          </div>
-          <h2 className="text-xl md:text-2xl font-black mb-4 tracking-tight text-white">{lang === 'ru' ? 'Сессия истекла' : 'Session Expired'}</h2>
-          <p className="text-white/40 text-xs md:text-sm mb-10 leading-relaxed font-medium">
-            {lang === 'ru' 
-              ? 'Ваша сессия закончилась из соображений безопасности. Пожалуйста, войдите снова для доступа в личный кабинет.' 
-              : 'Your secure investment session has ended for security reasons. Please sign in again to access your personal dashboard.'}
-          </p>
-          <button 
-            onClick={() => window.location.reload()}
-            className="w-full gold-gradient text-black py-5 rounded-2xl font-black text-xs uppercase tracking-widest hover:shadow-xl active:scale-95 transition-all"
-          >
-            {lang === 'ru' ? 'Вернуться к порталу' : 'Reconnect to Secure Portal'}
-          </button>
-        </div>
-      </div>
-    );
+    // Автоматический редирект на страницу входа
+    if (window.location.pathname !== '/login.html') {
+      window.location.href = '/login.html';
+    }
+    return null;
   }
 
   return (
