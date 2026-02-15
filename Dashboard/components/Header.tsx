@@ -104,15 +104,18 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
   
   const openDashboard = () => {
     setIsMenuOpen(false);
-    // Редирект на страницу входа в Dashboard
+    if (onNavigate) {
+      onNavigate('dashboard');
+      return;
+    }
     const isLocal = window.location.hostname === 'localhost';
-    const dashboardUrl = isLocal ? 'http://localhost:3002' : 'https://dashboard.ipg-invest.ae';
+    const dashboardUrl = isLocal ? 'http://localhost:5174' : 'https://ipg-invest.ae/dashboard';
     window.location.href = dashboardUrl;
   };
 
   const openInfoApp = (view: 'project' | 'company') => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:3003' : 'https://info.ipg-invest.ae';
+    const base = isLocal ? 'http://localhost:5173' : 'https://ipg-invest.ae/info';
     const url = new URL(base);
     url.searchParams.set('view', view);
     url.searchParams.set('lang', lang);
@@ -122,9 +125,9 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
 
   const openCalculator = () => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5183' : 'https://ipg-invest.ae';
+    const base = isLocal ? 'http://localhost:5178' : 'https://ipg-invest.ae/calculator';
     setIsMenuOpen(false);
-    window.location.href = `${base}?view=calculator`;
+    window.location.href = base;
   };
 
   return (

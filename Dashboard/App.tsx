@@ -142,7 +142,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
           window.location.href = '/login.html';
         }
       }
-  }, [apiBase, userId, buildFallbackContract]);
+  }), [apiBase, userId, buildFallbackContract]);
 
   useEffect(() => {
     fetchUserData();
