@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
     const env = loadEnv(mode, '.', '');
     const apiPort = env.VITE_API_PORT || env.PORT || '3005';
     const apiTarget = `http://localhost:${apiPort}`;
+    const rootDir = path.resolve(__dirname);
     return {
       server: {
         port: Number(env.VITE_PORT) || 3000,
@@ -32,7 +33,18 @@ export default defineConfig(({ mode }) => {
       },
       resolve: {
         alias: {
-          '@': path.resolve(__dirname, '.'),
+          '@': rootDir,
+        }
+      },
+      build: {
+        rollupOptions: {
+          input: {
+            main: path.resolve(rootDir, 'index.html'),
+            login: path.resolve(rootDir, 'login.html'),
+            settings: path.resolve(rootDir, 'settings.html'),
+            emailVerified: path.resolve(rootDir, 'email-verified.html'),
+            telegramRegister: path.resolve(rootDir, 'auth-telegram-register.html')
+          }
         }
       }
     };
