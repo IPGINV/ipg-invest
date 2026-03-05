@@ -1,6 +1,7 @@
 const express = require('express');
 const { query } = require('../db');
 const { asyncHandler } = require('./utils');
+const { requireActiveVerifiedUser } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.get(
 
 router.post(
   '/',
+  requireActiveVerifiedUser,
   asyncHandler(async (req, res) => {
     const { user_id, currency, amount } = req.body || {};
     if (!user_id || !currency || amount === undefined) {

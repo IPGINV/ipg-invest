@@ -1,4 +1,4 @@
-
+import './index.css';
 import React from 'react';
 import ReactDOM, { type Root } from 'react-dom/client';
 import App from './App';

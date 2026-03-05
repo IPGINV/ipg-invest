@@ -2,8 +2,6 @@ import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { 
   ChevronRight, 
   ChevronLeft,
-  ChevronUp,
-  ChevronDown,
   ShieldCheck, 
   Lock, 
   Globe, 
@@ -17,6 +15,7 @@ import {
   Gem, 
   Layers, 
   LayoutGrid, 
+  LayoutDashboard,
   Menu,
   X, 
   User, 
@@ -24,6 +23,7 @@ import {
   EyeOff, 
   Facebook, 
   ArrowRight,
+  ArrowLeft,
   TrendingUp,
   Award,
   ExternalLink,
@@ -31,7 +31,12 @@ import {
   MessageCircle,
   PhoneCall,
   Ship,
-  Briefcase,
+  Building2,
+  FileText,
+  MapPin,
+  Download,
+  Wallet,
+  Shield,
   CalendarDays,
   Maximize2,
   Minimize2,
@@ -43,21 +48,11 @@ import {
   BarChart3,
   Languages
 } from 'lucide-react';
-import { 
-  Tooltip, 
-  ResponsiveContainer, 
-  AreaChart, 
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid
-} from 'recharts';
+import { RegistrationForm } from './components/RegistrationForm';
 
 // --- Types ---
 type Step = 'HERO' | 'SIMULATION' | 'REGISTRATION' | 'SUCCESS';
-type DrawerState = 'hidden' | 'preview' | 'expanded';
 type Language = 'RU' | 'EN';
-type TimeRange = '1D' | '1W' | '1M' | '1Y';
 
 interface PricePoint {
   time: string; // Label like "Янв"
@@ -85,17 +80,19 @@ const translations = {
     menu: "Меню",
     contact: "Связь",
     contactBtn: "Связаться",
-    managerTitle: "Связь с менеджером",
-    managerDesc: "Выберите удобный способ связи. Мы ответим в течение 15 минут.",
+    managerTitle: "Ваш персональный менеджер",
+    managerDesc: "Получите профессиональную консультацию по вопросам инвестиций и партнерства. Мы на связи 24/7.",
+    managerTelegramSub: "Прямой чат в Telegram",
+    managerWhatsappSub: "Связаться в WhatsApp",
     menuDashboard: "Личный Кабинет",
     menuCompany: "Компания",
     menuProject: "Проект",
     menuCalculator: "Калькулятор доходности",
     menuCompanySite: "Сайт компании",
-    marqueeLBMABench: "LBMA",
-    marqueeSpotAU: "Спот AU",
-    marqueeInstLevel: "Чистота 999.9",
-    marqueeLivePhysical: "Физический металл",
+    marqueeLBMABench: "LBMA БЕНЧМАРК",
+    marqueeSpotAU: "SPOT AU",
+    marqueeInstLevel: "ИНСТИТУЦИОНАЛЬНЫЙ УРОВЕНЬ",
+    marqueeLivePhysical: "ФИЗИЧЕСКИЙ МЕТАЛЛ",
     heroBadge: "Гана — Дубай",
     heroTitle: "Инвестируйте в",
     heroTitleGold: "физическое золото",
@@ -103,9 +100,8 @@ const translations = {
       "Зарабатывайте на международной торговле драгоценными металлами.",
       "Гарантированная доля в контракте на оптовую поставку Ганского золота покупателям мировой ювелирной столицы."
     ],
-    heroBtnStart: "Начать расчет",
-    heroBtnAbout: "Проект",
-    heroBtnToken: "Токен",
+    heroBtnStart: "Подробнее",
+    heroBtnAbout: "О проекте",
     heroCompliance: ["Лицензия DMCC", "Стандарт LBMA", "Физический актив"],
     heroCardValuation: "Целевая оценка портфеля",
     heroCardDesc: "Эксклюзивная модель прямого участия в циклах закупки сырья у артелей в Гане и последующей аффинажной переработке в ОАЭ с продажей через DMCC.",
@@ -123,14 +119,15 @@ const translations = {
     calcLabelROI: "Чистый ROI",
     calcBtnTelegram: "Подробнее в телеграм канале",
     calcBtnLock: "Зафиксировать условия",
-    regTitle: "Ваш личный доступ",
-    regTitleGold: "к контракту",
-    regDesc: "После регистрации вам будет открыт доступ в личный кабинет и начислен приветственный бонус.",
-    regScrollLabel: "Забрать бонус",
     regFormTitle: "Регистрация",
     regFormOr: "или",
-    regLabelEmail: "Email Адрес",
+    regLabelSurname: "Фамилия",
+    regLabelName: "Имя",
+    regLabelPhone: "Телефон",
+    regLabelEmail: "Email адрес",
     regLabelPassword: "Пароль",
+    regBtnNext: "Далее",
+    regBtnBack: "Назад",
     regLabelTerms: "Принимаю",
     regLinkOffer: "оферту",
     regBtnOpen: "Открыть кабинет",
@@ -140,16 +137,13 @@ const translations = {
     successLabelTarget: "Целевая оценка",
     successBtnDashboard: "В кабинет",
     successBtnBack: "На главную",
-    drawerLabelBench: "Live LBMA",
-    drawerLabelYear: "6 Месяцев",
-    drawerChartTitle: "Рыночная",
-    drawerChartTitleGold: "динамика",
-    drawerChartDesc: "Мониторинг реальных котировок за последние полгода.",
-    drawerChartFeed: "Источник: Лондонский рынок драгоценных металлов",
     footerCompliance: "Комплаенс",
+    footerContacts: "Контакты",
     footerNetwork: "Сеть",
-    footerSupport: "WhatsApp Поддержка",
-    footerPrivacy: "Приватность",
+    footerSupport: "VIP Поддержка",
+    footerDesc: "Imperial Pure Gold DMCC предоставляет доступ к институциональным инвестиционным инструментам на базе золота, обеспечивая безупречную ликвидность и стабильную доходность в любых рыночных условиях.",
+    rights: "Все права защищены.",
+    footerPrivacy: "Конфиденциальность",
     footerRisk: "Риски",
     footerTerms: "Условия",
     months: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
@@ -170,23 +164,45 @@ const translations = {
         title: "Imperial Pure Gold DMCC",
         paragraphs: ["Лицензированная компания в экономической зоне DMCC (Дубай), созданная для построения безопасных и прибыльных цепочек поставок физического золота между Африкой и Ближним Востоком."]
       }
-    ]
+    ],
+    infoCompanyTitle: "О КОМПАНИИ",
+    infoCompanyDescTitle: "Imperial Pure Gold DMCC",
+    infoCompanyDescText1: "Мы — лицензированная компания в экономической зоне DMCC (Дубай), созданная для построения безопасных и прибыльных цепочек поставок физического золота между Африкой и Ближним Востоком.",
+    infoCompanyDescText2: "Imperial Pure Gold DMCC — это больше, чем компания. Это структурированный подход к золоту, обеспечивающий максимальную безопасность активов и прозрачность всех операций.",
+    infoLicenseTitle: "ЛИЦЕНЗИЯ И РЕГУЛИРОВАНИЕ",
+    infoLicenseDownload: "СКАЧАТЬ PDF",
+    infoLeadershipTitle: "РУКОВОДСТВО",
+    infoExternalLinkText: "ПЕРЕЙТИ НА IMPERIALPUREGOLD.AE",
+    infoProjectTabAbout: "О ПРОЕКТЕ",
+    infoProjectTabToken: "О ТОКЕНЕ",
+    infoProjectTitle: "ИНВЕСТИЦИОННАЯ ЭКОСИСТЕМА",
+    infoProjectDesc: "Наш проект объединяет реальный сектор экономики (добыча и торговля золотом) с цифровыми технологиями. Мы создаем прозрачную инфраструктуру для инвестиций в драгоценные металлы, минимизируя риски и устраняя посредников.",
+    infoTelegramBtn: "КАНАЛ ПРОЕКТА",
+    infoTokenTitle: "ТОКЕН GHS",
+    infoTokenDesc: "Golden Share (GHS) — это цифровой актив, обеспеченный реальными операциями с золотом. Токен предоставляет держателям право на участие в распределении прибыли компании.",
+    infoTokenFeature1: "Обеспечение реальным золотом",
+    infoTokenFeature2: "Регулярные дивиденды",
+    infoTokenFeature3: "Полная прозрачность блокчейна",
+    infoWalletBtn: "ПЕРЕЙТИ В КОШЕЛЕК",
+    infoBackBtn: "Назад"
   },
   EN: {
     menu: "Menu",
     contact: "Contact",
     contactBtn: "Contact Us",
-    managerTitle: "Contact Manager",
-    managerDesc: "Choose a convenient way to contact us. We will reply within 15 minutes.",
+    managerTitle: "Personal Relationship Manager",
+    managerDesc: "Receive professional consultation on investment and partnership opportunities. Available 24/7.",
+    managerTelegramSub: "Direct Telegram Chat",
+    managerWhatsappSub: "Contact via WhatsApp",
     menuDashboard: "Dashboard",
     menuCompany: "Company",
     menuProject: "Project",
     menuCalculator: "Profit Calculator",
     menuCompanySite: "Company website",
-    marqueeLBMABench: "LBMA",
-    marqueeSpotAU: "Spot AU",
-    marqueeInstLevel: "Purity 999.9",
-    marqueeLivePhysical: "Live Physical",
+    marqueeLBMABench: "LBMA BENCHMARK",
+    marqueeSpotAU: "SPOT AU",
+    marqueeInstLevel: "INSTITUTIONAL GRADE",
+    marqueeLivePhysical: "PHYSICAL ASSET",
     heroBadge: "Ghana — Dubai",
     heroTitle: "Invest in",
     heroTitleGold: "physical gold",
@@ -194,9 +210,8 @@ const translations = {
       "Earn from international precious metals trading.",
       "Guaranteed share in a contract for wholesale supply of Ghana gold to world jewelry capitals."
     ],
-    heroBtnStart: "Start Calculation",
-    heroBtnAbout: "Project",
-    heroBtnToken: "Token",
+    heroBtnStart: "Learn more",
+    heroBtnAbout: "About Project",
     heroCompliance: ["DMCC Licensed", "LBMA Standard", "Physical Asset"],
     heroCardValuation: "Portfolio Target Valuation",
     heroCardDesc: "An exclusive model of direct participation in cycles of purchasing raw materials from Ghana and subsequent refinery in the UAE with sales via DMCC.",
@@ -214,14 +229,15 @@ const translations = {
     calcLabelROI: "Net ROI",
     calcBtnTelegram: "More info in Telegram",
     calcBtnLock: "Fix the conditions",
-    regTitle: "Your Personal Access",
-    regTitleGold: "to Contract",
-    regDesc: "After registration, you will get access to the personal dashboard and a welcome bonus.",
-    regScrollLabel: "Get Bonus",
     regFormTitle: "Registration",
     regFormOr: "or",
+    regLabelSurname: "Surname",
+    regLabelName: "First Name",
+    regLabelPhone: "Phone",
     regLabelEmail: "Email Address",
     regLabelPassword: "Password",
+    regBtnNext: "Next",
+    regBtnBack: "Back",
     regLabelTerms: "I accept",
     regLinkOffer: "terms",
     regBtnOpen: "Open Dashboard",
@@ -231,15 +247,12 @@ const translations = {
     successLabelTarget: "Target Valuation",
     successBtnDashboard: "Dashboard",
     successBtnBack: "Back Home",
-    drawerLabelBench: "Live LBMA",
-    drawerLabelYear: "Last 6 Months",
-    drawerChartTitle: "Market",
-    drawerChartTitleGold: "Dynamics",
-    drawerChartDesc: "Real-time monitoring of market quotes for the last 6 months.",
-    drawerChartFeed: "Source: London Precious Metals Market",
     footerCompliance: "Compliance",
+    footerContacts: "Contacts",
     footerNetwork: "Network",
-    footerSupport: "WhatsApp Support",
+    footerSupport: "VIP Support",
+    footerDesc: "Imperial Pure Gold DMCC provides access to institutional-grade gold investment vehicles, ensuring flawless liquidity and stable returns in any market conditions.",
+    rights: "All Rights Reserved.",
     footerPrivacy: "Privacy",
     footerRisk: "Risks",
     footerTerms: "Terms",
@@ -261,8 +274,40 @@ const translations = {
         title: "Imperial Pure Gold DMCC",
         paragraphs: ["Licensed company in the DMCC economic zone (Dubai), created to build secure and profitable supply chains of physical gold between Africa and the Middle East."]
       }
-    ]
+    ],
+    infoCompanyTitle: "ABOUT COMPANY",
+    infoCompanyDescTitle: "Imperial Pure Gold DMCC",
+    infoCompanyDescText1: "We are a licensed company in the DMCC economic zone (Dubai), created to build safe and profitable supply chains of physical gold between Africa and the Middle East.",
+    infoCompanyDescText2: "Imperial Pure Gold DMCC is more than a company. It is a structured approach to gold, ensuring maximum asset security and transparency of all operations.",
+    infoLicenseTitle: "LICENSE & REGULATION",
+    infoLicenseDownload: "DOWNLOAD PDF",
+    infoLeadershipTitle: "LEADERSHIP",
+    infoExternalLinkText: "VISIT IMPERIALPUREGOLD.AE",
+    infoProjectTabAbout: "ABOUT PROJECT",
+    infoProjectTabToken: "ABOUT TOKEN",
+    infoProjectTitle: "INVESTMENT ECOSYSTEM",
+    infoProjectDesc: "Our project combines the real sector of the economy (gold mining and trading) with digital technologies. We create a transparent infrastructure for investing in precious metals, minimizing risks and eliminating intermediaries.",
+    infoTelegramBtn: "PROJECT CHANNEL",
+    infoTokenTitle: "GHS TOKEN",
+    infoTokenDesc: "Golden Share (GHS) is a digital asset backed by real gold operations. The token grants holders the right to participate in the company's profit distribution.",
+    infoTokenFeature1: "Backed by physical gold",
+    infoTokenFeature2: "Quarterly dividends",
+    infoTokenFeature3: "Full blockchain transparency",
+    infoWalletBtn: "GO TO WALLET",
+    infoBackBtn: "Back"
   }
+};
+
+// --- TEAM for Info pages ---
+const TEAM: Record<Language, { name: string; role: string; image: string }[]> = {
+  RU: [
+    { name: "Rajesh Takurdas Sadhwani", role: "Управляющий по лицензии / Директор", image: "/images/team.svg" },
+    { name: "Osman Nasr Mohammed", role: "Операционный директор", image: "/images/team.svg" }
+  ],
+  EN: [
+    { name: "Rajesh Takurdas Sadhwani", role: "License Manager / Director", image: "/images/team.svg" },
+    { name: "Osman Nasr Mohammed", role: "Operations Director", image: "/images/team.svg" }
+  ]
 };
 
 // --- Custom Logo Component ---
@@ -331,17 +376,96 @@ const generatePastSixMonths = (lang: Language): PricePoint[] => {
 // --- Sub-components ---
 const AnimatedParagraphs = ({ paragraphs, keyId }: { paragraphs: string[], keyId: string }) => {
   return (
-    <div className="flex flex-col gap-4 md:gap-6 relative min-h-[160px] md:min-h-[220px] justify-center">
+    <div className="flex flex-col gap-4 md:gap-6 relative min-h-[160px] md:min-h-[220px] justify-center text-center">
       {paragraphs.map((text, idx) => (
         <p 
           key={`${keyId}-${idx}`} 
-          className="text-base md:text-xl text-white/80 font-medium leading-relaxed italic animate-in fade-in slide-in-from-left duration-1000 fill-mode-both"
+          className="text-sm md:text-base text-white/80 font-medium leading-relaxed italic animate-in fade-in slide-in-from-left duration-1000 fill-mode-both text-center"
           style={{ animationDelay: `${idx * 400 + 200}ms` }}
         >
           {text}
         </p>
       ))}
     </div>
+  );
+};
+
+const InlineProjectView = ({ t, lang }: { t: Record<string, any>; lang: Language }) => {
+  const [activeTab, setActiveTab] = useState<'project' | 'token'>('project');
+  return (
+    <>
+      <h2 className="text-3xl md:text-4xl font-['Playfair_Display'] font-black tracking-tight text-stone-900 mb-8">{t.infoProjectTitle}</h2>
+      <div className="flex justify-center mb-8">
+        <div className="inline-flex p-1 bg-stone-100 rounded-2xl border border-stone-200">
+          <button onClick={() => setActiveTab('project')} className={`px-6 py-3 rounded-xl text-[10px] font-mono font-black uppercase tracking-widest transition-all ${activeTab === 'project' ? 'bg-white text-stone-900 shadow-sm border border-stone-200' : 'text-stone-500 hover:text-stone-700'}`}>
+            {t.infoProjectTabAbout}
+          </button>
+          <button onClick={() => setActiveTab('token')} className={`px-6 py-3 rounded-xl text-[10px] font-mono font-black uppercase tracking-widest transition-all ${activeTab === 'token' ? 'bg-white text-stone-900 shadow-sm border border-stone-200' : 'text-stone-500 hover:text-stone-700'}`}>
+            {t.infoProjectTabToken}
+          </button>
+        </div>
+      </div>
+      {activeTab === 'project' && (
+        <div className="luxury-card p-6 md:p-10 overflow-hidden relative group mb-8">
+          <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+            <Globe size={120} className="text-stone-400" />
+          </div>
+          <div className="relative z-10 grid md:grid-cols-2 gap-10 items-center">
+            <div className="space-y-6">
+              <p className="text-xl md:text-2xl font-light text-stone-700 leading-relaxed">{t.infoProjectDesc}</p>
+              <div className="h-[2px] w-20 bg-[#d4af37] rounded-full" />
+              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 px-6 py-3 border-2 border-[#d4af37] text-[#d4af37] font-black text-[10px] font-mono uppercase tracking-widest rounded-2xl hover:bg-[#d4af37] hover:text-stone-900 transition-all">
+                {t.infoTelegramBtn} <Send size={16} />
+              </a>
+            </div>
+            <div className="hidden md:block">
+              <div className="aspect-square bg-gradient-to-br from-amber-50 to-stone-50 border border-[#d4af37]/20 rounded-2xl flex items-center justify-center">
+                <Globe size={120} strokeWidth={0.5} className="text-[#d4af37]/30" />
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+      {activeTab === 'token' && (
+        <div className="luxury-card p-6 md:p-10 overflow-hidden relative mb-8">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-[#d4af37] opacity-5 blur-[100px] rounded-full" />
+          <div className="relative z-10 grid md:grid-cols-2 gap-12">
+            <div className="space-y-8">
+              <div>
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] mb-2 block">GHS</span>
+                <h3 className="text-3xl font-['Playfair_Display'] font-black tracking-tight text-stone-900 mb-4">{t.infoTokenTitle}</h3>
+                <p className="text-stone-600 leading-relaxed">{t.infoTokenDesc}</p>
+              </div>
+              <ul className="space-y-4">
+                {[t.infoTokenFeature1, t.infoTokenFeature2, t.infoTokenFeature3].map((feature: string, i: number) => (
+                  <li key={i} className="flex items-center gap-4 text-stone-700 font-medium border-b border-stone-100 pb-4 last:border-0">
+                    <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center text-[#d4af37] flex-shrink-0">
+                      {i === 0 ? <Shield size={18} /> : i === 1 ? <Wallet size={18} /> : <Layers size={18} />}
+                    </div>
+                    {feature}
+                  </li>
+                ))}
+              </ul>
+              <a href="#" className="inline-flex items-center gap-3 px-8 py-4 bg-[#d4af37] text-stone-900 font-black text-[10px] font-mono uppercase tracking-widest rounded-2xl hover:brightness-110 transition-all shadow-xl">
+                {t.infoWalletBtn} <ArrowRight size={16} />
+              </a>
+            </div>
+            <div className="flex items-center justify-center">
+              <div className="relative w-48 h-48 md:w-64 md:h-64">
+                <div className="absolute inset-0 rounded-full border-2 border-[#d4af37]/20 animate-[spin_10s_linear_infinite]" />
+                <div className="absolute inset-4 rounded-full border-2 border-[#d4af37]/30 animate-[spin_15s_linear_infinite_reverse]" />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="w-32 h-32 rounded-full bg-[#d4af37] shadow-lg flex items-center justify-center flex-col">
+                    <span className="font-['Playfair_Display'] font-black text-3xl text-stone-900/90">GHS</span>
+                    <span className="text-[8px] font-mono font-black tracking-widest text-stone-900/70 mt-1">TOKEN</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -365,7 +489,7 @@ const HeroTextSlider = ({ slides }: { slides: string[] }) => {
           }`}
         >
           <div className="flex gap-4 items-start border-l-4 border-[#d4af37] pl-6 md:pl-8 py-2 max-w-full">
-            <p className="text-[#f0f0f0]/90 text-lg md:text-3xl font-medium leading-tight md:leading-snug italic drop-shadow-lg text-center lg:text-left break-words max-w-full">
+            <p className="text-[#f0f0f0]/90 text-base md:text-xl font-medium leading-relaxed italic drop-shadow-lg text-center lg:text-left break-words max-w-full">
               {text}
             </p>
           </div>
@@ -383,37 +507,33 @@ const InteractiveBackground = () => {
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
-    let particles: any[] = [];
-    class Particle {
-      x: number; y: number; size: number; speedX: number; speedY: number; opacity: number; color: string;
-      constructor() {
-        this.x = Math.random() * canvas!.width;
-        this.y = Math.random() * canvas!.height;
-        this.size = Math.random() * (window.innerWidth > 1024 ? 2 : 1.2) + 0.1;
-        this.speedX = Math.random() * 0.15 - 0.075;
-        this.speedY = Math.random() * 0.15 - 0.075;
-        this.opacity = Math.random() * 0.35 + 0.05;
-        this.color = Math.random() > 0.7 ? '#d4af37' : '#ffffff';
-      }
-      update() {
-        this.x += this.speedX; this.y += this.speedY;
-        if (this.x > canvas!.width) this.x = 0; else if (this.x < 0) this.x = canvas!.width;
-        if (this.y > canvas!.height) this.y = 0; else if (this.y < 0) this.y = canvas!.height;
-      }
-      draw() {
-        if (!ctx) return;
-        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color; ctx.globalAlpha = this.opacity; ctx.fill(); ctx.globalAlpha = 1;
-      }
-    }
+    let particles: { x: number; y: number; size: number; speedX: number; speedY: number; opacity: number; color: string }[] = [];
+    const Particle = function(this: any) {
+      this.x = Math.random() * canvas!.width;
+      this.y = Math.random() * canvas!.height;
+      this.size = Math.random() * (window.innerWidth > 1024 ? 2 : 1.2) + 0.1;
+      this.speedX = Math.random() * 0.15 - 0.075;
+      this.speedY = Math.random() * 0.15 - 0.075;
+      this.opacity = Math.random() * 0.35 + 0.05;
+      this.color = Math.random() > 0.7 ? '#d4af37' : '#ffffff';
+    } as any;
+    (Particle.prototype as any).update = function() {
+      this.x += this.speedX; this.y += this.speedY;
+      if (this.x > canvas!.width) this.x = 0; else if (this.x < 0) this.x = canvas!.width;
+      if (this.y > canvas!.height) this.y = 0; else if (this.y < 0) this.y = canvas!.height;
+    };
+    (Particle.prototype as any).draw = function() {
+      ctx!.beginPath(); ctx!.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx!.fillStyle = this.color; ctx!.globalAlpha = this.opacity; ctx!.fill(); ctx!.globalAlpha = 1;
+    };
     const init = () => {
       canvas.width = window.innerWidth; canvas.height = window.innerHeight;
       particles = []; const count = window.innerWidth > 1024 ? 70 : 25;
-      for (let i = 0; i < count; i++) particles.push(new Particle());
+      for (let i = 0; i < count; i++) particles.push(new (Particle as any)());
     };
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => { p.update(); p.draw(); });
+      particles.forEach((p: any) => { p.update(); p.draw(); });
       requestAnimationFrame(animate);
     };
     init(); animate();
@@ -423,12 +543,12 @@ const InteractiveBackground = () => {
 
   return (
     <div className="fixed inset-0 z-0 pointer-events-none overflow-hidden">
-      <div className="bg-mesh"></div>
-      <div className="gold-orb top-[-15%] left-[-10%] opacity-60"></div>
-      <div className="gold-orb bottom-[-25%] right-[-10%] opacity-50"></div>
+      <div className="bg-mesh" />
+      <div className="gold-orb top-[-15%] left-[-10%] opacity-60" />
+      <div className="gold-orb bottom-[-25%] right-[-10%] opacity-50" />
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#141417]/20 to-[#141417] z-10"></div>
-      <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=2000" className="w-full h-full object-cover opacity-[0.25] saturate-[0.2] mix-blend-screen transition-opacity duration-1000" alt="Skyline" />
+      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#141417]/20 to-[#141417] z-10" />
+      <img src="https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&q=80&w=2000" className="w-full h-full object-cover opacity-[0.25] saturate-[0.2] mix-blend-screen transition-opacity duration-1000" alt="" />
     </div>
   );
 };
@@ -446,20 +566,43 @@ export default function App({ apiBase }: AppProps) {
   const [amount, setAmount] = useState(50000); 
   const [marketData, setMarketData] = useState<PricePoint[]>(() => generatePastSixMonths('RU'));
   const [currencyRates, setCurrencyRates] = useState({ AED: 3.67, RUB: 91.42 });
-  const [showPassword, setShowPassword] = useState(false);
   const [currentCard, setCurrentCard] = useState(0);
-  const [isContactExpanded, setIsContactExpanded] = useState(false);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
-  const [drawerState, setDrawerState] = useState<DrawerState>('hidden');
-  const [range, setRange] = useState<TimeRange>('1M');
   const [lockedAmount, setLockedAmount] = useState<number | null>(null);
-  const [registrationFullName, setRegistrationFullName] = useState('');
-  const [registrationEmail, setRegistrationEmail] = useState('');
-  const [registrationPassword, setRegistrationPassword] = useState('');
-  const [registrationError, setRegistrationError] = useState('');
+  const [infoView, setInfoView] = useState<'company' | 'project' | null>(null);
+
+  const resolveLocalBase = (port: number) => {
+    const host = window.location.hostname;
+    const isLocalLike =
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '::1' ||
+      host.startsWith('192.168.') ||
+      host.startsWith('10.') ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+    return isLocalLike ? `http://${host}:${port}` : null;
+  };
 
   const heroRef = useRef<HTMLDivElement>(null);
   const registrationRef = useRef<HTMLDivElement>(null);
+  const envApiBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
+  const resolveApiBase = () => {
+    if (apiBase) return apiBase;
+    const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
+    if (runtimeBase) return runtimeBase;
+    const host = window.location.hostname;
+    const isLocalLike =
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '::1' ||
+      host.startsWith('192.168.') ||
+      host.startsWith('10.') ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+    if (isLocalLike) {
+      return envApiBase || 'http://localhost:3005';
+    }
+    return envApiBase || 'https://api.ipg-invest.ae';
+  };
 
   useEffect(() => {
     if (!apiBase) return;
@@ -488,18 +631,7 @@ export default function App({ apiBase }: AppProps) {
     }
   }, []);
 
-  useEffect(() => {
-    const stored = localStorage.getItem('ipg:registration-payload');
-    if (!stored) return;
-    try {
-      const payload = JSON.parse(stored) as { investorId?: string; email?: string };
-      if (payload?.investorId && payload?.email) {
-        setRegistrationData({ investorId: payload.investorId, email: payload.email });
-      }
-    } catch {
-      // Ignore invalid cache
-    }
-  }, []);
+  // Optional: load cached registration payload if needed
 
   // --- Localization Logic ---
   const companyCards = useMemo(() => [
@@ -508,26 +640,6 @@ export default function App({ apiBase }: AppProps) {
     { ...t.cards[2], image: "https://images.unsplash.com/photo-1518186285589-2f7649de83e0?auto=format&fit=crop&q=80&w=1000", icon: <Gem size={24} /> },
     { ...t.cards[3], image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&q=80&w=1000", icon: <Award size={24} /> }
   ], [lang, t.cards]);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      if (step !== 'HERO') return;
-      if (window.scrollY > 300 && drawerState === 'hidden') setDrawerState('preview');
-      else if (window.scrollY <= 300 && drawerState === 'preview') setDrawerState('hidden');
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [step, drawerState]);
-
-  const chartData = useMemo(() => {
-    if (!marketData.length) return [];
-    const mapped = marketData.map((point) => ({
-      date: point.fullLabel || point.time,
-      price: Number(point.price) || 0
-    }));
-    const size = range === '1D' ? 24 : range === '1W' ? 7 : range === '1Y' ? 12 : 30;
-    return mapped.slice(-size);
-  }, [marketData, range]);
 
   const remainingCycles = useMemo(() => {
     const filtered = DELIVERY_SCHEDULE.filter(d => d.date > new Date());
@@ -605,7 +717,6 @@ export default function App({ apiBase }: AppProps) {
     setStep(s);
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setIsMenuOpen(false);
-    if (s !== 'HERO') setDrawerState('hidden');
   };
 
   const openRegistrationFromCalculator = () => {
@@ -620,30 +731,29 @@ export default function App({ apiBase }: AppProps) {
     nextStep('REGISTRATION');
   };
 
-  const buildLoginUrl = () => {
-    const isLocal = window.location.hostname === 'localhost';
-    return isLocal ? 'http://localhost:3000/login.html' : 'https://dashboard.ipg-invest.ae/login.html';
+  const buildLoginUrl = (nextFlow?: string) => {
+    const envDashboard = (import.meta as any).env?.VITE_DASHBOARD_APP_URL as string | undefined;
+    const localBase = envDashboard || resolveLocalBase(3000);
+    const loginBase = localBase ? `${localBase.replace(/\/$/, '')}/login.html` : 'https://dashboard.ipg-invest.ae/login.html';
+    if (!nextFlow) return loginBase;
+    const url = new URL(loginBase);
+    url.searchParams.set('next', nextFlow);
+    return url.toString();
   };
 
   const handleOpenDashboard = () => {
-    // Всегда редирект на страницу входа Dashboard
-    const isLocal = window.location.hostname === 'localhost';
-    const dashboardUrl = isLocal ? 'http://localhost:3002' : 'https://dashboard.ipg-invest.ae';
-    window.location.href = dashboardUrl;
+    // Вход по логину и паролю — всегда на страницу входа
+    window.location.href = buildLoginUrl();
   };
 
   const openInfoView = (view: 'company' | 'project') => {
-    const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:3003' : 'https://info.ipg-invest.ae';
-    const url = new URL(base);
-    url.searchParams.set('view', view);
-    url.searchParams.set('lang', lang);
-    window.location.href = url.toString();
+    setIsMenuOpen(false);
+    setInfoView(view);
   };
 
   const openCalculator = () => {
     setIsMenuOpen(false);
-    nextStep('SIMULATION');
+    openRegistrationGeneric();
   };
 
 
@@ -654,48 +764,49 @@ export default function App({ apiBase }: AppProps) {
     <div className="min-h-screen flex flex-col selection:bg-[#d4af37] selection:text-black font-inter text-[#f0f0f0] overflow-x-hidden">
       <InteractiveBackground />
 
-      {/* 1. TOP MARQUEE */}
-      <div className="fixed top-0 w-full z-[100] bg-[#141417]/95 border-b border-white/5 h-10 flex items-center overflow-hidden backdrop-blur-2xl">
-        <div className="marquee flex items-center">
-          <span className="text-[10px] font-bold text-[#d4af37] px-8 tracking-widest uppercase flex items-center gap-2"><Gem size={10} /> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)</span>
-          <span className="text-[10px] font-bold text-white/40 px-8 tracking-widest uppercase">{t.marqueeSpotAU}: ${currentPrice.toLocaleString()}</span>
-          <span className="text-[10px] font-bold text-white/40 px-8 tracking-widest uppercase">USD/AED: {currencyRates.AED}</span>
-          <span className="text-[10px] font-bold text-[#d4af37] px-8 tracking-widest uppercase">{t.marqueeInstLevel}</span>
-          <span className="text-[10px] font-bold text-[#d4af37] px-8 tracking-widest uppercase flex items-center gap-2"><Gem size={10} /> {t.marqueeLivePhysical}</span>
-          <span className="text-[10px] font-bold text-white/40 px-8 tracking-widest uppercase">USD/RUB: {currencyRates.RUB}</span>
+      {/* Marquee — Info standard h-8 */}
+      <div className="fixed top-0 w-full z-[100] bg-[#0a0a0a] border-b border-white/5 h-8 flex items-center overflow-hidden">
+        <div className="flex animate-marquee whitespace-nowrap">
+          {[1, 2].map((i) => (
+            <div key={i} className="flex items-center shrink-0">
+              <span className="text-[10px] font-mono font-bold text-[#d4af37] px-8 uppercase tracking-widest flex items-center gap-2">
+                <Gem size={10} /> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)
+              </span>
+              <span className="text-[10px] font-mono font-bold text-white/30 px-8 uppercase tracking-widest">{t.marqueeSpotAU}: ${currentPrice.toLocaleString()}</span>
+              <span className="text-[10px] font-mono font-bold text-white/30 px-8 uppercase tracking-widest">USD/AED: {currencyRates.AED}</span>
+              <span className="text-[10px] font-mono font-bold text-[#d4af37] px-8 uppercase tracking-widest">{t.marqueeInstLevel}</span>
+              <span className="text-[10px] font-mono font-bold text-white/30 px-8 uppercase tracking-widest">USD/RUB: {currencyRates.RUB}</span>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* 2. HEADER */}
-      <header className="fixed top-10 w-full z-[90] bg-[#141417]/25 backdrop-blur-3xl border-b border-white/5 px-4 md:px-12 h-20 flex justify-between items-center overflow-hidden">
-        <div className="flex items-center gap-3 md:gap-5 cursor-pointer group" onClick={() => setIsMenuOpen(true)}>
-          <div className="flex items-center gap-2 md:gap-3 bg-white/5 p-1 pr-4 rounded-2xl border border-white/10 group-hover:bg-white/10 transition-all">
-            <div className="w-10 h-10 md:w-11 md:h-11 gold-gradient rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300">
-              <Menu className="text-black" size={20} />
+      {/* Header — Info standard h-16 */}
+      <header className="fixed top-8 left-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-3 md:px-12 h-16 flex justify-between items-center">
+        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+          <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
+            <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
+              {isMenuOpen ? <X className="text-black" size={16} /> : <Menu className="text-black" size={16} />}
             </div>
-            <div className="flex flex-col justify-center">
-              <span className="font-playfair font-black text-[9px] md:text-[11px] uppercase tracking-[0.15em] text-white leading-tight">Imperial</span>
-              <span className="font-playfair font-black text-[9px] md:text-[11px] uppercase tracking-[0.15em] text-white leading-tight">Pure</span>
-              <span className="font-playfair font-black text-[9px] md:text-[11px] uppercase tracking-[0.15em] text-white leading-tight">Gold</span>
+            <div className="flex flex-col">
+              <span className="font-playfair font-black text-[10px] uppercase tracking-tight leading-tight text-white">Imperial</span>
+              <span className="font-playfair font-black text-[10px] uppercase tracking-tight leading-tight text-white">Pure Gold</span>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center gap-2 md:gap-6">
-           <div className="flex bg-white/5 p-0.5 rounded-xl border border-white/10">
-              <button onClick={() => setLang('RU')} className={`px-2.5 py-1 text-[9px] font-black rounded-lg transition-all ${lang === 'RU' ? 'bg-[#d4af37] text-black' : 'text-white/40 hover:text-white'}`}>RU</button>
-              <button onClick={() => setLang('EN')} className={`px-2.5 py-1 text-[9px] font-black rounded-lg transition-all ${lang === 'EN' ? 'bg-[#d4af37] text-black' : 'text-white/40 hover:text-white'}`}>EN</button>
-           </div>
-
-           <div className="flex items-center gap-2 bg-white/5 p-1 rounded-2xl border border-white/10 group/hub">
-              <div className={`flex items-center gap-2 transition-all duration-500 overflow-hidden ${isContactExpanded ? 'max-w-[150px] md:max-w-[200px] opacity-100 pr-2' : 'max-w-0 opacity-0'}`}>
-                <a href="https://t.me/GoldenShareClub" target="_blank" className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-white/5 text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all flex-shrink-0"><Send size={16} /></a>
-                <button onClick={() => setIsManagerModalOpen(true)} className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-white/5 text-white/40 hover:text-[#d4af37] transition-all flex-shrink-0"><User size={16} /></button>
-              </div>
-              <button onClick={() => setIsContactExpanded(!isContactExpanded)} className={`flex items-center justify-center px-4 md:px-6 h-9 md:h-10 rounded-xl text-[10px] md:text-[11px] font-black uppercase tracking-widest transition-all ${isContactExpanded ? 'bg-white/10 text-white' : 'text-[#d4af37]'}`}>
-                {isContactExpanded ? <X size={14} /> : t.contactBtn}
-              </button>
-           </div>
+        <div className="flex items-center gap-2 md:gap-4">
+          <div className="flex p-1 rounded-lg border bg-white/5 border-white/10">
+            {(['RU', 'EN'] as const).map((l) => (
+              <button key={l} onClick={() => setLang(l)} className={`px-3 py-1 text-[10px] font-mono font-bold uppercase tracking-widest rounded transition-all ${lang === l ? 'bg-[#d4af37] text-black shadow-sm' : 'text-white/40 hover:text-white'}`}>{l}</button>
+            ))}
+          </div>
+          <button onClick={() => setIsManagerModalOpen(true)} className="hidden md:flex items-center justify-center px-6 h-9 rounded-xl bg-[#d4af37] text-black text-[10px] font-mono font-black uppercase tracking-widest hover:brightness-110 transition-all shadow-lg shadow-[#d4af37]/20">
+            {t.contactBtn}
+          </button>
+          <button onClick={() => setIsManagerModalOpen(true)} className="md:hidden w-9 h-9 rounded-xl bg-[#d4af37] flex items-center justify-center text-black shadow-lg shadow-[#d4af37]/20 flex-shrink-0">
+            <Phone size={16} />
+          </button>
         </div>
       </header>
 
@@ -706,132 +817,204 @@ export default function App({ apiBase }: AppProps) {
            <div className="relative glass-card p-8 md:p-12 rounded-[3rem] w-full max-sm:mx-4 max-w-sm border-[#d4af37]/20 flex flex-col items-center animate-in zoom-in-95 duration-300">
               <button onClick={() => setIsManagerModalOpen(false)} className="absolute top-6 right-6 p-2 text-white/20 hover:text-white transition-all"><X size={24} /></button>
               <div className="w-16 h-16 md:w-20 md:h-20 gold-gradient rounded-3xl flex items-center justify-center mb-8 shadow-2xl"><User className="text-black" size={32} /></div>
-              <h3 className="text-2xl md:text-3xl font-playfair font-black text-white text-center mb-4">{t.managerTitle}</h3>
+              <h3 className="text-3xl md:text-4xl font-playfair font-black tracking-tight text-white text-center mb-4">{t.managerTitle}</h3>
               <p className="text-white/40 text-center text-sm md:text-base mb-10 font-medium mx-auto max-w-[220px]">{t.managerDesc}</p>
               <div className="flex flex-col gap-4 w-full">
-                 <a href="https://t.me/IPG_Mark" target="_blank" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all group">
+                 <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all group">
                     <div className="w-12 h-12 rounded-xl bg-[#0088cc]/20 flex items-center justify-center text-[#0088cc] group-hover:scale-110 transition-transform"><Send size={24} /></div>
-                    <div className="flex flex-col"><span className="text-white font-bold text-lg">Telegram</span><span className="text-white/30 text-xs font-bold uppercase tracking-widest">Chat with Mark</span></div>
+                    <div className="flex flex-col"><span className="text-white font-black text-base">Telegram</span><span className="text-white/30 text-[10px] font-mono uppercase tracking-widest">{t.managerTelegramSub}</span></div>
                  </a>
-                 <a href="https://wa.me/447782280474" target="_blank" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-green-500/40 hover:bg-white/[0.08] transition-all group">
+                 <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-green-500/40 hover:bg-white/[0.08] transition-all group">
                     <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform"><MessageCircle size={24} /></div>
-                    <div className="flex flex-col"><span className="text-white font-bold text-lg">WhatsApp</span><span className="text-white/30 text-xs font-bold uppercase tracking-widest">Instant message</span></div>
+                    <div className="flex flex-col"><span className="text-white font-black text-base">WhatsApp</span><span className="text-white/30 text-[10px] font-mono uppercase tracking-widest">{t.managerWhatsappSub}</span></div>
                  </a>
               </div>
            </div>
         </div>
       )}
 
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-[200] bg-[#141417]/98 backdrop-blur-3xl animate-in fade-in duration-300 flex flex-col items-center justify-start p-6 pt-[10vh]">
-          <button onClick={() => setIsMenuOpen(false)} className="absolute top-10 right-10 p-3 bg-white/5 rounded-full border border-white/10 text-white/60 hover:text-[#d4af37] transition-all"><X size={32} /></button>
-          <nav className="flex flex-col gap-6 w-full max-w-sm text-center">
-            {[
-              { label: t.menuDashboard, icon: User, action: handleOpenDashboard },
-              { label: t.menuCompany, icon: Briefcase, action: () => openInfoView('company') },
-              { label: t.menuProject, icon: LayoutGrid, action: () => openInfoView('project') },
-              { label: t.menuCalculator, icon: BarChart3, action: openCalculator }
-            ].map((item, i) => (
-              <button key={i} onClick={item.action} className="group flex items-center gap-5 p-6 rounded-3xl bg-white/5 border border-white/10 hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all text-left">
-                <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-[#d4af37]/15 transition-colors">
-                  <item.icon className="text-[#d4af37]" size={26} />
+      {/* Inline Info Pages: Company & Project (duplicates, no redirect to cabinet) */}
+      {infoView && (
+        <div className="fixed inset-0 top-0 z-[250] bg-[#f5f5f7] overflow-y-auto">
+          <div className="sticky top-0 z-10 bg-[#f5f5f7] border-b border-stone-200 px-4 md:px-8 py-4 flex justify-between items-center">
+            <button
+              onClick={() => setInfoView(null)}
+              className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white border border-stone-200 text-stone-700 font-black text-sm hover:bg-stone-50 transition-colors"
+            >
+              <ArrowLeft size={18} /> {t.infoBackBtn}
+            </button>
+            <button onClick={() => setLang(lang === 'EN' ? 'RU' : 'EN')} className="px-3 py-2 rounded-xl border border-stone-200 text-stone-600 text-[10px] font-mono font-bold uppercase tracking-widest">
+              {lang === 'EN' ? 'RU' : 'EN'}
+            </button>
+          </div>
+          <div className="max-w-4xl mx-auto px-4 md:px-6 py-8 md:py-12">
+            {infoView === 'company' && (
+              <>
+                <h2 className="text-3xl md:text-4xl font-['Playfair_Display'] font-black tracking-tight text-stone-900 mb-2">{t.infoCompanyTitle}</h2>
+                <p className="text-stone-500 font-mono text-xs tracking-widest mb-8">Imperial Pure Gold</p>
+                <div className="luxury-card p-6 md:p-10 overflow-hidden relative group mb-8">
+                  <div className="absolute top-0 right-0 p-6 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+                    <Building2 size={120} className="text-stone-400" />
+                  </div>
+                  <div className="relative z-10 space-y-6">
+                    <h3 className="text-xl font-['Playfair_Display'] font-black tracking-tight text-stone-900 border-l-2 border-[#d4af37] pl-6 mb-4">{t.infoCompanyDescTitle}</h3>
+                    <div className="text-stone-600 leading-relaxed space-y-4">
+                      <p>{t.infoCompanyDescText1}</p>
+                      <p>{t.infoCompanyDescText2}</p>
+                    </div>
+                    <a href="https://imperialpuregold.ae" target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-[#d4af37] font-black text-[10px] font-mono uppercase tracking-widest hover:text-stone-900 transition-colors mt-6">
+                      {t.infoExternalLinkText} <Globe size={14} />
+                    </a>
+                    <p className="flex items-center gap-2 text-sm text-stone-500 pt-4"><MapPin size={18} className="text-stone-400" /> Dubai, UAE</p>
+                  </div>
                 </div>
-                <span className="text-xl font-bold text-white uppercase tracking-wider">{item.label}</span>
-              </button>
-            ))}
-            <div className="mt-[12vh] pt-8 border-t border-white/10 flex flex-col gap-4">
-              <a
-                href="https://imperialpuregold.ae"
-                target="_blank"
-                rel="noreferrer"
-                className="text-[#d4af37] font-black uppercase tracking-widest text-sm hover:text-white transition-colors"
-              >
-                {t.menuCompanySite}
-              </a>
-            </div>
-          </nav>
+                <div className="luxury-card p-6 md:p-10 relative overflow-hidden group mb-8">
+                  <div className="absolute top-0 right-0 p-4 opacity-[0.05] group-hover:opacity-[0.08] transition-opacity">
+                    <FileText size={120} className="text-stone-400" />
+                  </div>
+                  <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                    <div>
+                      <h3 className="text-xl font-['Playfair_Display'] font-black tracking-tight text-stone-900 mb-2">{t.infoLicenseTitle}</h3>
+                      <p className="text-stone-500 text-sm font-mono tracking-widest">DMCC-944655</p>
+                    </div>
+                    <a href="/licenses/ipg-license.pdf" download className="flex items-center gap-2 px-6 py-3 bg-[#d4af37] text-stone-900 font-black text-[10px] font-mono uppercase tracking-widest rounded-2xl hover:brightness-110 transition-all shadow-lg">
+                      <Download size={14} /> {t.infoLicenseDownload}
+                    </a>
+                  </div>
+                </div>
+                <h3 className="text-[10px] font-mono font-black uppercase tracking-widest text-gray-400 mb-8 text-center">{t.infoLeadershipTitle}</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+                  {TEAM[lang].map((member, idx) => (
+                    <div key={idx} className="luxury-card p-6 group overflow-hidden">
+                      <div className="aspect-square overflow-hidden rounded-2xl mb-4 border border-stone-100 bg-stone-100 flex items-center justify-center">
+                        <Building2 size={48} className="text-stone-300" />
+                      </div>
+                      <h4 className="text-stone-900 font-['Playfair_Display'] font-black tracking-tight text-lg">{member.name}</h4>
+                      <p className="text-[#d4af37] text-[10px] font-mono font-black uppercase tracking-widest mt-2">{member.role}</p>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            {infoView === 'project' && (
+              <InlineProjectView t={t} lang={lang} />
+            )}
+          </div>
         </div>
       )}
 
+      {/* Hamburger — Info standard: left slide */}
+      {isMenuOpen && (
+        <>
+          <div onClick={() => setIsMenuOpen(false)} className="fixed inset-0 z-[150] bg-black/20 backdrop-blur-sm" />
+          <div className="fixed inset-y-0 left-0 w-full max-w-xs z-[160] bg-white border-r border-black/5 p-8 flex flex-col">
+            <div className="flex justify-between items-center mb-12">
+              <div className="flex flex-col">
+                <span className="font-playfair font-black text-[10px] uppercase tracking-tight text-[#d4af37]">Imperial</span>
+                <span className="font-playfair font-black text-[10px] uppercase tracking-tight text-black">Pure Gold</span>
+              </div>
+              <button onClick={() => setIsMenuOpen(false)} className="p-2 text-black/40 hover:text-black"><X size={24} /></button>
+            </div>
+            <nav className="flex flex-col gap-1 w-full">
+              <button onClick={handleOpenDashboard} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
+                <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><LayoutDashboard size={20} /></span>
+                <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuDashboard}</span>
+              </button>
+              <button onClick={() => openInfoView('company')} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
+                <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><Building2 size={20} /></span>
+                <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuCompany}</span>
+              </button>
+              <button onClick={() => openInfoView('project')} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
+                <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><Info size={20} /></span>
+                <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuProject}</span>
+              </button>
+              <button onClick={openCalculator} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
+                <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><BarChart3 size={20} /></span>
+                <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuCalculator}</span>
+              </button>
+              <div className="h-px bg-black/5 my-6" />
+              <button onClick={() => { setIsMenuOpen(false); setIsManagerModalOpen(true); }} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
+                <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><Phone size={20} /></span>
+                <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.contactBtn}</span>
+              </button>
+              <button onClick={() => { setIsMenuOpen(false); window.location.href = 'https://imperialpuregold.ae'; }} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
+                <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><Globe size={20} /></span>
+                <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuCompanySite}</span>
+              </button>
+            </nav>
+            <div className="mt-auto pt-8 border-t border-black/5">
+              <p className="text-[10px] font-mono text-black/20 uppercase tracking-widest">© {new Date().getFullYear()} Imperial Pure Gold</p>
+            </div>
+          </div>
+        </>
+      )}
+
       {/* MAIN CONTAINER */}
-      <main className="relative z-10 pt-40 md:pt-56 pb-24 px-6 md:px-12 flex-1 flex flex-col items-center overflow-hidden">
+      <main className="relative z-10 pt-28 md:pt-36 pb-24 px-0 md:px-12 flex-1 flex flex-col items-stretch overflow-hidden w-full">
         {step === 'HERO' && (
-          <div ref={heroRef} className="w-full max-w-7xl grid lg:grid-cols-2 gap-12 md:gap-24 items-center animate-in fade-in slide-in-from-bottom-10 duration-1000">
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full overflow-hidden px-4 md:px-2">
+          <div ref={heroRef} className="w-full max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 md:gap-24 items-center animate-in fade-in slide-in-from-bottom-10 duration-1000 min-h-[calc(100dvh-8rem)] md:min-h-0 px-6 md:px-6">
+            <div className="flex flex-col items-center lg:items-start text-center lg:text-left w-full overflow-hidden">
               <div className="inline-flex items-center gap-4 px-5 py-2.5 bg-white/5 border border-white/10 rounded-full mb-8 md:mb-12 pulse-gold">
                  <span className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse shadow-[0_0_12px_green]"></span>
-                 <span className="text-[11px] text-white/80 font-bold tracking-[0.2em] uppercase">{t.heroBadge}</span>
+                 <span className="text-[10px] font-mono text-white/80 uppercase tracking-widest">{t.heroBadge}</span>
               </div>
-              <h1 className="text-4xl md:text-7xl lg:text-9xl font-playfair font-black text-white mb-8 md:mb-10 leading-[1.15] md:leading-[1] drop-shadow-md break-words w-full max-w-full">{t.heroTitle} <br/> <span className="text-gold italic">{t.heroTitleGold}</span></h1>
+              <h1 className="text-4xl md:text-7xl lg:text-9xl font-['Playfair_Display'] font-black tracking-tight text-white mb-8 md:mb-10 leading-[1.15] md:leading-[1] drop-shadow-md break-words w-full max-w-full">{t.heroTitle} <br/> <span className="text-gold italic">{t.heroTitleGold}</span></h1>
               <HeroTextSlider slides={t.heroSlider} />
               <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full max-w-lg lg:max-w-none items-center lg:items-start">
-                <button onClick={() => nextStep('SIMULATION')} className="gold-gradient w-full lg:w-auto lg:px-16 py-7 rounded-3xl text-black font-extrabold text-xl uppercase tracking-widest shadow-2xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center">{t.heroBtnStart} <ChevronRight className="inline ml-2" size={28} /></button>
-                <div className="flex gap-4 w-full">
-                  <button
-                    onClick={() => openInfoView('project')}
-                    className="bg-white/5 border border-white/10 flex-1 py-7 rounded-3xl text-white font-bold text-[10px] uppercase tracking-widest hover:bg-white/[0.12] transition-all"
-                  >
-                    {t.heroBtnAbout}
-                  </button>
-                  <button
-                    onClick={() => openInfoView('project')}
-                    className="bg-white/5 border border-white/10 flex-1 py-7 rounded-3xl text-white font-bold text-[10px] uppercase tracking-widest hover:bg-white/[0.12] transition-all"
-                  >
-                    {t.heroBtnToken}
-                  </button>
-                </div>
+                <button onClick={() => nextStep('SIMULATION')} className="gold-gradient w-full lg:w-auto lg:px-16 py-7 rounded-3xl text-black font-black text-base md:text-xl uppercase tracking-widest shadow-2xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center">{t.heroBtnStart} <ChevronRight className="inline ml-2" size={28} /></button>
+                <button onClick={() => nextStep('SIMULATION')} className="bg-white/5 border border-white/10 w-full py-7 rounded-3xl text-white font-black text-[10px] font-mono uppercase tracking-widest hover:bg-white/[0.12] transition-all">
+                  {t.heroBtnAbout}
+                </button>
               </div>
               <div className="hidden lg:flex gap-16 mt-24 opacity-60">
-                <div className="flex items-center gap-4"><ShieldCheck size={30} className="text-[#d4af37]" /><span className="text-[10px] font-black uppercase text-white tracking-[0.4em]">{t.heroCompliance[0]}</span></div>
-                <div className="flex items-center gap-4"><Award size={30} className="text-[#d4af37]" /><span className="text-[10px] font-black uppercase text-white tracking-[0.4em]">{t.heroCompliance[1]}</span></div>
-                <div className="flex items-center gap-4"><Layers size={30} className="text-[#d4af37]" /><span className="text-[10px] font-black uppercase text-white tracking-[0.4em]">{t.heroCompliance[2]}</span></div>
+                <div className="flex items-center gap-4"><ShieldCheck size={30} className="text-[#d4af37]" /><span className="text-[10px] font-mono font-black uppercase tracking-widest text-white">{t.heroCompliance[0]}</span></div>
+                <div className="flex items-center gap-4"><Award size={30} className="text-[#d4af37]" /><span className="text-[10px] font-mono font-black uppercase tracking-widest text-white">{t.heroCompliance[1]}</span></div>
+                <div className="flex items-center gap-4"><Layers size={30} className="text-[#d4af37]" /><span className="text-[10px] font-mono font-black uppercase tracking-widest text-white">{t.heroCompliance[2]}</span></div>
               </div>
             </div>
-            <div className="relative group lg:mt-0 mt-8 md:mt-12 w-full max-w-2xl mx-auto px-4 md:px-0">
-              <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-8 md:p-12 border-white/[0.08] relative overflow-hidden group shadow-2xl">
+            <div className="relative group lg:mt-0 mt-8 md:mt-12 w-full max-w-2xl mx-auto">
+              <div className="glass-card rounded-2xl md:rounded-[3.5rem] p-6 md:p-12 border-white/[0.08] relative overflow-hidden group shadow-2xl">
                  <div className="flex justify-between items-center mb-10">
                     <div className="flex flex-col">
-                      <span className="text-[#d4af37] text-[10px] font-black uppercase tracking-[0.4em] mb-2">{t.heroCardValuation}</span>
-                      <span className="text-4xl md:text-6xl font-black text-white tracking-tighter">
-                        ${(600 * currentPrice).toLocaleString()}
-                      </span>
+                      <span className="text-[#d4af37] text-[10px] font-mono font-black uppercase tracking-widest mb-2">{t.heroCardValuation}</span>
+                      <span className="text-4xl md:text-6xl font-black text-white tracking-tighter">${Math.round(currentPrice * 600 * 32.1507).toLocaleString()}</span>
                     </div>
                     <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10"><Gem className="text-[#d4af37]" size={32} /></div>
                  </div>
                  <p className="text-white/40 text-sm md:text-base leading-relaxed mb-12">{t.heroCardDesc}</p>
-                 <button onClick={() => nextStep('SIMULATION')} className="w-full py-6 bg-white/5 border border-white/10 rounded-2xl text-white font-bold text-xs uppercase tracking-widest hover:bg-[#d4af37] hover:text-black hover:border-[#d4af37] transition-all flex items-center justify-center gap-3">{t.heroCardMore} <ArrowRight size={18} /></button>
+                 <button onClick={() => nextStep('SIMULATION')} className="w-full py-6 bg-white/5 border border-white/10 rounded-2xl text-white font-black text-xs uppercase tracking-widest hover:bg-[#d4af37] hover:text-black hover:border-[#d4af37] transition-all flex items-center justify-center gap-3">{t.heroCardMore} <ArrowRight size={18} /></button>
               </div>
-              <div className="absolute -bottom-6 -right-6 w-32 h-32 gold-gradient rounded-full blur-[80px] opacity-20"></div>
+              <div className="absolute -bottom-6 -right-6 w-32 h-32 gold-gradient rounded-full blur-[80px] opacity-20" />
             </div>
           </div>
         )}
 
         {step === 'SIMULATION' && (
-          <div className="w-full max-w-7xl animate-in slide-in-from-right duration-700 flex flex-col items-center px-4 md:px-6 lg:px-0">
-            <div className="hidden lg:block text-center mb-20 px-4">
-               <h2 className="text-4xl md:text-7xl font-playfair font-black text-white mb-8 tracking-tight break-words">{t.calcTitle} <span className="text-gold italic">{t.calcTitleGold}</span></h2>
-               <p className="text-white/50 text-base md:text-xl max-w-3xl mx-auto font-medium break-words">{t.calcDesc}</p>
+          <div className="w-full max-w-7xl mx-auto animate-in slide-in-from-right duration-700 flex flex-col items-stretch min-h-[calc(100dvh-8rem)] md:min-h-0 px-0 md:px-6 lg:px-0">
+            <div className="hidden lg:block text-center mb-20 px-4 md:px-0">
+               <h2 className="text-3xl md:text-4xl font-['Playfair_Display'] font-black text-white mb-8 tracking-tight break-words">{t.calcTitle} <span className="text-gold italic">{t.calcTitleGold}</span></h2>
+               <p className="text-white/40 text-sm md:text-base max-w-3xl mx-auto font-medium break-words">{t.calcDesc}</p>
             </div>
 
-            <div className="grid lg:grid-cols-12 gap-8 md:gap-12 items-stretch w-full px-0 md:px-4 lg:px-0">
+            <div className="grid lg:grid-cols-12 gap-4 md:gap-12 items-stretch w-full px-4 md:px-4 lg:px-0">
               <div className="lg:col-span-7 order-1 lg:order-1">
-                <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] h-full flex flex-col border-white/[0.08] relative overflow-hidden group shadow-2xl min-h-[500px] md:min-h-[600px]">
+                <div className="glass-card rounded-xl md:rounded-[3.5rem] h-full flex flex-col border-white/[0.08] relative overflow-hidden group shadow-2xl min-h-[400px] md:min-h-[600px]">
                   <div className="absolute inset-0 z-0">
                     <img src={companyCards[currentCard].image} className="w-full h-full object-cover transition-opacity duration-1000 opacity-40 group-hover:scale-105 transition-transform duration-[4s]" alt="Context" />
                     <div className="absolute inset-0 bg-gradient-to-t from-[#141417] via-[#141417]/90 to-transparent"></div>
                   </div>
                   <div className="relative z-10 flex flex-col h-full p-8 md:p-16">
-                    <div className="flex items-center gap-4 md:gap-6 mb-auto">
-                      <div className="w-14 h-14 md:w-16 md:h-16 gold-gradient rounded-2xl flex items-center justify-center shadow-2xl flex-shrink-0">
+                    <div className="flex flex-col items-center text-center gap-4 md:gap-6 mb-auto">
+                      <div className="w-14 h-14 md:w-16 md:h-16 gold-gradient rounded-2xl flex items-center justify-center shadow-xl flex-shrink-0">
                         {React.cloneElement(companyCards[currentCard].icon as React.ReactElement, { className: "text-black" })}
                       </div>
                       <div className="max-w-full">
-                        <h3 className="text-lg md:text-4xl font-playfair font-black text-white uppercase tracking-tight break-words">Imperial Pure Gold</h3>
-                        <p className="text-[#d4af37] text-[10px] md:text-xs font-black uppercase tracking-[0.4em]">Institutional Standard</p>
+                        <h3 className="text-lg md:text-4xl font-['Playfair_Display'] font-black text-white uppercase tracking-tight break-words">Imperial Pure Gold</h3>
+                        <p className="text-[#d4af37] text-[10px] font-mono font-black uppercase tracking-widest">Institutional Standard</p>
                       </div>
                     </div>
-                    <div className="mt-8 md:mt-12 mb-12 md:mb-16 space-y-8 md:space-y-12 relative">
-                      <h4 className="text-2xl md:text-5xl font-playfair font-black text-white leading-tight mb-6 md:mb-8 break-words">{companyCards[currentCard].title}</h4>
+                    <div className="mt-8 md:mt-12 mb-12 md:mb-16 space-y-8 md:space-y-12 relative text-center">
+                      <h4 className="text-2xl md:text-5xl font-['Playfair_Display'] font-black text-white leading-tight mb-6 md:mb-8 break-words">{companyCards[currentCard].title}</h4>
                       <AnimatedParagraphs keyId={`${lang}-${currentCard}`} paragraphs={companyCards[currentCard].paragraphs} />
                     </div>
                     <div className="mt-auto flex items-center justify-between">
@@ -850,9 +1033,9 @@ export default function App({ apiBase }: AppProps) {
               </div>
               
               <div className="lg:col-span-5 order-2 lg:order-2 flex flex-col">
-                <div className="glass-card rounded-[2rem] md:rounded-[3.5rem] p-8 md:p-12 border-white/[0.08] flex flex-col h-full shadow-2xl">
+                <div className="glass-card rounded-xl md:rounded-[3.5rem] p-6 md:p-12 border-white/[0.08] flex flex-col h-full shadow-2xl">
                    <div className="mb-8">
-                      <button onClick={openRegistrationGeneric} className="gold-gradient w-full py-7 rounded-[2rem] text-black font-black text-lg md:text-xl uppercase tracking-[0.15em] shadow-xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center group">
+                      <button onClick={openRegistrationGeneric} className="gold-gradient w-full py-7 rounded-[2rem] text-black font-black text-xs md:text-sm uppercase tracking-widest shadow-xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center group">
                         {t.calcBtnActivate} <ChevronRight className="inline ml-2 group-hover:translate-x-1 transition-transform" size={24} />
                       </button>
                    </div>
@@ -860,57 +1043,24 @@ export default function App({ apiBase }: AppProps) {
                    <div className="grid grid-cols-2 gap-4 mb-10">
                       <div className="bg-white/5 border border-white/10 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center group/item hover:bg-white/[0.08] transition-colors min-h-[140px]">
                         <div className="mb-3 text-[#d4af37]"><CalendarDays size={32} /></div>
-                        <div>
-                          <span className="text-[10px] font-bold uppercase text-white/30 block mb-1">{t.calcLabelDelivery}</span>
+                        <div className="font-times">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white/30 block mb-1">{t.calcLabelDelivery}</span>
                           <span className="text-lg md:text-xl font-black text-white leading-none block">№{nextDelivery.id}</span>
-                          <span className="text-sm md:text-base font-bold text-[#d4af37] uppercase tracking-wider">{lang === 'RU' ? nextDelivery.labelRu.split(',')[0] : nextDelivery.labelEn.split(',')[0]}</span>
+                          <span className="text-sm md:text-base font-black text-[#d4af37] uppercase tracking-widest">{lang === 'RU' ? nextDelivery.labelRu.split(',')[0] : nextDelivery.labelEn.split(',')[0]}</span>
                         </div>
                       </div>
                       <div className="bg-[#d4af37]/5 border border-[#d4af37]/20 rounded-[2rem] p-6 flex flex-col items-center justify-center text-center group/item hover:bg-[#d4af37]/10 transition-colors min-h-[140px]">
                         <div className="mb-3 text-[#d4af37]"><RefreshCw size={32} /></div>
-                        <div>
-                          <span className="text-[10px] font-bold uppercase text-white/30 block mb-1">{t.calcLabelCycles}</span>
+                        <div className="font-times">
+                          <span className="text-[10px] font-black uppercase tracking-widest text-white/30 block mb-1">{t.calcLabelCycles}</span>
                           <span className="text-4xl md:text-5xl font-black text-white leading-none tracking-tighter">{remainingCycles}</span>
                         </div>
                       </div>
                    </div>
 
-                   <div className="mb-10 w-full p-2">
-                      <div className="flex flex-col md:flex-row justify-between items-center mb-10 gap-4">
-                        <div className="flex flex-col items-center md:items-start">
-                          <label className="text-[11px] font-black uppercase text-white/30 tracking-[0.4em] mb-1">{t.calcLabelCapital}</label>
-                          <div className="h-1 w-12 bg-[#d4af37] rounded-full"></div>
-                        </div>
-                        <span className="text-4xl md:text-5xl font-black text-[#d4af37] tracking-tighter">${amount.toLocaleString()}</span>
-                      </div>
-                      <input type="range" min="100" max="100000" step="100" value={amount} onChange={(e) => setAmount(Number(e.target.value))} className="w-full" />
-                      <div className="flex justify-between mt-6 text-[10px] font-bold text-white/10 tracking-[0.2em] uppercase"><span>{t.calcLabelMin}</span><span>{t.calcLabelMax}</span></div>
-                   </div>
-
                    <div className="mt-auto">
-                      <div className="mb-10 p-1 flex flex-col gap-1">
-                         <div className="bg-white/5 border border-white/10 p-8 rounded-t-[2.5rem] relative overflow-hidden group/res hover:bg-white/[0.08] transition-all">
-                            <div className="absolute top-0 right-0 p-8 opacity-5 text-white group-hover/res:scale-110 transition-transform"><CircleDollarSign size={80} /></div>
-                            <div className="flex items-center gap-3 mb-3">
-                               <div className="p-1.5 rounded-lg bg-[#d4af37]/10 text-[#d4af37]"><TrendUpIcon size={14} /></div>
-                               <span className="text-[10px] text-white/30 font-black uppercase tracking-[0.3em]">{t.calcLabelForecast}</span>
-                            </div>
-                            <div className="flex items-baseline gap-2">
-                               <span className="text-4xl md:text-6xl font-black text-white tracking-tighter drop-shadow-lg transition-all group-hover/res:tracking-normal duration-500">${finalAmount.toLocaleString()}</span>
-                               <span className="text-white/20 text-xs font-bold uppercase tracking-widest pb-1.5">USD</span>
-                            </div>
-                         </div>
-                         <div className="bg-[#d4af37]/10 border-x border-b border-[#d4af37]/20 p-8 rounded-b-[2.5rem] flex items-center justify-between group/roi hover:bg-[#d4af37]/15 transition-all">
-                            <div className="flex flex-col">
-                               <div className="flex items-center gap-2 mb-1.5"><BarChart3 size={14} className="text-[#d4af37]" /><span className="text-[10px] text-[#d4af37] font-black uppercase tracking-[0.3em]">{t.calcLabelROI}</span></div>
-                               <div className="flex items-center gap-3"><span className="text-3xl md:text-4xl font-black text-[#d4af37] tracking-tighter">+{roi}%</span><div className="h-2 w-16 bg-white/10 rounded-full overflow-hidden relative"><div className="absolute top-0 left-0 h-full bg-[#d4af37] transition-all duration-1000 ease-out" style={{ width: `${Math.min(roi, 100)}%` }}></div></div></div>
-                            </div>
-                         </div>
-                      </div>
-
                       <div className="flex flex-col gap-4">
-                        <button onClick={() => window.open('https://t.me/GoldenShareClub', '_blank')} className="bg-white/5 border border-white/10 w-full py-6 rounded-3xl text-white/40 font-bold text-[10px] uppercase tracking-widest flex flex-col items-center justify-center gap-2 hover:text-white transition-all group"><div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d4af37]/20 transition-colors"><Send size={16} className="text-[#d4af37]" /></div><span>{t.calcBtnTelegram}</span></button>
-                        <button onClick={openRegistrationFromCalculator} className="bg-[#d4af37]/10 border border-[#d4af37]/30 w-full py-6 rounded-3xl text-[#d4af37] font-black uppercase flex flex-col items-center justify-center leading-tight hover:bg-[#d4af37]/20 transition-all shadow-lg group"><span className="text-[14px] md:text-[16px] tracking-[0.2em]">{t.calcBtnLock}</span></button>
+                        <button onClick={() => window.open('https://t.me/GoldenShareClub', '_blank')} className="bg-white/5 border border-white/10 w-full py-6 rounded-3xl text-white/40 font-black text-[10px] font-times uppercase tracking-widest flex flex-col items-center justify-center gap-2 hover:text-white transition-all group"><div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d4af37]/20 transition-colors"><Send size={16} className="text-[#d4af37]" /></div><span>{t.calcBtnTelegram}</span></button>
                       </div>
                    </div>
                 </div>
@@ -920,289 +1070,74 @@ export default function App({ apiBase }: AppProps) {
         )}
 
         {step === 'REGISTRATION' && (
-           <div className="w-full max-w-6xl flex flex-col items-center animate-in zoom-in-95 duration-700 mt-12 text-center px-6 md:px-4 overflow-hidden">
-              <div className="flex flex-col gap-8 text-center mb-16 w-full">
-                 <h2 className="text-4xl md:text-7xl font-playfair font-black text-white leading-tight break-words px-4 md:px-2">{t.regTitle} <br/> <span className="text-gold italic">{t.regTitleGold}</span></h2>
-                 <p className="text-base md:text-2xl text-white/60 leading-relaxed max-w-2xl font-medium mx-auto break-words px-4 md:px-2">{t.regDesc}</p>
-                 <div className="flex flex-col items-center gap-4 mt-8 cursor-pointer group" onClick={() => registrationRef.current?.scrollIntoView({ behavior: 'smooth' })}>
-                    <span className="text-[#d4af37] font-black uppercase tracking-[0.4em] text-sm group-hover:scale-105 transition-transform">{t.regScrollLabel}</span>
-                    <ArrowDown className="text-[#d4af37] animate-bounce" size={32} />
-                 </div>
+           <div ref={registrationRef} className="w-full max-w-6xl mx-auto flex flex-col min-h-[100dvh] md:min-h-0 md:h-auto md:flex-1 py-0 md:py-8 px-0 md:px-6 overflow-hidden">
+              <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden flex flex-col">
+                <RegistrationForm
+                  lang={lang}
+                  t={t}
+                  lockedAmount={lockedAmount}
+                  resolveApiBase={resolveApiBase}
+                  resolveLocalBase={resolveLocalBase}
+                  buildLoginUrl={buildLoginUrl}
+                  onBack={() => nextStep('SIMULATION')}
+                  envDashboard={(import.meta as any).env?.VITE_DASHBOARD_APP_URL as string | undefined}
+                />
               </div>
-
-              <div ref={registrationRef} className="glass-card p-8 md:p-16 rounded-[2rem] md:rounded-[4rem] relative overflow-hidden max-w-md mx-auto w-full border-[#d4af37]/15 mb-24">
-                <div className="w-20 h-20 md:w-24 md:h-24 gold-gradient rounded-[2rem] flex items-center justify-center mx-auto mb-12 shadow-2xl border-4 border-[#141417]/30"><Lock className="text-black" size={36} /></div>
-                <h2 className="text-2xl md:text-5xl font-playfair font-black text-white text-center mb-10 uppercase tracking-tighter break-words px-2">{t.regFormTitle}</h2>
-                {lockedAmount !== null && (
-                  <div className="mb-10 text-center">
-                    <div className="text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">
-                      {lang === 'RU' ? 'Сумма инвестиций' : 'Investment Amount'}
-                    </div>
-                    <div className="text-2xl md:text-3xl font-black text-[#d4af37] tracking-tighter">
-                      ${lockedAmount.toLocaleString()}
-                    </div>
-                  </div>
-                )}
-                <div className="flex justify-center gap-4 mb-10">
-                  <button className="w-14 h-14 bg-white/5 rounded-2xl border border-white/10 flex items-center justify-center text-white/40 hover:text-[#d4af37] transition-all"><Send size={24} /></button>
-                </div>
-                <div className="flex items-center gap-4 mb-8 opacity-20"><div className="h-[1px] flex-1 bg-white"></div><span className="text-[10px] font-black uppercase tracking-widest">{t.regFormOr}</span><div className="h-[1px] flex-1 bg-white"></div></div>
-                <form
-                  className="space-y-7"
-                  onSubmit={async (e) => {
-                    e.preventDefault();
-                    setRegistrationError('');
-                    const base = (window as any).__IPG_API_BASE || 
-                      (window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.ipg-invest.ae');
-                    try {
-                      const res = await fetch(`${base}/auth/register/email`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          email: registrationEmail.trim(),
-                          password: registrationPassword,
-                          full_name: registrationFullName.trim() || 'Investor',
-                          agree_terms: true
-                        })
-                      });
-                      if (!res.ok) {
-                        const body = await res.json().catch(() => ({}));
-                        throw new Error(body.error || 'Registration failed');
-                      }
-                      window.location.href = buildLoginUrl();
-                    } catch (err: any) {
-                      setRegistrationError(err.message || 'Registration failed');
-                    }
-                  }}
-                >
-                  <div className="space-y-3 text-left">
-                    <label className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] ml-1.5">
-                      {lang === 'RU' ? 'ФИО' : 'Full name'}
-                    </label>
-                    <input
-                      required
-                      type="text"
-                      placeholder={lang === 'RU' ? 'Иванов Иван Иванович' : 'John Doe'}
-                      value={registrationFullName}
-                      onChange={(e) => setRegistrationFullName(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-7 py-6 text-white focus:border-[#d4af37]/60 outline-none text-lg font-bold transition-all placeholder:text-white/10"
-                    />
-                  </div>
-                  <div className="space-y-3 text-left">
-                    <label className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] ml-1.5">{t.regLabelEmail}</label>
-                    <input
-                      required
-                      type="email"
-                      placeholder="investor@global.ae"
-                      value={registrationEmail}
-                      onChange={(e) => setRegistrationEmail(e.target.value)}
-                      className="w-full bg-white/5 border border-white/10 rounded-2xl px-7 py-6 text-white focus:border-[#d4af37]/60 outline-none text-lg font-bold transition-all placeholder:text-white/10"
-                    />
-                  </div>
-                  <div className="space-y-3 text-left">
-                    <label className="text-[11px] font-black text-white/30 uppercase tracking-[0.3em] ml-1.5">{t.regLabelPassword}</label>
-                    <div className="relative">
-                      <input
-                        required
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        value={registrationPassword}
-                        onChange={(e) => setRegistrationPassword(e.target.value)}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl px-7 py-6 text-white focus:border-[#d4af37]/60 outline-none text-lg font-bold transition-all placeholder:text-white/10"
-                      />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-7 top-1/2 -translate-y-1/2 text-white/30 hover:text-white">{showPassword ? <EyeOff size={22} /> : <Eye size={22} />}</button>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-4 py-3 justify-center"><input type="checkbox" id="terms" required className="w-6 h-6 accent-[#d4af37] rounded-lg" /><label htmlFor="terms" className="text-sm text-white/40">{t.regLabelTerms} <button type="button" className="text-[#d4af37] font-bold hover:underline">{t.regLinkOffer}</button></label></div>
-                  {registrationError && (
-                    <div className="text-red-400 text-sm text-center">{registrationError}</div>
-                  )}
-                  <button className="gold-gradient w-full py-7 rounded-[2rem] text-black font-black uppercase tracking-widest text-lg shadow-2xl mt-6">{t.regBtnOpen}</button>
-                </form>
-              </div>
-           </div>
+            </div>
         )}
 
         {step === 'SUCCESS' && (
-          <div className="w-full max-w-5xl flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000 mt-20 text-center px-6 md:px-4 overflow-hidden">
+          <div className="w-full max-w-5xl mx-auto flex flex-col items-center animate-in fade-in zoom-in-95 duration-1000 mt-8 md:mt-20 text-center px-4 md:px-4 overflow-hidden min-h-[calc(100dvh-8rem)] md:min-h-0">
             <div className="w-40 h-40 md:w-48 md:h-48 bg-green-500/15 rounded-full flex items-center justify-center mb-16 border border-green-500/30 relative">
               <Check className="text-green-500" size={80} strokeWidth={3} />
-              <div className="absolute -top-4 -right-4 md:-top-6 md:-right-6 bg-[#d4af37] text-black font-black px-4 py-2 md:px-5 md:py-3 rounded-2xl text-xs md:text-base animate-bounce">{t.successBadge}</div>
+              <div className="absolute -top-4 -right-4 md:-top-6 md:-right-6 bg-[#d4af37] text-black font-black px-4 py-2 md:px-5 md:py-3 rounded-2xl text-[10px] md:text-xs uppercase tracking-widest animate-bounce">{t.successBadge}</div>
             </div>
-            <h2 className="text-4xl md:text-8xl font-playfair font-black text-white mb-8 tracking-tighter break-words px-4 md:px-2 max-w-full">{t.successTitle}</h2>
-            <p className="text-lg md:text-3xl font-medium text-white/50 mb-16 max-w-3xl break-words px-4 md:px-2">{t.successDesc}</p>
+            <h2 className="text-3xl md:text-4xl font-['Playfair_Display'] font-black text-white mb-8 tracking-tight break-words px-4 md:px-2 max-w-full">{t.successTitle}</h2>
+            <p className="text-sm md:text-base font-medium text-white/40 mb-16 max-w-3xl break-words px-4 md:px-2">{t.successDesc}</p>
             <div className="grid md:grid-cols-2 gap-10 w-full max-w-4xl px-4 md:px-0">
-               <div className="glass-card p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center gap-4 border-white/[0.08]"><span className="text-[12px] font-bold uppercase tracking-[0.4em] text-white/30">{t.successLabelTarget}</span><span className="text-4xl md:text-7xl font-black text-white tracking-tighter">${finalAmount.toLocaleString()}</span></div>
+               <div className="glass-card p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center gap-4 border-white/[0.08]"><span className="text-[10px] font-mono font-black uppercase tracking-widest text-white/30">{t.successLabelTarget}</span><span className="text-2xl md:text-4xl font-black text-white tracking-tighter">${finalAmount.toLocaleString()}</span></div>
                <div className="glass-card p-10 md:p-12 rounded-[3.5rem] flex flex-col items-center justify-center gap-8 border-[#d4af37]/25">
                  <button
                    onClick={() => window.location.href = buildLoginUrl()}
-                   className="gold-gradient w-full py-7 rounded-[2rem] text-black font-black uppercase tracking-widest text-sm flex items-center justify-center gap-3"
+                   className="gold-gradient w-full py-7 rounded-[2rem] text-black font-black uppercase tracking-widest text-xs md:text-sm flex items-center justify-center gap-3"
                  >
                    {t.successBtnDashboard} <ArrowRight size={22} />
                  </button>
-                 <button onClick={() => nextStep('HERO')} className="text-white/40 font-bold uppercase tracking-[0.5em] text-[11px]">{t.successBtnBack}</button>
+                 <button onClick={() => nextStep('HERO')} className="text-white/40 font-bold uppercase tracking-widest text-[11px]">{t.successBtnBack}</button>
                </div>
             </div>
           </div>
         )}
       </main>
 
-      {/* DYNAMIC BOTTOM SHEET (GOLD CHART) */}
-      <div className={`fixed left-0 right-0 bottom-0 z-[150] flex flex-col items-center transition-transform duration-700 cubic-bezier(0.19, 1, 0.22, 1) ${drawerState === 'hidden' ? 'translate-y-full' : drawerState === 'preview' ? 'translate-y-[calc(100%-70px)]' : 'translate-y-0'} px-2 md:px-0`}>
-        <div className="w-full max-w-5xl bg-[#141417]/98 backdrop-blur-3xl border-x border-t border-white/10 rounded-t-[2rem] md:rounded-t-[3rem] shadow-[0_-40px_100px_rgba(0,0,0,0.5)] overflow-hidden flex flex-col h-[95vh] md:h-[98vh]">
-          <div className="flex items-center justify-between px-4 md:px-12 py-4 md:py-6 cursor-pointer border-b border-white/5 active:bg-white/5 transition-colors" onClick={() => setDrawerState(prev => prev === 'expanded' ? 'preview' : 'expanded')}>
-            <div className="flex items-center gap-3 md:gap-6">
-              <div className="w-9 h-9 md:w-10 md:h-10 gold-gradient rounded-xl flex items-center justify-center shadow-lg"><Gem className="text-black" size={18} /></div>
-              <div className="flex flex-col">
-                <span className="text-[#d4af37] text-[8px] md:text-[10px] font-black uppercase tracking-[0.3em] md:tracking-[0.4em]">{t.drawerLabelBench}</span>
-                <div className="flex items-baseline gap-2 md:gap-3">
-                  <span className="text-xl md:text-3xl font-black text-white tracking-tighter">${currentPrice.toLocaleString()}</span>
-                  <span className="text-[9px] md:text-[12px] text-green-500 font-bold">+{yearlyGrowth}%</span>
-                </div>
+      {/* FOOTER - два столбца: Комплаенс | Контакты */}
+      <footer className="bg-[#0a0a0a] text-white pt-3 pb-1.5 border-t border-white/5 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-4 relative z-10">
+          <div className="grid grid-cols-2 gap-4 md:gap-8 mb-3">
+            <div className="flex flex-col items-start">
+              <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] mb-1">{t.footerCompliance}</h4>
+              <div className="flex flex-col gap-0.5 text-left">
+                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest">{t.footerPrivacy}</a>
+                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest">{t.footerTerms}</a>
+                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest">{t.footerRisk}</a>
               </div>
             </div>
-            <button className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#d4af37]">{drawerState === 'expanded' ? <ChevronDown size={24} /> : <ChevronUp size={24} />}</button>
-          </div>
-
-          <div className="flex-1 p-4 md:p-12 flex flex-col overflow-hidden">
-            <div className="hidden md:flex flex-col items-center text-center mb-10 gap-8 px-2">
-               <div className="max-w-2xl w-full">
-                  <h3 className="text-2xl md:text-5xl font-playfair font-black text-white mb-4 tracking-tight break-words px-2">{t.drawerChartTitle} <span className="text-gold italic">{t.drawerChartTitleGold}</span></h3>
-                  <p className="text-white/40 text-xs md:text-lg font-medium break-words px-2">{t.drawerChartDesc}</p>
-               </div>
-            </div>
-            <div className="chart-container bg-white/5 border border-white/10 rounded-xl md:rounded-2xl p-3 md:p-6 w-full h-[55%] md:h-[40%] min-h-[280px] md:min-h-[320px] max-h-[500px] flex flex-col relative overflow-hidden group shadow-lg">
-              <div className="absolute top-0 right-0 w-24 h-24 md:w-32 md:h-32 bg-[#d4af37]/5 blur-[60px] rounded-full pointer-events-none" />
-              <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-3 md:mb-6 gap-3 md:gap-0 z-10">
-                <div className="flex items-center gap-2 md:gap-3">
-                  <div className="w-2 h-2 md:w-3 md:h-3 bg-[#d4af37] rounded-full animate-pulse"></div>
-                  <h3 className="text-xs md:text-sm font-bold uppercase tracking-wider md:tracking-widest text-white/80">
-                    Gold Price
-                  </h3>
-                  <span className="hidden md:inline text-white/40 text-xs">(USD/oz)</span>
-                </div>
-                <div className="flex bg-black/30 p-0.5 md:p-1 rounded-lg border border-white/5">
-                  {(['1D', '1W', '1M', '1Y'] as TimeRange[]).map((r) => (
-                    <button
-                      key={r}
-                      onClick={() => setRange(r)}
-                      className={`px-2 md:px-3 py-1 text-[9px] md:text-[10px] font-bold rounded-md transition-all ${
-                        range === r
-                          ? 'bg-[#d4af37] text-black shadow-lg shadow-[#d4af37]/20'
-                          : 'text-white/40 hover:text-white'
-                      }`}
-                    >
-                      {r}
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div className="flex-1 w-full min-h-0 z-10">
-                {drawerState !== 'hidden' && (
-                  <ResponsiveContainer width="100%" height="100%" minHeight={220} minWidth={0}>
-                    <AreaChart data={chartData} margin={{ top: 5, right: 5, left: -20, bottom: 5 }}>
-                    <defs>
-                      <linearGradient id="colorPrice" x1="0" y1="0" x2="0" y2="1">
-                        <stop offset="5%" stopColor="#d4af37" stopOpacity={0.4} />
-                        <stop offset="95%" stopColor="#d4af37" stopOpacity={0} />
-                      </linearGradient>
-                    </defs>
-                    <CartesianGrid strokeDasharray="2 2" vertical={false} stroke="rgba(255,255,255,0.03)" />
-                    <XAxis
-                      dataKey="date"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 9, fontWeight: 600 }}
-                      dy={8}
-                      interval="preserveStartEnd"
-                    />
-                    <YAxis
-                      domain={['auto', 'auto']}
-                      orientation="right"
-                      axisLine={false}
-                      tickLine={false}
-                      tick={{ fill: 'rgba(212,175,55,0.6)', fontSize: 10, fontWeight: 700 }}
-                      dx={8}
-                      tickFormatter={(val) => `$${val}`}
-                      width={55}
-                    />
-                    <Tooltip
-                      content={({ active, payload, label }) =>
-                        active && payload?.length ? (
-                          <div className="bg-[#141417]/95 border border-[#d4af37]/40 p-3 rounded-lg shadow-2xl backdrop-blur-md">
-                            <p className="text-[9px] text-white/50 mb-1 font-bold uppercase tracking-wider">{label}</p>
-                            <p className="text-lg font-black text-[#d4af37] tracking-tight">
-                              ${payload[0].value?.toFixed(2)}
-                            </p>
-                          </div>
-                        ) : null
-                      }
-                    />
-                    <Area
-                      type="monotone"
-                      dataKey="price"
-                      stroke="#d4af37"
-                      strokeWidth={2.5}
-                      fillOpacity={1}
-                      fill="url(#colorPrice)"
-                      animationDuration={800}
-                    />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                )}
-              </div>
-            </div>
-            <div className="mt-3 md:mt-4 flex justify-between items-center px-1">
-               <div className="flex items-center gap-2 md:gap-3 opacity-40">
-                 <TrendingUp size={12} className="text-[#d4af37]" />
-                 <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.2em] md:tracking-[0.3em]">{t.drawerChartFeed}</span>
-               </div>
-               <div className="hidden md:flex items-center gap-2 opacity-30">
-                 <div className="w-1.5 h-1.5 bg-[#d4af37] rounded-full"></div>
-                 <span className="text-[8px] font-bold uppercase tracking-wider text-white/60">Live</span>
-               </div>
-            </div>
-            <div className="md:hidden mt-3 px-1">
-              <div className="flex items-center justify-between bg-white/5 rounded-lg p-2 border border-white/5">
-                <span className="text-[9px] font-bold uppercase tracking-wider text-white/40">Current</span>
-                <span className="text-base font-black text-[#d4af37]">${currentPrice.toLocaleString()}</span>
-                <span className="text-[9px] font-bold text-green-500">+{yearlyGrowth}%</span>
+            <div className="flex flex-col items-end">
+              <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] mb-1">{(t.footerContacts as string) || t.footerNetwork}</h4>
+              <div className="flex flex-col gap-0.5 text-right">
+                <a href="mailto:info@ipg-invest.ae" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest break-all"><Mail size={8} /> info@ipg-invest.ae</a>
+                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest"><Send size={8} /> Telegram</a>
+                <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest"><MessageCircle size={8} /> {t.footerSupport}</a>
               </div>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* FOOTER */}
-      <footer className="relative z-10 py-12 px-4 md:px-20 bg-[#141417]/90 border-t border-white/5 mt-auto overflow-hidden">
-        <div className="max-w-7xl mx-auto flex flex-col gap-12 w-full">
-           <div className="grid grid-cols-2 gap-0 w-full relative">
-              <div className="absolute left-1/2 top-2 bottom-2 w-[1px] bg-white/10 -translate-x-1/2"></div>
-              <div className="space-y-6 flex flex-col items-center lg:items-start pr-4 md:pr-16 text-center lg:text-left">
-                 <h4 className="text-[10px] md:text-[12px] font-black text-[#d4af37] uppercase tracking-[0.4em] pb-3 border-b border-[#d4af37]/15 w-full">{t.footerCompliance}</h4>
-                 <ul className="space-y-4 text-[8px] md:text-[11px] font-bold uppercase tracking-widest text-white/50">
-                    <li className="flex flex-col lg:flex-row items-center gap-3 hover:text-white transition-colors cursor-pointer"><ShieldCheck size={16} className="text-[#d4af37]" /> <span>DMCC Registered</span></li>
-                    <li className="flex flex-col lg:flex-row items-center gap-3 hover:text-white transition-colors cursor-pointer"><Award size={16} className="text-[#d4af37]" /> <span>LBMA Standard</span></li>
-                    <li className="flex flex-col lg:flex-row items-center gap-3 hover:text-white transition-colors cursor-pointer"><Lock size={16} className="text-[#d4af37]" /> <span>Multi-Sig Security</span></li>
-                 </ul>
-              </div>
-              <div className="space-y-6 flex flex-col items-center lg:items-start pl-4 md:pl-16 text-center lg:text-left">
-                 <h4 className="text-[10px] md:text-[12px] font-black text-[#d4af37] uppercase tracking-[0.4em] pb-3 border-b border-[#d4af37]/15 w-full">{t.footerNetwork}</h4>
-                 <ul className="space-y-4 text-[8px] md:text-[11px] font-bold uppercase tracking-widest text-white/50">
-                    <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><a href="mailto:info@ipg-invest.ae" className="flex items-center gap-3"><Mail size={16} /> <span className="break-all">info@ipg-invest.ae</span></a></li>
-                    <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><a href="https://t.me/GoldenShareClub" target="_blank" className="flex items-center gap-3"><Send size={16} /> <span>Official Telegram</span></a></li>
-                    <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer"><a href="https://wa.me/971529657370" target="_blank" className="flex items-center gap-3"><MessageCircle size={16} /> <span>{t.footerSupport}</span></a></li>
-                 </ul>
-              </div>
-           </div>
-           <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 w-full">
-              <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-white/20">© 2026 Imperial Pure Gold Trading LLC. All rights reserved.</span>
-              <div className="flex flex-wrap justify-center gap-4 md:gap-10 text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-white/20">
-                 <button className="hover:text-[#d4af37] transition-colors">{t.footerPrivacy}</button>
-                 <button className="hover:text-[#d4af37] transition-colors">{t.footerRisk}</button>
-                 <button className="hover:text-[#d4af37] transition-colors">{t.footerTerms}</button>
-              </div>
-           </div>
+          <div className="pt-2 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-2">
+            <div className="flex items-center gap-2">
+              <div className="w-4 h-4 gold-gradient rounded flex items-center justify-center shadow-lg"><Gem className="text-black" size={8} /></div>
+              <span className="font-playfair font-black text-[10px] uppercase tracking-tight text-white/40">Imperial Pure Gold</span>
+            </div>
+            <p className="text-[10px] font-mono text-white/20 font-medium tracking-widest text-center md:text-right">© {new Date().getFullYear()} IPG DMCC. {t.rights.toUpperCase()}</p>
+          </div>
         </div>
       </footer>
     </div>

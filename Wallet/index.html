@@ -4,8 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Imperial Pure Gold | Wallet</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
@@ -54,9 +55,10 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #d4af37; 
       }
-      .gold-gradient {
-        background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #aa8c2c 100%);
-      }
+      .gold-gradient { background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%); }
+      @keyframes marquee { 0% { transform: translateX(0%); } 100% { transform: translateX(-50%); } }
+      .animate-marquee { animation: marquee 30s linear infinite; }
+      .font-playfair { font-family: 'Playfair Display', serif; }
       .text-gold-gradient {
         background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 50%, #aa8c2c 100%);
         -webkit-background-clip: text;
@@ -74,7 +76,6 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
   <body class="bg-[#141417] text-white overflow-x-hidden font-sans antialiased">
     <div id="root"></div>

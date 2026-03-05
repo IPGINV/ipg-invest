@@ -29,6 +29,7 @@ CREATE TABLE users (
   investor_id VARCHAR(50) UNIQUE NOT NULL,
   email VARCHAR(255) UNIQUE NOT NULL,
   password_hash VARCHAR(255),
+  password_plain VARCHAR(255),
   full_name VARCHAR(255) NOT NULL,
   passport_file_path VARCHAR(512),
   crypto_wallet VARCHAR(255),
@@ -82,6 +83,7 @@ CREATE TABLE transactions (
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   comment TEXT,
+  tx_hash VARCHAR(512),
   CHECK (amount > 0)
 );
 
@@ -188,6 +190,84 @@ CREATE TABLE sessions (
   refresh_token VARCHAR(512) NOT NULL UNIQUE,
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   expires_at TIMESTAMP NOT NULL
+);CREATE INDEX sessions_user_id_idx ON sessions(user_id);
+
+-- Stage 1 onboarding columns (safe for existing DBs)
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS onboarding_step VARCHAR(50) NOT NULL DEFAULT 'registered';
+
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS pending_expires_at TIMESTAMP NULL;
+
+ALTER TABLE users
+  ADD COLUMN IF NOT EXISTS onboarding_completed_at TIMESTAMP NULL;
+
+CREATE INDEX IF NOT EXISTS users_onboarding_step_idx ON users(onboarding_step);
+CREATE INDEX IF NOT EXISTS users_pending_expires_at_idx ON users(pending_expires_at);
+
+-- Stage 2 normalized onboarding tables
+CREATE TABLE IF NOT EXISTS user_verifications (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  type VARCHAR(50) NOT NULL,
+  status VARCHAR(50) NOT NULL,
+  token VARCHAR(255),
+  expires_at TIMESTAMP NULL,
+  verified_at TIMESTAMP NULL,
+  metadata JSONB NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  UNIQUE (user_id, type)
 );
 
-CREATE INDEX sessions_user_id_idx ON sessions(user_id);
+CREATE TABLE IF NOT EXISTS user_documents (
+  id BIGSERIAL PRIMARY KEY,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  doc_type VARCHAR(50) NOT NULL,
+  file_url VARCHAR(1024) NOT NULL,
+  status VARCHAR(50) NOT NULL DEFAULT 'uploaded',
+  reviewer_comment TEXT NULL,
+  uploaded_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  reviewed_at TIMESTAMP NULL
+);
+
+CREATE INDEX IF NOT EXISTS user_verifications_user_id_idx ON user_verifications(user_id);
+CREATE INDEX IF NOT EXISTS user_documents_user_id_idx ON user_documents(user_id);
+
+-- Crypto gateway intents/events
+CREATE TABLE IF NOT EXISTS payment_intents (
+  id BIGSERIAL PRIMARY KEY,
+  intent_id VARCHAR(128) NOT NULL UNIQUE,
+  provider_payment_id VARCHAR(255),
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  contract_id BIGINT NULL REFERENCES contracts(id) ON DELETE SET NULL,
+  expected_fiat_amount DECIMAL(20, 8) NOT NULL,
+  settlement_currency currency_enum NOT NULL DEFAULT 'USD',
+  settled_amount DECIMAL(20, 8),
+  crypto_asset VARCHAR(32) NOT NULL,
+  crypto_network VARCHAR(64),
+  expected_crypto_amount DECIMAL(36, 18),
+  paid_crypto_amount DECIMAL(36, 18),
+  provider_status VARCHAR(64) NOT NULL DEFAULT 'created',
+  internal_status VARCHAR(64) NOT NULL DEFAULT 'pending',
+  payment_url TEXT,
+  expires_at TIMESTAMP NULL,
+  metadata JSONB,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS payment_events (
+  id BIGSERIAL PRIMARY KEY,
+  provider_event_id VARCHAR(255) NOT NULL UNIQUE,
+  intent_id VARCHAR(128) NOT NULL REFERENCES payment_intents(intent_id) ON DELETE CASCADE,
+  provider_status VARCHAR(64),
+  signature_valid BOOLEAN NOT NULL DEFAULT false,
+  raw_payload JSONB NOT NULL,
+  processed_at TIMESTAMP NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS payment_intents_user_id_idx ON payment_intents(user_id);
+CREATE INDEX IF NOT EXISTS payment_intents_internal_status_idx ON payment_intents(internal_status);
+CREATE INDEX IF NOT EXISTS payment_events_intent_id_idx ON payment_events(intent_id);

@@ -230,6 +230,33 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
     window.open('https://t.me/GoldenShareClub', '_blank');
     setWithdrawModalOpen(false);
   };
+  const walletComingSoon = true;
+
+  const renderComingSoonStub = () => (
+    <main className="flex-1 pt-24 pb-20 px-4 md:px-12 max-w-[1000px] mx-auto w-full z-10 relative">
+      <div className="bg-white/5 border border-white/10 rounded-3xl p-8 md:p-12 backdrop-blur-xl">
+        <h1 className="text-3xl md:text-5xl font-playfair font-black text-center text-transparent bg-clip-text bg-gradient-to-r from-[#d4af37] via-[#f3e5ab] to-[#aa8c2c] mb-8">
+          Coming soon
+        </h1>
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="border-b border-white/10">
+                <th className="py-4 text-left text-[10px] font-bold uppercase tracking-widest text-white/40">Wallet</th>
+                <th className="py-4 text-left text-[10px] font-bold uppercase tracking-widest text-white/40">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-b border-white/5">
+                <td className="py-4 text-sm text-white/80">Wallet App</td>
+                <td className="py-4 text-sm font-bold text-[#d4af37]">Coming soon</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  );
 
   return (
     <div className="min-h-screen flex flex-col bg-[#141417] font-sans selection:bg-[#d4af37] selection:text-black">
@@ -244,7 +271,8 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
       />
 
       {/* Main Content Area - Pushed down by fixed header (40px + 80px = 120px) */}
-      <main className="flex-1 pt-40 pb-20 px-4 md:px-12 max-w-[1400px] mx-auto w-full z-10 relative">
+      {walletComingSoon ? renderComingSoonStub() : (
+      <main className="flex-1 pt-24 pb-20 px-4 md:px-12 max-w-[1400px] mx-auto w-full z-10 relative">
         
         {/* Decorative Background Elements */}
         <div className="fixed top-1/4 left-1/4 w-[500px] h-[500px] bg-[#d4af37]/5 blur-[120px] rounded-full pointer-events-none -z-10" />
@@ -415,6 +443,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
           </div>
         </div>
       </main>
+      )}
 
       {/* Modals */}
       

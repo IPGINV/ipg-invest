@@ -2,12 +2,18 @@
 export interface User {
   id: string;
   email: string;
-  investorId: string;
+  /** ID инвестора в формате #XXX/YY — только для верифицированных; null/пусто для неверифицированных */
+  investorId?: string | null;
   tokenBalance: number;
   fullName: string;
   passportData: string;
   telegram: string;
   cryptoWallet: string;
+  status?: 'active' | 'pending' | 'blocked' | 'deleted';
+  emailVerified?: boolean;
+  onboardingStep?: string;
+  pendingExpiresAt?: string | null;
+  phone?: string;
 }
 
 export interface InvestmentCycle {

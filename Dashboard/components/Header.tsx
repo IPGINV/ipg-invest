@@ -47,35 +47,23 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
           }
         }
 
-        // Используем публичный API для цен на металлы (бесплатный)
-        const [metalResponse, currencyResponse] = await Promise.all([
-          fetch('https://data-asg.goldprice.org/dbXRates/USD'),
-          fetch('https://api.exchangerate-api.com/v4/latest/USD')
-        ]);
-        
-        const metalData = await metalResponse.json();
+        // data-asg.goldprice.org is CORS-blocked in browsers, so keep a stable gold
+        // spot fallback and only refresh FX rates from a CORS-friendly endpoint.
+        const currencyResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
         const currencyData = await currencyResponse.json();
-        
-        if (metalData && metalData.items && metalData.items.length > 0) {
-          // Находим цену золота (XAU)
-          const goldItem = metalData.items.find((item: any) => item.curr === 'XAU');
-          if (goldItem) {
-            const goldPricePerOunce = Math.round(goldItem.xauPrice || 2780);
-            
-            const newRates = {
-              AED: Number(currencyData.rates?.AED?.toFixed(2)) || 3.67,
-              RUB: Number(currencyData.rates?.RUB?.toFixed(2)) || 91.42
-            };
-            
-            applyPrice(goldPricePerOunce, newRates);
-            localStorage.setItem(
-              CACHE_KEY,
-              JSON.stringify({ timestamp: Date.now(), lastPrice: goldPricePerOunce, rates: newRates })
-            );
-          }
-        }
+        const goldPricePerOunce = 2780;
+        const newRates = {
+          AED: Number(currencyData.rates?.AED?.toFixed(2)) || 3.67,
+          RUB: Number(currencyData.rates?.RUB?.toFixed(2)) || 91.42
+        };
+        applyPrice(goldPricePerOunce, newRates);
+        localStorage.setItem(
+          CACHE_KEY,
+          JSON.stringify({ timestamp: Date.now(), lastPrice: goldPricePerOunce, rates: newRates })
+        );
       } catch (err) {
-        console.error('Price fetch error:', err);
+        // External market APIs may be blocked by CORS in browsers.
+        // Keep UI stable with fallback values without noisy console errors.
         // Используем актуальные дефолтные значения при ошибке
         applyPrice(2780, { AED: 3.67, RUB: 91.42 });
       }
@@ -91,6 +79,18 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
       document.body.style.overflow = 'auto';
     }
   }, [isMenuOpen, isManagerPopupOpen]);
+
+  const resolveLocalBase = (port: number) => {
+    const host = window.location.hostname;
+    const isLocalLike =
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '::1' ||
+      host.startsWith('192.168.') ||
+      host.startsWith('10.') ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+    return isLocalLike ? `http://${host}:${port}` : null;
+  };
 
   const handleNav = (view: string) => {
     setIsMenuOpen(false);
@@ -108,14 +108,12 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
       onNavigate('dashboard');
       return;
     }
-    const isLocal = window.location.hostname === 'localhost';
-    const dashboardUrl = isLocal ? 'http://localhost:5174' : 'https://ipg-invest.ae/dashboard';
+    const dashboardUrl = resolveLocalBase(3000) || 'https://dashboard.ipg-invest.ae';
     window.location.href = dashboardUrl;
   };
 
   const openInfoApp = (view: 'project' | 'company') => {
-    const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5173' : 'https://ipg-invest.ae/info';
+    const base = resolveLocalBase(3003) || 'https://info.ipg-invest.ae';
     const url = new URL(base);
     url.searchParams.set('view', view);
     url.searchParams.set('lang', lang);
@@ -124,8 +122,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
   };
 
   const openCalculator = () => {
-    const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5178' : 'https://ipg-invest.ae/calculator';
+    const base = resolveLocalBase(5178) || 'https://calculator.ipg-invest.ae';
     setIsMenuOpen(false);
     window.location.href = base;
   };

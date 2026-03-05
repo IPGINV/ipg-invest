@@ -9,29 +9,32 @@ interface DashboardProps {
   user: User;
   contract: Contract;
   lang: 'en' | 'ru';
+  isPending?: boolean;
+  onRequestVerification?: () => void;
+  onStartFunding?: (source: 'deposit' | 'activate', amount?: number) => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ user, contract, lang }) => {
+const Dashboard: React.FC<DashboardProps> = ({ user, contract, lang, isPending = false, onRequestVerification, onStartFunding }) => {
   const [amount, setAmount] = useState<string>('');
   const [profitData, setProfitData] = useState({ cyclesCount: 0, totalBalance: 0, profit: 0 });
   const [nextCycle, setNextCycle] = useState<InvestmentCycle | null>(null);
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [isContractExpanded, setIsContractExpanded] = useState(false);
+  const [showActivateAction, setShowActivateAction] = useState(false);
   const t = locales[lang];
 
   const openWalletApp = () => {
     const isLocal = window.location.hostname === 'localhost';
-    const base = isLocal ? 'http://localhost:5175' : 'https://ipg-invest.ae/wallet';
+    const base = isLocal ? 'http://localhost:5177' : 'https://wallet.ipg-invest.ae';
     window.location.href = base;
   };
 
   const handleActivateContract = () => {
-    const base =
-      (window as any).__IPG_PAYMENT_URL || 'https://payment-gateway.example.com/activate';
-    const url = `${base}?uid=${encodeURIComponent(user.investorId)}&contract=${encodeURIComponent(
-      contract.number
-    )}`;
-    window.location.href = url;
+    if (onStartFunding) {
+      onStartFunding('activate');
+      return;
+    }
+    if (isPending) return;
   };
 
   useEffect(() => {
@@ -40,10 +43,18 @@ const Dashboard: React.FC<DashboardProps> = ({ user, contract, lang }) => {
     setProfitData(data);
     
     setNextCycle(getNextCycle());
+    setShowActivateAction(false);
   }, [contract]);
 
   const handleTransaction = (type: 'deposit' | 'withdraw') => {
     if (!amount) return;
+    const parsedAmount = Number(amount);
+    if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) return;
+    if (type === 'deposit' && onStartFunding) {
+      onStartFunding('deposit', parsedAmount);
+      return;
+    }
+    if (isPending) return;
     window.location.href = `https://payment-gateway.example.com/checkout?type=${type}&amount=${amount}&uid=${user.investorId}`;
   };
 
@@ -88,6 +99,40 @@ Dubai, UAE | Date: ${contract.startDate}
   const contractStatusClass = contract.amount > 0 
     ? 'bg-green-100/80 text-green-700 ring-green-200' 
     : 'bg-amber-100/80 text-amber-700 ring-amber-200';
+  const hasDeposit = contract.amount > 0;
+  const isVerifiedInvestor = Boolean(user.emailVerified);
+  const isObserverState = !isVerifiedInvestor && !hasDeposit;
+  const isPlatinumState = isVerifiedInvestor && hasDeposit;
+  const investorSequence = String(Number(user.id) || 0).padStart(3, '0');
+  const contractCycleNumber = (() => {
+    try {
+      const contractDate = parseDate(contract.startDate);
+      if (Number.isNaN(contractDate.getTime())) return 0;
+      const matched = INVESTMENT_CYCLES_2026.find((cycle) => {
+        const cycleDate = parseDate(cycle.date);
+        return cycleDate.getTime() === contractDate.getTime();
+      });
+      return matched?.number || 0;
+    } catch {
+      return 0;
+    }
+  })();
+  const investorDisplayId = isObserverState
+    ? ''
+    : isPlatinumState
+      ? `#${investorSequence}/${String(contractCycleNumber).padStart(2, '0')}`
+      : user.investorId;
+  const investorStatusLabel = isObserverState
+    ? 'Наблюдатель'
+    : isPlatinumState
+      ? 'Верифицированный Платинум'
+      : t.verified;
+  const forceActiveContractStatus = isVerifiedInvestor;
+  const shouldShowPendingActivationControl = isPendingActivation && !forceActiveContractStatus;
+  const effectiveContractStatusText = forceActiveContractStatus ? t.statusActive : contractStatusText;
+  const effectiveContractStatusClass = forceActiveContractStatus
+    ? 'bg-green-100/80 text-green-700 ring-green-200'
+    : contractStatusClass;
 
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 pb-12">
@@ -97,7 +142,9 @@ Dubai, UAE | Date: ${contract.startDate}
           <h1 className="text-xl md:text-2xl font-black text-gray-900 mb-1 tracking-tight">{t.welcome}</h1>
           <div className="flex items-center space-x-2">
             <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t.accId}:</span>
-            <span className="text-xs font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md tracking-tighter">{user.investorId}</span>
+            <span className="text-xs font-black text-amber-700 bg-amber-50 px-2 py-0.5 rounded-md tracking-tighter min-w-[72px]">
+              {investorDisplayId}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-4 bg-gray-50/50 p-3 md:p-4 rounded-2xl border border-gray-100 w-full md:w-auto">
@@ -106,7 +153,16 @@ Dubai, UAE | Date: ${contract.startDate}
           </div>
           <div>
             <p className="text-[9px] md:text-[10px] uppercase font-black text-gray-400 tracking-widest">{t.status}</p>
-            <p className="text-xs md:text-sm font-bold text-gray-800">{t.verified}</p>
+            <p className="text-xs md:text-sm font-bold text-gray-800">{investorStatusLabel}</p>
+            {isObserverState && (
+              <button
+                type="button"
+                onClick={() => onRequestVerification?.()}
+                className="mt-2 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+              >
+                {lang === 'ru' ? 'Пройти верификацию' : 'Complete verification'}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -179,7 +235,7 @@ Dubai, UAE | Date: ${contract.startDate}
               </button>
               <button 
                 onClick={() => handleTransaction('withdraw')}
-                disabled={!amount}
+                disabled={!amount || isPending}
                 className="bg-white border-2 border-gray-100 text-gray-800 py-4 rounded-2xl text-xs md:text-sm font-black uppercase tracking-widest hover:bg-gray-50 active:scale-95 transition-all disabled:opacity-30"
               >
                 {t.withdraw}
@@ -200,17 +256,28 @@ Dubai, UAE | Date: ${contract.startDate}
               <h3 className="font-black text-sm uppercase tracking-tight text-gray-800">{t.activeContract}</h3>
             </div>
             <div className="flex items-center gap-3">
-              <span className={`px-3 py-1.5 rounded-full text-[9px] uppercase font-black tracking-widest ring-1 ${contractStatusClass}`}>
-                {contractStatusText}
-              </span>
-              {isPendingActivation && (
+              {shouldShowPendingActivationControl ? (
                 <button
                   type="button"
-                  onClick={handleActivateContract}
-                  className="px-4 py-1.5 rounded-full text-[9px] uppercase font-black tracking-widest bg-amber-600 text-white hover:bg-amber-700 transition-colors"
+                  onClick={() => {
+                    if (showActivateAction) {
+                      handleActivateContract();
+                      return;
+                    }
+                    setShowActivateAction(true);
+                  }}
+                  className={`px-3 py-1.5 rounded-full text-[9px] uppercase font-black tracking-widest ring-1 transition-colors ${
+                    showActivateAction
+                      ? 'bg-amber-600 text-white hover:bg-amber-700 ring-amber-300'
+                      : contractStatusClass
+                  }`}
                 >
-                  {t.activate}
+                  {showActivateAction ? t.activate : contractStatusText}
                 </button>
+              ) : (
+                <span className={`px-3 py-1.5 rounded-full text-[9px] uppercase font-black tracking-widest ring-1 ${effectiveContractStatusClass}`}>
+                  {effectiveContractStatusText}
+                </span>
               )}
             </div>
           </div>

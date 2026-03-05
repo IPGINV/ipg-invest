@@ -1,0 +1,65 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, serif;
+
+  --color-gold: #d4af37;
+  --color-gold-dark: #aa8a2e;
+  --color-bg-dark: #141417;
+  --color-bg-marquee: #0c0c0e;
+  --color-bg-content: #f5f5f7;
+
+  --color-gold-50: #fbf8f1;
+  --color-gold-100: #f5efe0;
+  --color-gold-200: #eadbc0;
+  --color-gold-300: #dec098;
+  --color-gold-400: #d0a06b;
+  --color-gold-500: #c68642;
+  --color-gold-600: #ba6f36;
+  --color-gold-700: #9b562e;
+  --color-gold-800: #7f462b;
+  --color-gold-900: #663a26;
+  --color-gold-950: #361d12;
+}
+
+@layer utilities {
+  .bg-gold-gradient {
+    background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C);
+  }
+
+  .text-gold-gradient {
+    background: linear-gradient(135deg, #BF953F, #B38728);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .luxury-card {
+    @apply bg-white/95 backdrop-blur-sm border border-[#d4af37]/15 rounded-[2rem] shadow-sm;
+  }
+
+  .input-luxury {
+    @apply w-full rounded-2xl border-gray-100 bg-gray-50 focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all outline-none;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-[#f5f5f7] text-stone-900 font-sans antialiased;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif;
+  }
+}

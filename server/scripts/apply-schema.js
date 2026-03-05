@@ -79,21 +79,25 @@ const main = async () => {
 
   await ensureDatabaseExists();
   const pool = new Pool(buildConfig());
+  const client = await pool.connect();
 
-  for (const statement of statements) {
-    try {
-      await pool.query(statement);
-    } catch (err) {
-      if (err && IGNORE_CODES.has(err.code)) {
-        continue;
+  try {
+    for (const statement of statements) {
+      try {
+        await client.query(statement);
+      } catch (err) {
+        if (err && IGNORE_CODES.has(err.code)) {
+          continue;
+        }
+        console.error('Failed statement:', statement.slice(0, 200));
+        throw err;
       }
-      console.error('Failed statement:', statement.slice(0, 200));
-      throw err;
     }
+  } finally {
+    client.release();
+    await pool.end();
   }
-
   console.log('Schema applied');
-  await pool.end();
 };
 
 main()

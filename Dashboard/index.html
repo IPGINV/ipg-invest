@@ -5,37 +5,38 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Imperial Pure Gold | Investor Dashboard</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'/%3E">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair_Display:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet">
   <style>
     :root {
       --gold: #d4af37;
-      --gold-dark: #aa8a2e;
-      --bg-dark: #141417;
+      --gold-light: #f3e5ab;
+      --gold-dark: #aa8c2c;
+      --ink: #1a1a1a;
+      --paper: #fdfdfd;
+      --bg-dark: #0a0a0a;
     }
     body { 
       font-family: 'Inter', sans-serif; 
       -webkit-tap-highlight-color: transparent;
       background-color: #0c0c0e;
     }
-    .gold-gradient { background: linear-gradient(135deg, #BF953F, #FCF6BA, #B38728, #FBF5B7, #AA771C); }
+    .font-playfair { font-family: 'Playfair Display', serif; }
+    .gold-gradient { background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%); }
+    .luxury-card { background: #fff; border: 1px solid rgba(212, 175, 55, 0.15); border-radius: 1.5rem; box-shadow: 0 10px 30px rgba(0,0,0,0.03); }
     .gold-text { background: linear-gradient(135deg, #BF953F, #B38728); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
     .luxury-card { 
       background: rgba(255, 255, 255, 0.95); 
       backdrop-filter: blur(10px); 
       border: 1px solid rgba(191, 149, 63, 0.15);
     }
-    @keyframes ticker {
-      0% { transform: translateX(0); }
+    @keyframes marquee {
+      0% { transform: translateX(0%); }
       100% { transform: translateX(-50%); }
     }
-    .ticker-content { 
-      display: flex;
-      animation: ticker 60s linear infinite; 
-      white-space: nowrap; 
-      width: max-content;
-    }
+    .animate-marquee { animation: marquee 30s linear infinite; }
+    .ticker-content { display: flex; animation: marquee 30s linear infinite; white-space: nowrap; width: max-content; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
@@ -48,7 +49,6 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
 <body class="antialiased overflow-x-hidden">
   <div id="root"></div>

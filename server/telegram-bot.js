@@ -19,6 +19,16 @@ bot.onText(/\/start (.+)/, async (msg, match) => {
   if (startParam === 'register') {
     const registrationCode = crypto.randomBytes(6).toString('hex').toUpperCase();
     const redis = await getRedis();
+    
+    if (!redis) {
+      await bot.sendMessage(
+        chatId,
+        `⚠️ Регистрация через Telegram временно недоступна.\n\n` +
+          `Пожалуйста, попробуйте позже или обратитесь в поддержку.`
+      );
+      return;
+    }
+    
     await redis.setEx(
       `telegram_registration:${registrationCode}`,
       600,

@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Award, Lock, Mail, Send, MessageCircle } from 'lucide-react';
+import { ShieldCheck, Award, Lock, Mail, Send, MessageCircle, Gem } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../constants';
 
@@ -11,64 +11,42 @@ const Footer: React.FC<FooterProps> = ({ lang }) => {
   const t = TRANSLATIONS[lang];
 
   return (
-    <footer className="relative z-10 py-12 px-6 md:px-20 bg-[#141417]/90 border-t border-white/5 mt-auto">
-      <div className="max-w-7xl mx-auto flex flex-col gap-12">
-        <div className="grid grid-cols-2 gap-0 w-full relative">
-          <div className="absolute left-1/2 top-2 bottom-2 w-[1px] bg-white/10 -translate-x-1/2"></div>
-          
-          {/* Left Column: Compliance */}
-          <div className="space-y-6 flex flex-col items-center lg:items-start pr-4 md:pr-16 text-center lg:text-left">
-            <h4 className="text-[10px] md:text-[12px] font-black text-[#d4af37] uppercase tracking-[0.4em] pb-3 border-b border-[#d4af37]/15 w-full">
-              {t.footerCompliance}
-            </h4>
-            <ul className="space-y-4 text-[8px] md:text-[11px] font-bold uppercase tracking-widest text-white/50">
-              <li className="flex flex-col lg:flex-row items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <ShieldCheck size={16} className="text-[#d4af37]" /> <span>DMCC Registered</span>
-              </li>
-              <li className="flex flex-col lg:flex-row items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <Award size={16} className="text-[#d4af37]" /> <span>LBMA Standard</span>
-              </li>
-              <li className="flex flex-col lg:flex-row items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <Lock size={16} className="text-[#d4af37]" /> <span>Multi-Sig Security</span>
-              </li>
-            </ul>
+    <footer className="bg-[#0a0a0a] text-white pt-3 pb-1.5 border-t border-white/5 relative overflow-hidden">
+      <div className="max-w-7xl mx-auto px-4 relative z-10">
+        <div className="grid grid-cols-2 gap-4 md:gap-8 mb-3">
+          <div className="flex flex-col items-start">
+            <h4 className="text-[7px] font-black uppercase tracking-widest text-[#d4af37] mb-1">{t.footerCompliance}</h4>
+            <div className="flex flex-col gap-0.5 text-left">
+              <a href="#" className="text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">{t.footerPrivacy}</a>
+              <a href="#" className="text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">{t.footerTerms}</a>
+              <a href="#" className="text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">{t.footerRisk}</a>
+            </div>
           </div>
-
-          {/* Right Column: Network */}
-          <div className="space-y-6 flex flex-col items-center lg:items-start pl-4 md:pl-16 text-center lg:text-left">
-            <h4 className="text-[10px] md:text-[12px] font-black text-[#d4af37] uppercase tracking-[0.4em] pb-3 border-b border-[#d4af37]/15 w-full">
-              {t.footerNetwork}
-            </h4>
-            <ul className="space-y-4 text-[8px] md:text-[11px] font-bold uppercase tracking-widest text-white/50">
-              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <a href="mailto:info@ipg-invest.ae" className="flex items-center gap-3">
-                  <Mail size={16} /> <span className="break-all">info@ipg-invest.ae</span>
-                </a>
-              </li>
-              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-3">
-                  <Send size={16} /> <span>Official Telegram</span>
-                </a>
-              </li>
-              <li className="flex items-center gap-3 hover:text-white transition-colors cursor-pointer">
-                <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-3">
-                  <MessageCircle size={16} /> <span>{t.footerSupport}</span>
-                </a>
-              </li>
-            </ul>
+          <div className="flex flex-col items-end">
+            <h4 className="text-[7px] font-black uppercase tracking-widest text-[#d4af37] mb-1">{t.footerNetwork}</h4>
+            <div className="flex flex-col gap-0.5 text-right">
+              <a href="mailto:info@ipg-invest.ae" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold break-all">
+                <Mail size={8} /> info@ipg-invest.ae
+              </a>
+              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">
+                <Send size={8} /> Telegram
+              </a>
+              <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">
+                <MessageCircle size={8} /> {t.footerSupport}
+              </a>
+            </div>
           </div>
         </div>
-
-        {/* Bottom Bar */}
-        <div className="pt-12 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-8 w-full">
-          <span className="text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-white/20">
-            © 2026 Imperial Pure Gold Trading LLC. All rights reserved.
-          </span>
-          <div className="flex flex-wrap justify-center gap-4 md:gap-10 text-[8px] md:text-[10px] font-bold uppercase tracking-[0.3em] text-white/20">
-            <button className="hover:text-[#d4af37] transition-colors">{t.footerPrivacy}</button>
-            <button className="hover:text-[#d4af37] transition-colors">{t.footerRisk}</button>
-            <button className="hover:text-[#d4af37] transition-colors">{t.footerTerms}</button>
+        <div className="pt-2 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-2">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 gold-gradient rounded flex items-center justify-center shadow-lg">
+              <Gem className="text-black" size={8} />
+            </div>
+            <span className="font-playfair font-black text-[7px] uppercase tracking-tight text-white/40">Imperial Pure Gold</span>
           </div>
+          <p className="text-[7px] text-white/20 font-medium tracking-wide">
+            © {new Date().getFullYear()} IPG DMCC. {t.rights.toUpperCase()}
+          </p>
         </div>
       </div>
     </footer>

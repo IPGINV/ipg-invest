@@ -6,25 +6,33 @@ import {
   ViewState, 
   UserStatus, 
   TransactionType,
-  InvestorDocument
+  InvestorDocument,
+  PaymentIntent,
+  InvestmentCycle
 } from './types';
 import { Icons } from './constants';
+
+const ADMIN_AUTH_KEY = 'ipg_admin_authenticated';
+const ADMIN_TOKEN_KEY = 'ipg_admin_token';
 
 // --- Components ---
 
 const Sidebar = ({
   activeView,
   setView,
-  onOpenHost
+  onOpenHost,
+  onLogout
 }: {
   activeView: ViewState;
   setView: (v: ViewState) => void;
   onOpenHost: () => void;
+  onLogout?: () => void;
 }) => {
   const navItems = [
     { id: 'DASHBOARD', label: 'Главная', icon: <Icons.Layout /> },
     { id: 'INVESTORS', label: 'Инвесторы', icon: <Icons.Users /> },
     { id: 'TRANSACTIONS', label: 'Транзакции', icon: <Icons.Activity /> },
+    { id: 'CYCLES', label: 'Циклы', icon: <Icons.Cycles /> },
     { id: 'HOST', label: 'Host Shell', icon: <Icons.Layout />, action: onOpenHost }
   ];
 
@@ -60,7 +68,10 @@ const Sidebar = ({
             <p className="text-xs">Root-доступ</p>
           </div>
         </div>
-        <button className="w-full flex items-center gap-3 text-slate-400 hover:text-white transition-colors text-left">
+        <button
+          onClick={onLogout}
+          className="w-full flex items-center gap-3 text-slate-400 hover:text-white transition-colors text-left"
+        >
           <Icons.Logout />
           <span>Выход</span>
         </button>
@@ -73,7 +84,8 @@ const Header = ({ title, onOpenMenu }: { title: string; onOpenMenu: () => void }
   const viewTitles: Record<string, string> = {
     'DASHBOARD': 'Панель управления',
     'INVESTORS': 'Управление инвесторами',
-    'TRANSACTIONS': 'Список транзакций'
+    'TRANSACTIONS': 'Список транзакций',
+    'CYCLES': 'Управление циклами'
   };
 
   return (
@@ -98,13 +110,25 @@ const Header = ({ title, onOpenMenu }: { title: string; onOpenMenu: () => void }
   );
 };
 
-const UserProfileModal = ({ investor, onClose, onUpdate }: { 
+const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield, onConfirmDocuments, onRejectDocuments, documents = [], pendingDeposits = [], onConfirmDeposit, apiBase }: { 
   investor: Investor, 
   onClose: () => void, 
-  onUpdate: (u: Investor) => Promise<void> | void
+  onUpdate: (u: Investor) => Promise<void> | void;
+  onDelete?: () => Promise<void>;
+  onAccrueYield?: () => Promise<{ accrued?: number } | void>;
+  onConfirmDocuments?: () => Promise<void>;
+  onRejectDocuments?: () => Promise<void>;
+  documents?: { id: number; doc_type: string; file_url: string; status: string; uploaded_at: string }[];
+  pendingDeposits?: Transaction[];
+  onConfirmDeposit?: (txId: string, amount: number) => Promise<void>;
+  apiBase?: string;
 }) => {
   const [editedInvestor, setEditedInvestor] = useState<Investor>({ ...investor });
   const [previewDoc, setPreviewDoc] = useState<InvestorDocument | null>(null);
+  const [confirmingTxId, setConfirmingTxId] = useState<string | null>(null);
+  const [confirmAmount, setConfirmAmount] = useState<Record<string, string>>({});
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isAccruing, setIsAccruing] = useState(false);
 
   const handleSave = async () => {
     await onUpdate(editedInvestor);
@@ -152,7 +176,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate }: {
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
             <h2 className="text-2xl font-bold text-slate-900">{editedInvestor.fullName}</h2>
-            <p className="text-sm text-slate-500">Системный ID: <span className="mono font-bold text-blue-600">{editedInvestor.id}</span></p>
+            <p className="text-sm text-slate-500">ID инвестора: <span className="mono font-bold text-blue-600">{editedInvestor.investorDisplayId || editedInvestor.id}</span></p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -161,7 +185,36 @@ const UserProfileModal = ({ investor, onClose, onUpdate }: {
 
         <div className="p-8 overflow-y-auto flex-1 space-y-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Info Section */}
+            {/* Информация об инвесторе (read-only) */}
+            <div className="space-y-6">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Информация об инвесторе</h3>
+              <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
+                <div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Почта</span>
+                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.email || '—'}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Телефон</span>
+                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.phone || (editedInvestor as any).phone || '—'}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Telegram</span>
+                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.socialId || '—'}</p>
+                </div>
+                <div>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Пароль</span>
+                  <p className="text-sm font-mono text-slate-600 mt-0.5">{editedInvestor.password ? String(editedInvestor.password) : '—'}</p>
+                </div>
+                {(editedInvestor as any).cryptoWallets?.length ? (
+                  <div>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Кошелёк</span>
+                    <p className="text-sm font-mono text-slate-800 mt-0.5 break-all">{(editedInvestor as any).cryptoWallets[0] || '—'}</p>
+                  </div>
+                ) : null}
+              </div>
+            </div>
+
+            {/* Info Section - editable */}
             <div className="space-y-6">
               <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Личные и учетные данные</h3>
               <div className="space-y-4">
@@ -258,8 +311,72 @@ const UserProfileModal = ({ investor, onClose, onUpdate }: {
                     className="w-full px-4 py-2 bg-slate-800 border border-slate-700 rounded-xl font-bold text-xl mono text-blue-400 focus:ring-2 focus:ring-blue-500 outline-none" 
                   />
                 </div>
+                {onAccrueYield && (
+                  <div className="col-span-2 pt-2">
+                    <button
+                      onClick={async () => {
+                        setIsAccruing(true);
+                        try {
+                          const res = await onAccrueYield();
+                          if (res && typeof (res as any).accrued === 'number' && (res as any).accrued > 0) {
+                            setEditedInvestor(prev => ({ ...prev, balances: { ...prev.balances, main: prev.balances.main + (res as any).accrued } }));
+                          }
+                        } finally {
+                          setIsAccruing(false);
+                        }
+                      }}
+                      disabled={isAccruing}
+                      className="px-5 py-2.5 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 disabled:opacity-60"
+                    >
+                      {isAccruing ? '...' : 'Начислить доходность'}
+                    </button>
+                    <p className="text-[10px] text-slate-500 mt-2">Доходность рассчитывается по формуле и начисляется только вручную администратором.</p>
+                  </div>
+                )}
               </div>
 
+              {pendingDeposits.length > 0 && (
+                <div className="space-y-3 p-5 bg-amber-50 border border-amber-200 rounded-2xl">
+                  <h4 className="text-xs font-black text-amber-800 uppercase tracking-widest">Ожидающие подтверждения пополнения</h4>
+                  {pendingDeposits.map((dep) => (
+                    <div key={dep.id} className="flex flex-wrap items-center gap-3 p-4 bg-white border border-amber-100 rounded-xl">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-slate-800">TX #{dep.id}</p>
+                        <p className="text-xs text-slate-500 mono truncate">{dep.tx_hash || '—'}</p>
+                        <p className="text-xs text-amber-700 mt-1">{dep.date} • {dep.amount} GHS</p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          placeholder="Сумма"
+                          value={confirmAmount[dep.id] ?? dep.amount}
+                          onChange={(e) => setConfirmAmount((prev) => ({ ...prev, [dep.id]: e.target.value }))}
+                          className="w-24 px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-bold"
+                        />
+                        <button
+                          onClick={async () => {
+                            if (!onConfirmDeposit) return;
+                            setConfirmingTxId(dep.id);
+                            try {
+                              const amt = parseFloat(confirmAmount[dep.id] ?? String(dep.amount)) || dep.amount;
+                              await onConfirmDeposit(dep.id, amt);
+                              setConfirmAmount((prev) => { const n = { ...prev }; delete n[dep.id]; return n; });
+                            } finally {
+                              setConfirmingTxId(null);
+                            }
+                          }}
+                          disabled={confirmingTxId !== null}
+                          className="px-4 py-2 bg-emerald-600 text-white text-xs font-black uppercase rounded-lg hover:bg-emerald-700 disabled:opacity-60"
+                        >
+                          {confirmingTxId === dep.id ? '...' : 'Подтвердить'}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
               <div>
                 <div className="flex items-center justify-between mb-3">
                   <label className="block text-sm font-bold text-slate-700 tracking-tight">Криптокошельки (Профиль / Wallet App)</label>
@@ -297,29 +414,79 @@ const UserProfileModal = ({ investor, onClose, onUpdate }: {
 
           {/* Documents Section */}
           <div className="space-y-6">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Загруженные документы (Верификация)</h3>
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Загруженные документы (Верификация)</h3>
+              {documents.length > 0 && editedInvestor.kycStatus !== 'verified' && (
+                <div className="flex gap-2">
+                  {onConfirmDocuments && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await onConfirmDocuments();
+                          setEditedInvestor(prev => ({ ...prev, kycStatus: 'verified' }));
+                        } catch (e) {
+                          console.error(e);
+                        }
+                      }}
+                      className="px-5 py-2 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700"
+                    >
+                      Подтвердить верификацию
+                    </button>
+                  )}
+                  {onRejectDocuments && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          await onRejectDocuments();
+                          setEditedInvestor(prev => ({ ...prev, kycStatus: 'pending' }));
+                        } catch (e) {
+                          console.error(e);
+                        }
+                      }}
+                      className="px-5 py-2 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-red-700"
+                    >
+                      Отклонить верификацию
+                    </button>
+                  )}
+                </div>
+              )}
+            </div>
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
-              {editedInvestor.documents?.length ? editedInvestor.documents.map((doc) => (
+              {(documents?.length ? documents : editedInvestor.documents || []).map((doc: any) => {
+                const fileUrl = doc.file_url || '';
+                const previewUrl = !fileUrl ? '' : fileUrl.startsWith('http') || fileUrl.startsWith('data:') ? fileUrl : (fileUrl.startsWith('/') ? fileUrl : '/' + fileUrl);
+                const d = typeof doc.id === 'number' ? { id: String(doc.id), name: doc.doc_type || doc.file_url?.split('/').pop() || 'Документ', type: (doc.doc_type || 'PASSPORT').toUpperCase(), uploadDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('ru-RU') : '', previewUrl } : doc;
+                return (
                 <div 
-                  key={doc.id} 
-                  className="group relative bg-slate-50 border border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 transition-all cursor-pointer shadow-sm"
-                  onClick={() => setPreviewDoc(doc)}
+                  key={d.id} 
+                  className="group relative bg-slate-50 border border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 transition-all shadow-sm"
                 >
-                  <div className="aspect-[3/4] overflow-hidden bg-slate-100">
-                    <img src={doc.previewUrl} alt={doc.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="aspect-[3/4] overflow-hidden bg-slate-100 cursor-pointer" onClick={() => setPreviewDoc(d)}>
+                    {d.previewUrl ? (
+                      <img src={d.previewUrl} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M14 2v4h4"/></svg>'; }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M14 2v4h4"/></svg>
+                      </div>
+                    )}
                   </div>
                   <div className="p-3 bg-white border-t border-slate-100">
-                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate">{doc.type}</p>
-                    <p className="text-[11px] font-bold text-slate-700 truncate">{doc.name}</p>
-                    <p className="text-[9px] text-slate-400">{doc.uploadDate}</p>
+                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate">{d.type}</p>
+                    <p className="text-[11px] font-bold text-slate-700 truncate">{d.name}</p>
+                    <p className="text-[9px] text-slate-400">{d.uploadDate}</p>
+                    {d.previewUrl && (
+                      <a href={d.previewUrl} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} className="text-[9px] text-blue-600 hover:underline mt-1 inline-block">Открыть в новой вкладке</a>
+                    )}
                   </div>
-                  <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
+                  <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
                     <div className="bg-white p-2 rounded-full shadow-xl">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
                     </div>
                   </div>
                 </div>
-              )) : (
+              );
+              })}
+              {(!documents?.length && !editedInvestor.documents?.length) && (
                 <div className="col-span-full py-10 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mb-2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                   <p className="text-xs font-medium">Нет загруженных документов</p>
@@ -329,14 +496,38 @@ const UserProfileModal = ({ investor, onClose, onUpdate }: {
           </div>
         </div>
 
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-end gap-3">
-          <button onClick={onClose} className="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-colors">Отмена</button>
-          <button 
-            onClick={handleSave}
-            className="px-12 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
-          >
-            Сохранить изменения
-          </button>
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-between items-center">
+          <div>
+            {onDelete && (
+              <button
+                onClick={async () => {
+                  if (!confirm(`Вы уверены, что хотите удалить инвестора ${editedInvestor.fullName}? Это действие нельзя отменить.`)) return;
+                  setIsDeleting(true);
+                  try {
+                    await onDelete();
+                    onClose();
+                  } catch (err: any) {
+                    alert(err?.message || 'Ошибка удаления');
+                  } finally {
+                    setIsDeleting(false);
+                  }
+                }}
+                disabled={isDeleting}
+                className="px-6 py-2.5 text-red-600 font-bold text-sm hover:bg-red-50 rounded-xl transition-colors border border-red-200"
+              >
+                {isDeleting ? '...' : 'Удалить инвестора'}
+              </button>
+            )}
+          </div>
+          <div className="flex gap-3">
+            <button onClick={onClose} className="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-colors">Отмена</button>
+            <button 
+              onClick={handleSave}
+              className="px-12 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
+            >
+              Сохранить изменения
+            </button>
+          </div>
         </div>
       </div>
 
@@ -362,6 +553,103 @@ const UserProfileModal = ({ investor, onClose, onUpdate }: {
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+const CycleEditModal = ({
+  cycle,
+  onClose,
+  onSave,
+  apiBase
+}: {
+  cycle: InvestmentCycle;
+  onClose: () => void;
+  onSave: () => void;
+  apiBase?: string;
+}) => {
+  const [cycleDate, setCycleDate] = useState(cycle.cycle_date.slice(0, 10));
+  const [yieldPercent, setYieldPercent] = useState(String((cycle.yield_rate * 100).toFixed(1)));
+  const [error, setError] = useState('');
+  const [saving, setSaving] = useState(false);
+  const base = apiBase ?? (window as any).__IPG_API_BASE ?? (window.location.hostname === 'localhost' ? '' : 'https://api.ipg-invest.ae');
+  const token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(ADMIN_TOKEN_KEY) : null;
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+    const rate = parseFloat(yieldPercent);
+    if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
+      setError('Доходность должна быть от 0 до 100%');
+      return;
+    }
+    setSaving(true);
+    try {
+      if (!token) {
+        setError('Требуется авторизация. Выйдите и войдите заново.');
+        return;
+      }
+      const res = await fetch(`${base}/cycles/${cycle.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ cycle_date: cycleDate, yield_rate: rate })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        const msg = data.error || data.message || 'Ошибка сохранения';
+        throw new Error(res.status === 401 ? 'Сессия истекла. Войдите заново.' : msg);
+      }
+      onSave();
+      onClose();
+    } catch (err: any) {
+      setError(err?.message || 'Ошибка');
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+          <h2 className="text-xl font-bold text-slate-900">Редактировать цикл #{cycle.cycle_number}</h2>
+          <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        </div>
+        <form onSubmit={handleSubmit} className="p-6 space-y-5">
+          {error && <div className="p-3 rounded-xl bg-red-50 text-red-700 text-sm font-medium">{error}</div>}
+          <div>
+            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Дата открытия</label>
+            <input
+              type="date"
+              value={cycleDate}
+              onChange={(e) => setCycleDate(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 font-medium focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Доходность (%)</label>
+            <input
+              type="number"
+              step="0.1"
+              min="0"
+              max="100"
+              value={yieldPercent}
+              onChange={(e) => setYieldPercent(e.target.value)}
+              className="w-full px-4 py-3 border border-slate-200 rounded-xl text-slate-900 font-medium focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" onClick={onClose} className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50">
+              Отмена
+            </button>
+            <button type="submit" disabled={saving} className="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 disabled:opacity-70">
+              {saving ? '...' : 'Сохранить'}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 };
@@ -501,17 +789,114 @@ type AppProps = {
   apiBase?: string;
 };
 
+function AdminPasswordGate({ onAuthenticated, apiBase }: { onAuthenticated: () => void; apiBase?: string }) {
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const base = apiBase ?? (window as any).__IPG_API_BASE ??
+    (window.location.hostname === 'localhost' ? '' : 'https://api.ipg-invest.ae');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPasswordError('');
+    setLoading(true);
+    try {
+      const res = await fetch(`${base}/auth/admin-login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: passwordInput })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setPasswordError(data.error || 'Неверный пароль');
+        return;
+      }
+      sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
+      sessionStorage.setItem(ADMIN_TOKEN_KEY, data.accessToken || '');
+      onAuthenticated();
+    } catch {
+      setPasswordError('Ошибка сети');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="w-full max-w-xs p-8 bg-slate-800 rounded-2xl border border-slate-700 shadow-xl"
+      >
+        <div className="flex justify-center mb-6">
+          <div className="p-3 bg-blue-600 rounded-xl">
+            <Icons.Shield />
+          </div>
+        </div>
+        <h2 className="text-xl font-bold text-white text-center mb-2">Доступ в админ-панель</h2>
+        <p className="text-slate-400 text-sm text-center mb-6">Введите пароль для входа</p>
+        <input
+          type="password"
+          value={passwordInput}
+          onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(''); }}
+          placeholder="Пароль"
+          className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          autoFocus
+        />
+        {passwordError && (
+          <p className="mt-2 text-sm text-red-400">{passwordError}</p>
+        )}
+        <button
+          type="submit"
+          disabled={loading}
+          className="w-full mt-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-70"
+        >
+          {loading ? 'Вход...' : 'Войти'}
+        </button>
+      </form>
+    </div>
+  );
+}
+
 export default function App({ apiBase }: AppProps) {
+  const [authenticated, setAuthenticated] = useState(
+    () => typeof sessionStorage !== 'undefined' && sessionStorage.getItem(ADMIN_AUTH_KEY) === '1'
+  );
+
+  const handleLogoutClear = useCallback(() => {
+    sessionStorage.removeItem(ADMIN_AUTH_KEY);
+    sessionStorage.removeItem(ADMIN_TOKEN_KEY);
+    setAuthenticated(false);
+  }, []);
+
+  if (!authenticated) {
+    return <AdminPasswordGate onAuthenticated={() => setAuthenticated(true)} apiBase={apiBase} />;
+  }
+
+  return <AdminAppContent apiBase={apiBase} onLogout={handleLogoutClear} />;
+}
+
+function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => void }) {
   const [view, setView] = useState<ViewState>('DASHBOARD');
   const [investors, setInvestors] = useState<Investor[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [paymentIntents, setPaymentIntents] = useState<PaymentIntent[]>([]);
   const [userIdMap, setUserIdMap] = useState<Record<string, number>>({});
   const [searchQuery, setSearchQuery] = useState("");
+  const [investorVerificationFilter, setInvestorVerificationFilter] = useState<'all' | 'verified' | 'unverified'>('all');
   const [selectedInvestor, setSelectedInvestor] = useState<Investor | null>(null);
+  const [investorDocuments, setInvestorDocuments] = useState<any[]>([]);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const base = apiBase || (window as any).__IPG_API_BASE ||
-    (window.location.hostname === 'localhost' ? 'http://localhost:3001' : 'https://api.ipg-invest.ae');
+  const [cycles, setCycles] = useState<InvestmentCycle[]>([]);
+  const [editingCycle, setEditingCycle] = useState<InvestmentCycle | null>(null);
+  const base = apiBase ?? (window as any).__IPG_API_BASE ??
+    (window.location.hostname === 'localhost' ? '' : 'https://api.ipg-invest.ae');
+
+  const getAuthHeaders = () => {
+    const token = typeof sessionStorage !== 'undefined' ? sessionStorage.getItem(ADMIN_TOKEN_KEY) : null;
+    return token ? { Authorization: `Bearer ${token}` } : {};
+  };
   const openHost = () => {
     localStorage.setItem('ipg_host_token', 'ipg-admin-access');
     const hostUrl = window.location.hostname === 'localhost' ? 'http://localhost:8080' : 'https://ipg-invest.ae';
@@ -523,8 +908,8 @@ export default function App({ apiBase }: AppProps) {
     if (isLocal) {
       const ports: Record<typeof app, number> = {
         dashboard: 3000,
-        wallet: 3003,
-        info: 3002,
+        wallet: 5177,
+        info: 3003,
         invest: 5182
       };
       window.location.href = `http://localhost:${ports[app]}`;
@@ -540,18 +925,23 @@ export default function App({ apiBase }: AppProps) {
   };
 
   const fetchAdminData = useCallback(async () => {
+    const headers = { 'Content-Type': 'application/json', ...getAuthHeaders() };
     try {
-      const [usersRes, balancesRes, contractsRes, txRes] = await Promise.all([
-        fetch(`${base}/users?limit=500`),
-        fetch(`${base}/balances`),
-        fetch(`${base}/contracts?limit=500`),
-        fetch(`${base}/transactions?limit=500`)
+      const [usersRes, balancesRes, contractsRes, txRes, paymentsRes, cyclesRes] = await Promise.all([
+        fetch(`${base}/users?limit=500`, { headers }),
+        fetch(`${base}/balances`, { headers }),
+        fetch(`${base}/contracts?limit=500`, { headers }),
+        fetch(`${base}/transactions?limit=500`, { headers }),
+        fetch(`${base}/payments?limit=500`, { headers }),
+        fetch(`${base}/cycles`, { headers })
       ]);
 
         const users = usersRes.ok ? await usersRes.json() : [];
         const balances = balancesRes.ok ? await balancesRes.json() : [];
         const contracts = contractsRes.ok ? await contractsRes.json() : [];
         const txs = txRes.ok ? await txRes.json() : [];
+        const payments = paymentsRes.ok ? await paymentsRes.json() : [];
+        const cyclesData = cyclesRes.ok ? await cyclesRes.json() : [];
 
         const idToInvestorId = new Map<number, string>();
         const investorIdToDbId: Record<string, number> = {};
@@ -583,14 +973,18 @@ export default function App({ apiBase }: AppProps) {
 
         const mappedInvestors: Investor[] = users.map((u: any) => ({
           id: u.investor_id,
+          investorDisplayId: u.investor_display_id || null,
           email: u.email,
           fullName: u.full_name || '',
-          password: '',
+          phone: u.phone || '',
+          password: u.password_plain || '',
           socialId: u.telegram_id || '',
           passportData: u.passport_file_path || '',
           cryptoWallets: u.crypto_wallet ? [u.crypto_wallet] : [],
           documents: [],
           status: u.status === 'blocked' ? UserStatus.BLOCKED : UserStatus.ACTIVE,
+          kycStatus: u.email_verified ? 'verified' : 'pending',
+          onboardingStep: u.onboarding_step || 'registered',
           registrationDate: new Date(u.registration_date).toLocaleDateString('ru-RU'),
           balances: balanceByUser[u.id] || { main: 0, ghs: 0 },
           contracts: contractsByUser[u.id] || []
@@ -621,13 +1015,23 @@ export default function App({ apiBase }: AppProps) {
             amount: Number(tx.amount) || 0,
             currency: 'USD',
             date: new Date(tx.created_at).toLocaleString('ru-RU'),
-            status: statusMap[tx.status] || 'PENDING'
+            status: statusMap[tx.status] || 'PENDING',
+            tx_hash: tx.tx_hash || undefined
           };
         });
 
         setUserIdMap(investorIdToDbId);
         setInvestors(mappedInvestors);
-      setTransactions(mappedTransactions);
+        setTransactions(mappedTransactions);
+        setPaymentIntents(Array.isArray(payments) ? payments : []);
+        setCycles(Array.isArray(cyclesData) ? cyclesData.map((c: any) => ({
+          id: c.id,
+          cycle_number: c.cycle_number,
+          cycle_date: c.cycle_date,
+          yield_rate: Number(c.yield_rate) || 0,
+          created_at: c.created_at,
+          updated_at: c.updated_at
+        })) : []);
     } catch (err) {
       console.error(err);
     }
@@ -636,7 +1040,7 @@ export default function App({ apiBase }: AppProps) {
   const handleCreateInvestor = useCallback(async (payload: { email: string; password: string; full_name: string }) => {
     const res = await fetch(`${base}/users/admin-create`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getAuthHeaders() },
       body: JSON.stringify(payload)
     });
     const data = await res.json().catch(() => ({}));
@@ -651,18 +1055,41 @@ export default function App({ apiBase }: AppProps) {
     fetchAdminData();
   }, [fetchAdminData]);
 
-  // Filtering Logic
+  useEffect(() => {
+    if (!selectedInvestor) {
+      setInvestorDocuments([]);
+      return;
+    }
+    const dbId = userIdMap[selectedInvestor.id];
+    if (!dbId) {
+      setInvestorDocuments([]);
+      return;
+    }
+    const headers = getAuthHeaders();
+    fetch(`${base}/users/${dbId}/documents`, { headers })
+      .then(res => res.ok ? res.json() : [])
+      .then(data => setInvestorDocuments(Array.isArray(data) ? data : []))
+      .catch(() => setInvestorDocuments([]));
+  }, [selectedInvestor, userIdMap, base]);
+
+  // Filtering Logic: поиск + верификация
   const filteredInvestors = useMemo(() => {
-    if (!searchQuery) return investors;
+    let list = investors;
+    if (investorVerificationFilter === 'verified') {
+      list = list.filter(i => i.kycStatus === 'verified');
+    } else if (investorVerificationFilter === 'unverified') {
+      list = list.filter(i => i.kycStatus !== 'verified');
+    }
+    if (!searchQuery) return list;
     const q = searchQuery.toLowerCase();
-    return investors.filter(i => 
-      i.id.toLowerCase().includes(q) || 
-      i.fullName.toLowerCase().includes(q) || 
+    return list.filter(i =>
+      i.id.toLowerCase().includes(q) ||
+      i.fullName.toLowerCase().includes(q) ||
       i.email.toLowerCase().includes(q) ||
       i.socialId?.toLowerCase().includes(q) ||
       i.passportData?.toLowerCase().includes(q)
     );
-  }, [investors, searchQuery]);
+  }, [investors, searchQuery, investorVerificationFilter]);
 
   const filteredTransactions = useMemo(() => {
     if (!searchQuery) return transactions;
@@ -691,7 +1118,7 @@ export default function App({ apiBase }: AppProps) {
   return (
     <div className="min-h-screen bg-slate-50 flex">
       {/* Sidebar */}
-      <Sidebar activeView={view} setView={setView} onOpenHost={openHost} />
+      <Sidebar activeView={view} setView={setView} onOpenHost={openHost} onLogout={onLogout} />
 
       {/* Main Content Area */}
       <main className="flex-1 ml-64 pt-16 p-8">
@@ -700,10 +1127,12 @@ export default function App({ apiBase }: AppProps) {
         {/* Dashboard View */}
         {view === 'DASHBOARD' && (
           <div className="space-y-10 animate-in fade-in duration-700 max-w-6xl mx-auto">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
                 { label: 'Всего инвесторов', val: investors.length, icon: <Icons.Users />, color: 'bg-indigo-600', sub: 'Зарегистрированных пользователей' },
-                { label: 'Всего внесено (USD)', val: `$${totalDepositedFromBase.toLocaleString()}`, icon: <Icons.Activity />, color: 'bg-emerald-600', sub: 'На основе всех транзакций базы данных' },
+                { label: 'Верифицированные', val: investors.filter(i => i.kycStatus === 'verified').length, icon: <Icons.Shield />, color: 'bg-emerald-600', sub: 'Верифицированный платинум, полный доступ' },
+                { label: 'Неверифицированные', val: investors.filter(i => i.kycStatus !== 'verified').length, icon: <Icons.Users />, color: 'bg-amber-500', sub: 'Ожидают подтверждения документов' },
+                { label: 'Всего внесено (USD)', val: `$${totalDepositedFromBase.toLocaleString()}`, icon: <Icons.Activity />, color: 'bg-blue-600', sub: 'На основе всех транзакций базы данных' },
               ].map((stat, idx) => (
                 <div key={idx} className="bg-white p-10 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between group hover:border-blue-400 transition-all hover:-translate-y-1">
                   <div>
@@ -734,23 +1163,45 @@ export default function App({ apiBase }: AppProps) {
         {/* Investors View */}
         {view === 'INVESTORS' && (
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-              <div className="relative flex-1 max-w-xl">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></span>
-                <input 
-                  type="text" 
-                  placeholder="Поиск по имени, email, ID или паспорту..." 
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-medium"
-                />
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-2">Фильтр:</span>
+                {[
+                  { key: 'all' as const, label: 'Все', count: investors.length },
+                  { key: 'verified' as const, label: 'Верифицированные', count: investors.filter(i => i.kycStatus === 'verified').length },
+                  { key: 'unverified' as const, label: 'Неверифицированные', count: investors.filter(i => i.kycStatus !== 'verified').length },
+                ].map(({ key, label, count }) => (
+                  <button
+                    key={key}
+                    onClick={() => setInvestorVerificationFilter(key)}
+                    className={`px-4 py-2 text-xs font-bold rounded-xl border transition-all ${
+                      investorVerificationFilter === key
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:bg-blue-50/50'
+                    }`}
+                  >
+                    {label} ({count})
+                  </button>
+                ))}
               </div>
-              <button
-                onClick={() => setIsCreateOpen(true)}
-                className="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition-all shadow-lg"
-              >
-                Добавить инвестора
-              </button>
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="relative flex-1 max-w-xl">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></span>
+                  <input
+                    type="text"
+                    placeholder="Поиск по имени, email, ID или паспорту..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-medium"
+                  />
+                </div>
+                <button
+                  onClick={() => setIsCreateOpen(true)}
+                  className="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition-all shadow-lg"
+                >
+                  Добавить инвестора
+                </button>
+              </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/30 overflow-hidden">
@@ -759,6 +1210,7 @@ export default function App({ apiBase }: AppProps) {
                   <tr className="bg-slate-50/50 border-b border-slate-200">
                     <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Инвестор</th>
                     <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Статус</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">KYC</th>
                     <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Баланс (USD)</th>
                     <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Управление</th>
                   </tr>
@@ -773,7 +1225,7 @@ export default function App({ apiBase }: AppProps) {
                           </div>
                           <div>
                             <p className="font-bold text-slate-900 text-base leading-none mb-1.5">{inv.fullName}</p>
-                            <p className="text-xs text-slate-500 mono font-medium">{inv.id} • {inv.email}</p>
+                            <p className="text-xs text-slate-500 mono font-medium">{(inv.investorDisplayId || inv.id)} • {inv.email}</p>
                           </div>
                         </div>
                       </td>
@@ -783,6 +1235,16 @@ export default function App({ apiBase }: AppProps) {
                         }`}>
                           {inv.status === UserStatus.ACTIVE ? 'Активен' : 'Блок'}
                         </span>
+                      </td>
+                      <td className="px-6 py-5">
+                        <span className={`px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-widest border shadow-sm ${
+                          inv.kycStatus === 'verified'
+                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                            : 'bg-amber-50 text-amber-700 border-amber-200'
+                        }`}>
+                          {inv.kycStatus === 'verified' ? 'Верифицированный платинум' : 'Неверифицированный'}
+                        </span>
+                        <p className="text-[10px] text-slate-400 mt-1">{inv.onboardingStep}</p>
                       </td>
                       <td className="px-6 py-5">
                         <p className="text-base font-black text-slate-900">${inv.balances.main.toLocaleString()}</p>
@@ -802,7 +1264,7 @@ export default function App({ apiBase }: AppProps) {
                   ))}
                   {filteredInvestors.length === 0 && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-16 text-center text-slate-400 italic font-medium">Ничего не найдено по данному запросу.</td>
+                      <td colSpan={5} className="px-6 py-16 text-center text-slate-400 italic font-medium">Ничего не найдено по данному запросу.</td>
                     </tr>
                   )}
                 </tbody>
@@ -870,7 +1332,99 @@ export default function App({ apiBase }: AppProps) {
                 </tbody>
               </table>
             </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/30 overflow-hidden">
+              <div className="px-6 py-4 border-b border-slate-100">
+                <h3 className="text-sm font-black uppercase tracking-widest text-slate-600">Crypto Gateway Payments</h3>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-50/50 border-b border-slate-200">
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Intent</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Asset/Network</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Amount</th>
+                      <th className="px-6 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {paymentIntents.slice(0, 50).map((p) => (
+                      <tr key={p.intent_id} className="hover:bg-slate-50 transition-colors">
+                        <td className="px-6 py-4 text-xs font-bold text-blue-700 mono">{p.intent_id}</td>
+                        <td className="px-6 py-4 text-xs text-slate-700">{p.crypto_asset} / {p.crypto_network || '-'}</td>
+                        <td className="px-6 py-4 text-xs font-bold text-slate-900">
+                          {Number(p.expected_fiat_amount || 0).toLocaleString()} {p.settlement_currency}
+                        </td>
+                        <td className="px-6 py-4">
+                          <span className={`px-2.5 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest border ${
+                            p.internal_status === 'confirmed'
+                              ? 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                              : p.internal_status === 'failed' || p.internal_status === 'expired' || p.internal_status === 'cancelled'
+                                ? 'bg-red-50 text-red-700 border-red-100'
+                                : 'bg-amber-50 text-amber-700 border-amber-100'
+                          }`}>
+                            {p.internal_status}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                    {!paymentIntents.length && (
+                      <tr>
+                        <td colSpan={4} className="px-6 py-10 text-center text-slate-400 italic">
+                          Нет данных по криптоплатежам
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+            </div>
            </div>
+        )}
+
+        {/* Cycles View */}
+        {view === 'CYCLES' && (
+          <div className="space-y-6 animate-in fade-in duration-300">
+            <p className="text-slate-500 text-sm max-w-2xl">
+              Редактирование циклов поставки 1–14: дата открытия и доходность. Пополнения до 24 часов до даты цикла участвуют в начислении.
+            </p>
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/30 overflow-hidden">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50/50 border-b border-slate-200">
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">№ цикла</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Дата открытия</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Доходность (%)</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Действия</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {cycles.map((c) => (
+                    <tr key={c.id} className="hover:bg-slate-50 transition-colors">
+                      <td className="px-6 py-5 font-bold text-slate-900">#{c.cycle_number}</td>
+                      <td className="px-6 py-5 text-sm font-medium text-slate-700">{new Date(c.cycle_date).toLocaleDateString('ru-RU')}</td>
+                      <td className="px-6 py-5">
+                        <span className="text-emerald-600 font-black">{(c.yield_rate * 100).toFixed(1)}%</span>
+                      </td>
+                      <td className="px-6 py-5 text-right">
+                        <button
+                          onClick={() => setEditingCycle(c)}
+                          className="px-5 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-600 transition-all"
+                        >
+                          Редактировать
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                  {!cycles.length && (
+                    <tr>
+                      <td colSpan={4} className="px-6 py-16 text-center text-slate-400 italic">Нет циклов. Запустите миграцию migrate-investment-cycles.</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         )}
       </main>
 
@@ -878,7 +1432,73 @@ export default function App({ apiBase }: AppProps) {
       {selectedInvestor && (
         <UserProfileModal 
           investor={selectedInvestor} 
+          documents={investorDocuments}
+          onConfirmDocuments={async () => {
+            const dbId = userIdMap[selectedInvestor.id];
+            if (!dbId) throw new Error('ID инвестора не найден');
+            const res = await fetch(`${base}/users/${dbId}/confirm-documents`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Ошибка подтверждения');
+            await fetchAdminData();
+          }}
+          onRejectDocuments={async () => {
+            const dbId = userIdMap[selectedInvestor.id];
+            if (!dbId) throw new Error('ID инвестора не найден');
+            const res = await fetch(`${base}/users/${dbId}/reject-documents`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Ошибка отклонения');
+            await fetchAdminData();
+          }}
           onClose={() => setSelectedInvestor(null)} 
+          onAccrueYield={async () => {
+            const dbId = userIdMap[selectedInvestor.id];
+            if (!dbId) throw new Error('ID инвестора не найден');
+            const res = await fetch(`${base}/users/${dbId}/accrue-yield`, {
+              method: 'POST',
+              headers: getAuthHeaders()
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Ошибка начисления');
+            await fetchAdminData();
+            return data;
+          }}
+          onDelete={async () => {
+            const dbId = userIdMap[selectedInvestor.id];
+            if (!dbId) throw new Error('ID инвестора не найден');
+            const res = await fetch(`${base}/users/${dbId}`, {
+              method: 'DELETE',
+              headers: getAuthHeaders()
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Ошибка удаления');
+            setSelectedInvestor(null);
+            await fetchAdminData();
+          }}
+          pendingDeposits={transactions.filter(
+            (t) => t.investorId === selectedInvestor.id && t.type === TransactionType.DEPOSIT && t.status === 'PENDING'
+          )}
+          apiBase={base}
+          onConfirmDeposit={async (txId, amount) => {
+            const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);
+            if (!token) throw new Error('Требуется авторизация администратора');
+            const res = await fetch(`${base}/transactions/${txId}/confirm`, {
+              method: 'PATCH',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`
+              },
+              body: JSON.stringify({ amount })
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok) throw new Error(data.error || 'Ошибка подтверждения');
+            await fetchAdminData();
+          }}
           onUpdate={async (updated) => {
             const dbId = userIdMap[updated.id];
             if (!dbId) {
@@ -901,15 +1521,18 @@ export default function App({ apiBase }: AppProps) {
               userPayload.password = updated.password.trim();
             }
 
+            const authHeaders = getAuthHeaders();
+            const reqHeaders = { 'Content-Type': 'application/json', ...authHeaders };
+
             await fetch(`${base}/users/${dbId}`, {
               method: 'PUT',
-              headers: { 'Content-Type': 'application/json' },
+              headers: reqHeaders,
               body: JSON.stringify(userPayload)
             });
 
             await fetch(`${base}/balances`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: reqHeaders,
               body: JSON.stringify({
                 user_id: dbId,
                 currency: 'USD',
@@ -919,7 +1542,7 @@ export default function App({ apiBase }: AppProps) {
 
             await fetch(`${base}/balances`, {
               method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
+              headers: reqHeaders,
               body: JSON.stringify({
                 user_id: dbId,
                 currency: 'GHS',
@@ -929,6 +1552,15 @@ export default function App({ apiBase }: AppProps) {
 
             await fetchAdminData();
           }}
+        />
+      )}
+
+      {editingCycle && (
+        <CycleEditModal
+          cycle={editingCycle}
+          onClose={() => setEditingCycle(null)}
+          onSave={fetchAdminData}
+          apiBase={base}
         />
       )}
 

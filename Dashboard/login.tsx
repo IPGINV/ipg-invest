@@ -1,3 +1,4 @@
+import './index.css';
 import React, { useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -11,17 +12,29 @@ type LoginResult = {
     investor_id: string;
     email: string;
     full_name: string;
+    status?: 'active' | 'pending' | 'blocked' | 'deleted';
+    email_verified?: boolean;
+    onboarding_step?: string;
   };
 };
 
 const LoginApp: React.FC = () => {
-  const [login, setLogin] = useState('');
+  const urlEmail = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('email') || '' : '';
+  const [login, setLogin] = useState(urlEmail);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const apiBase = useMemo(() => {
-    return (window as any).__IPG_API_BASE || 'http://localhost:3001';
+    const override = (window as any).__IPG_API_BASE;
+    if (override) return override;
+    const host = typeof window !== 'undefined' ? window.location.hostname : '';
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
+    return isLocal ? '' : 'https://api.ipg-invest.ae';
+  }, []);
+  const nextFlow = useMemo(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('next');
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,11 +42,15 @@ const LoginApp: React.FC = () => {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch(`${apiBase}/auth/login`, {
+      const ctrl = new AbortController();
+      const timeoutId = setTimeout(() => ctrl.abort(new Error('Timeout')), 15000);
+      const res = await fetch(`${apiBase || ''}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ login, password })
+        body: JSON.stringify({ login, password }),
+        signal: ctrl.signal
       });
+      clearTimeout(timeoutId);
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
@@ -41,12 +58,24 @@ const LoginApp: React.FC = () => {
       }
 
       const data: LoginResult = await res.json();
-      localStorage.setItem('ipg_token', data.tokens.accessToken);
-      localStorage.setItem('ipg_refresh_token', data.tokens.refreshToken);
-      localStorage.setItem('ipg_user_id', String(data.user.id));
-      window.location.href = '/';
+      sessionStorage.setItem('ipg_token', data.tokens.accessToken);
+      sessionStorage.setItem('ipg_refresh_token', data.tokens.refreshToken);
+      sessionStorage.setItem('ipg_user_id', String(data.user.id));
+      sessionStorage.setItem('ipg_user_status', data.user.status || 'active');
+      sessionStorage.setItem('ipg_email_verified', String(Boolean(data.user.email_verified)));
+      sessionStorage.setItem('ipg_onboarding_step', data.user.onboarding_step || 'registered');
+      
+      setTimeout(() => {
+        if (nextFlow === 'kyc') {
+          window.location.href = '/?flow=kyc';
+          return;
+        }
+        window.location.href = '/';
+      }, 150);
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      const isAbort = err?.name === 'AbortError' || err?.message?.includes('abort') || err?.message?.includes('Timeout');
+      const isNetwork = !err?.message || err.message.includes('fetch') || err.message.includes('Failed to fetch');
+      setError(isAbort ? 'Превышено время ожидания. Попробуйте снова.' : (isNetwork ? 'Ошибка сети. Проверьте подключение.' : (err.message || 'Ошибка входа')));
     } finally {
       setLoading(false);
     }
@@ -62,13 +91,13 @@ const LoginApp: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">
-              Почта или Telegram ID
+              Email / Телефон
             </label>
             <input
               value={login}
               onChange={(e) => setLogin(e.target.value)}
               className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#d4af37]/60"
-              placeholder="email@example.com или @telegram"
+              placeholder="email@example.com или +7 999 123 45 67"
               required
             />
           </div>

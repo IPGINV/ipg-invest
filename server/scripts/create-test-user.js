@@ -23,13 +23,14 @@ const main = async () => {
     await query(
       `UPDATE users
        SET password_hash = $1,
-           full_name = $2,
+           password_plain = $2,
+           full_name = $3,
            status = 'active',
            email_verified = true,
-           telegram_id = $3,
+           telegram_id = $4,
            registration_method = 'manual'
-       WHERE id = $4`,
-      [passwordHash, FULL_NAME, LOGIN, userId]
+       WHERE id = $5`,
+      [passwordHash, PASSWORD, FULL_NAME, LOGIN, userId]
     );
     console.log(`Updated test user with id ${userId}`);
     return;
@@ -38,11 +39,11 @@ const main = async () => {
   const investorId = generateInvestorId();
   const result = await query(
     `INSERT INTO users (
-      investor_id, email, password_hash, full_name,
+      investor_id, email, password_hash, password_plain, full_name,
       email_verified, status, registration_method, telegram_id
-    ) VALUES ($1, $2, $3, $4, true, 'active', 'manual', $5)
+    ) VALUES ($1, $2, $3, $4, $5, true, 'active', 'manual', $6)
     RETURNING id`,
-    [investorId, EMAIL, passwordHash, FULL_NAME, LOGIN]
+    [investorId, EMAIL, passwordHash, PASSWORD, FULL_NAME, LOGIN]
   );
 
   console.log(`Created test user with id ${result.rows[0].id}`);

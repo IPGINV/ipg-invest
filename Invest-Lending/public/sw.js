@@ -1,11 +1,10 @@
-const CACHE_NAME = 'ipg-lending-v1';
-const RUNTIME_CACHE = 'ipg-lending-runtime';
+const CACHE_NAME = 'ipg-lending-v2';
+const RUNTIME_CACHE = 'ipg-lending-runtime-v2';
 
 // Assets to cache on install
 const PRECACHE_ASSETS = [
   '/',
-  '/index.html',
-  '/index.css'
+  '/index.html'
 ];
 
 // Install event - cache critical assets
@@ -50,10 +49,12 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          const responseClone = response.clone();
-          caches.open(RUNTIME_CACHE).then((cache) => {
-            cache.put(request, responseClone);
-          });
+          if (response && response.ok) {
+            const responseClone = response.clone();
+            caches.open(RUNTIME_CACHE).then((cache) => {
+              cache.put(request, responseClone);
+            });
+          }
           return response;
         })
         .catch(() => {
@@ -71,9 +72,11 @@ self.addEventListener('fetch', (event) => {
       if (cached) {
         // Update cache in background
         fetch(request).then((response) => {
-          caches.open(RUNTIME_CACHE).then((cache) => {
-            cache.put(request, response);
-          });
+          if (response && response.ok) {
+            caches.open(RUNTIME_CACHE).then((cache) => {
+              cache.put(request, response);
+            });
+          }
         });
         return cached;
       }

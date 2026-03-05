@@ -1,14 +1,28 @@
 # Imperial Pure Gold - Порты и запуск приложений
 
+## 🔗 Быстрые ссылки (localhost)
+
+| Приложение | Ссылка |
+|------------|--------|
+| **API** | http://localhost:3005 |
+| **Dashboard** | http://localhost:3000 |
+| **Лендинг** | http://localhost:5182 |
+| **Admin** | http://localhost:3004 (пароль: Zoloto2026) |
+| **Info** | http://localhost:3002 |
+| **Wallet** | http://localhost:3003 |
+
+> Если порт занят, Vite выберет следующий свободный — проверьте вывод в терминале.
+
 ## 📋 Структура портов
 
 | Приложение | Порт | URL (localhost) | Описание |
 |------------|------|-----------------|----------|
-| **API Server** | 3001 | http://localhost:3001 | Backend API сервер |
+| **API Server** | 3005 | http://localhost:3005 | Backend API сервер |
 | **Dashboard** | 3000 | http://localhost:3000 | Личный кабинет инвестора |
 | **Info App** | 3002 | http://localhost:3002 | Информация о проекте/компании |
 | **Wallet App** | 3003 | http://localhost:3003 | Криптокошелек и транзакции |
 | **Invest-Lending** | 5182 | http://localhost:5182 | Лендинг и регистрация |
+| **Admin** | 3004 | http://localhost:3004 | Админ-панель (пароль: Zoloto2026) |
 
 ## 🚀 Запуск всех приложений
 
@@ -18,8 +32,8 @@ cd server
 npm install
 npm run dev
 ```
-URL: http://localhost:3001
-Health check: http://localhost:3001/health
+URL: http://localhost:3005 (или PORT из server/.env)
+Health check: http://localhost:3005/health
 
 ### 2. Dashboard App
 ```bash
@@ -71,7 +85,7 @@ URL: http://localhost:3003
 ### Dashboard/.env
 ```env
 VITE_PORT=3000
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3005
 VITE_INFO_APP_URL=http://localhost:3002
 VITE_WALLET_APP_URL=http://localhost:3003
 VITE_LENDING_APP_URL=http://localhost:5182
@@ -80,26 +94,27 @@ VITE_LENDING_APP_URL=http://localhost:5182
 ### Invest-Lending/.env
 ```env
 VITE_PORT=5182
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3005
 VITE_DASHBOARD_APP_URL=http://localhost:3000
 ```
 
 ### Info/.env
 ```env
 VITE_PORT=3002
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3005
 ```
 
 ### Wallet/.env
 ```env
 VITE_PORT=3003
-VITE_API_BASE_URL=http://localhost:3001
+VITE_API_BASE_URL=http://localhost:3005
 ```
 
 ### server/.env
 ```env
-PORT=3001
-CORS_ORIGIN=http://localhost:3000,http://localhost:3002,http://localhost:3003,http://localhost:5182
+PORT=3005
+PORT=3005
+CORS_ORIGIN=http://localhost:3000,http://localhost:3002,http://localhost:3003,http://localhost:3004,http://localhost:5182
 ```
 
 ## 🔧 Требования
