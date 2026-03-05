@@ -148,13 +148,21 @@ router.post(
     if (!login || !password) {
       return res.status(400).json({ error: 'login and password are required' });
     }
+    const loginValue = String(login).trim();
+    const loginTelegramUsername = loginValue.replace(/^@/, '');
 
     const { rows } = await query(
       `SELECT id, investor_id, email, full_name, status, password_hash, email_verified, onboarding_step, pending_expires_at
        FROM users
-       WHERE (email = $1 OR telegram_id = $1 OR phone = $1)
+       WHERE (
+         email = $1
+         OR telegram_id = $1
+         OR phone = $1
+         OR telegram_username = $1
+         OR telegram_username = $2
+       )
        LIMIT 1`,
-      [String(login).trim()]
+      [loginValue, loginTelegramUsername]
     );
 
     if (!rows.length) return res.status(401).json({ error: 'Invalid credentials' });

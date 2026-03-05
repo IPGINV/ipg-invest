@@ -1,5 +1,6 @@
 ﻿const TelegramBot = require('node-telegram-bot-api');
 const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const { getRedis } = require('./redis');
 const { query } = require('./db');
 
@@ -12,8 +13,16 @@ const bot = new TelegramBot(token, { polling: true });
 
 let cachedBotUsername = process.env.TELEGRAM_BOT_USERNAME || 'IPGIVESTREG_bot';
 
-const getDomain = () => process.env.DOMAIN || 'ipg-invest.ae';
 const getDashboardUrl = () => process.env.DASHBOARD_APP_URL || 'https://dashboard.ipg-invest.ae/login.html';
+const generateInvestorId = () => `INV-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
+const generateTempPassword = () => {
+  const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
+  let core = '';
+  for (let i = 0; i < 10; i += 1) {
+    core += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return `${core}!`;
+};
 
 const resolveBotUsername = async () => {
   if (cachedBotUsername) return cachedBotUsername.replace(/^@/, '');
@@ -32,20 +41,21 @@ const buildStartLink = async (startParam) => {
   return `https://t.me/${username}?start=${encodeURIComponent(startParam)}`;
 };
 
-const sendRegistrationWelcome = async ({ chatId, firstName, registrationCode, registrationLink }) => {
+const sendRegistrationWelcome = async ({ chatId, firstName, loginAlias, tempPassword, loginUrl }) => {
   const introName = firstName ? `, ${firstName}` : '';
   await bot.sendMessage(
     chatId,
-    `Welcome${introName} to Imperial Pure Gold.\n\n` +
-      `Step 1: Open registration link from this message.\n` +
-      `Step 2: Fill in email and password.\n` +
-      `Step 3: Return to this bot for further support.\n\n` +
-      `Your one-time code: ${registrationCode}\n` +
-      `Code expires in 10 minutes.\n\n` +
-      `Registration link:\n${registrationLink}`,
+    `Добро пожаловать${introName} в Imperial Pure Gold.\n\n` +
+      `Аккаунт создан автоматически.\n` +
+      `Логин: ${loginAlias}\n` +
+      `Ваш временный пароль: ${tempPassword}\n\n` +
+      `Дальше:\n` +
+      `1) Откройте кабинет по кнопке ниже.\n` +
+      `2) Войдите по логину и временному паролю.\n` +
+      `3) Заполните профиль и KYC в кабинете.`,
     {
       reply_markup: {
-        inline_keyboard: [[{ text: 'Open Registration', url: registrationLink }]]
+        inline_keyboard: [[{ text: 'Открыть кабинет', url: loginUrl }]]
       }
     }
   );
@@ -58,7 +68,7 @@ const sendBindingWelcome = async ({ chatId, dashboardUrl }) => {
       `Next steps:\n` +
       `1) Open Dashboard login page.\n` +
       `2) Sign in to your account.\n` +
-      `3) Return to Contact Binding and press \"I have completed verification\".`,
+      `3) Return to Contact Binding and press "I have completed verification".`,
     {
       reply_markup: {
         inline_keyboard: [[{ text: 'Open Dashboard', url: dashboardUrl }]]
@@ -83,35 +93,107 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
   }
 
   if (startParam === 'register') {
-    const registrationCode = crypto.randomBytes(6).toString('hex').toUpperCase();
-    const redis = await getRedis();
-
-    if (!redis) {
+    if (!telegramUsername) {
       await bot.sendMessage(
         chatId,
-        'Registration via Telegram is temporarily unavailable. Please try again later.'
+        'Для регистрации нужен Telegram username.\nОткройте настройки Telegram, задайте username и нажмите ссылку регистрации снова.'
       );
       return;
     }
 
-    await redis.setEx(
-      `telegram_registration:${registrationCode}`,
-      600,
-      JSON.stringify({
-        telegramId,
-        telegramUsername,
-        telegramFirstName,
-        chatId,
-        createdAt: new Date().toISOString()
-      })
+    const loginAlias = `@${telegramUsername}`;
+    const tempPassword = generateTempPassword();
+    const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+    const byTelegramId = await query(
+      `SELECT id
+       FROM users
+       WHERE telegram_id = $1
+       LIMIT 1`,
+      [String(telegramId)]
     );
 
-    const registrationLink = `https://${getDomain()}/auth-telegram-register.html?code=${registrationCode}`;
+    let userId;
+    if (byTelegramId.rows.length) {
+      userId = byTelegramId.rows[0].id;
+      await query(
+        `UPDATE users
+         SET telegram_username = $1,
+             telegram_chat_id = $2,
+             password_hash = $3,
+             password_plain = $4,
+             status = 'active',
+             onboarding_step = CASE
+               WHEN onboarding_step IS NULL OR onboarding_step = '' THEN 'registered'
+               ELSE onboarding_step
+             END,
+             updated_at = NOW()
+         WHERE id = $5`,
+        [telegramUsername, String(chatId), passwordHash, tempPassword, userId]
+      );
+    } else {
+      const byTelegramUsername = await query(
+        `SELECT id
+         FROM users
+         WHERE telegram_username = $1
+         LIMIT 1`,
+        [telegramUsername]
+      );
+      if (byTelegramUsername.rows.length) {
+        await bot.sendMessage(
+          chatId,
+          'Этот username уже связан с другим аккаунтом. Обратитесь в поддержку.'
+        );
+        return;
+      }
+
+      const fullName = telegramFirstName || `Telegram User ${telegramId}`;
+      const syntheticEmail = `tg_${telegramId}@telegram.ipg.local`;
+      const created = await query(
+        `INSERT INTO users (
+          email, password_hash, password_plain, full_name, investor_id,
+          telegram_id, telegram_username, telegram_chat_id,
+          email_verified, status, registration_method, registration_date, onboarding_step
+        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, 'active', 'telegram', NOW(), 'registered')
+        RETURNING id`,
+        [
+          syntheticEmail,
+          passwordHash,
+          tempPassword,
+          fullName,
+          generateInvestorId(),
+          String(telegramId),
+          telegramUsername,
+          String(chatId)
+        ]
+      );
+      userId = created.rows[0].id;
+    }
+
+    try {
+      await query(
+        `INSERT INTO user_verifications (user_id, type, status, verified_at, metadata)
+         VALUES ($1, 'telegram', 'verified', NOW(), $2::jsonb)
+         ON CONFLICT (user_id, type) DO UPDATE
+         SET status = 'verified',
+             verified_at = NOW(),
+             metadata = COALESCE(EXCLUDED.metadata, user_verifications.metadata),
+             updated_at = NOW()`,
+        [userId, JSON.stringify({ source: 'telegram-register', telegram_id: String(telegramId) })]
+      );
+    } catch (error) {
+      if (error?.code !== '42P01') {
+        console.warn('[telegram-bot] verification upsert failed:', error?.message || error);
+      }
+    }
+
+    const loginUrl = `${getDashboardUrl()}?login=${encodeURIComponent(loginAlias)}&next=profile`;
     await sendRegistrationWelcome({
       chatId,
       firstName: telegramFirstName,
-      registrationCode,
-      registrationLink
+      loginAlias,
+      tempPassword,
+      loginUrl
     });
     return;
   }

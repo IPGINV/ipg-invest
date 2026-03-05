@@ -322,6 +322,12 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
 
   useEffect(() => {
     if (authStatus !== AuthStatus.AUTHENTICATED) return;
+    const postLoginTab = sessionStorage.getItem('ipg_post_login_tab');
+    if (postLoginTab === 'profile') {
+      setActiveTab('profile');
+      sessionStorage.removeItem('ipg_post_login_tab');
+    }
+
     const params = new URLSearchParams(window.location.search);
     const flow = params.get('flow');
     const pendingStart = localStorage.getItem('ipg_start_kyc');

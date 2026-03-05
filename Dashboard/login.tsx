@@ -1,4 +1,4 @@
-import './index.css';
+﻿import './index.css';
 import React, { useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -19,8 +19,10 @@ type LoginResult = {
 };
 
 const LoginApp: React.FC = () => {
-  const urlEmail = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('email') || '' : '';
-  const [login, setLogin] = useState(urlEmail);
+  const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
+  const urlPrefill = params.get('login') || params.get('email') || '';
+
+  const [login, setLogin] = useState(urlPrefill);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,10 +34,10 @@ const LoginApp: React.FC = () => {
     const isLocal = host === 'localhost' || host === '127.0.0.1';
     return isLocal ? '' : 'https://api.ipg-invest.ae';
   }, []);
+
   const nextFlow = useMemo(() => {
-    const params = new URLSearchParams(window.location.search);
     return params.get('next');
-  }, []);
+  }, [params]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,11 +66,14 @@ const LoginApp: React.FC = () => {
       sessionStorage.setItem('ipg_user_status', data.user.status || 'active');
       sessionStorage.setItem('ipg_email_verified', String(Boolean(data.user.email_verified)));
       sessionStorage.setItem('ipg_onboarding_step', data.user.onboarding_step || 'registered');
-      
+
       setTimeout(() => {
         if (nextFlow === 'kyc') {
           window.location.href = '/?flow=kyc';
           return;
+        }
+        if (nextFlow === 'profile') {
+          sessionStorage.setItem('ipg_post_login_tab', 'profile');
         }
         window.location.href = '/';
       }, 150);
@@ -91,13 +96,13 @@ const LoginApp: React.FC = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label className="block text-[10px] font-black uppercase tracking-[0.3em] text-white/40 mb-2">
-              Email / Телефон
+              Email / Telegram / Телефон
             </label>
             <input
               value={login}
               onChange={(e) => setLogin(e.target.value)}
               className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white outline-none focus:border-[#d4af37]/60"
-              placeholder="email@example.com или +7 999 123 45 67"
+              placeholder="@telegram_username или email@example.com"
               required
             />
           </div>
