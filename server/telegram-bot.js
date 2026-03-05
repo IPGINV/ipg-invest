@@ -13,7 +13,32 @@ const bot = new TelegramBot(token, { polling: true });
 
 let cachedBotUsername = process.env.TELEGRAM_BOT_USERNAME || 'IPGIVESTREG_bot';
 
-const getDashboardUrl = () => process.env.DASHBOARD_APP_URL || 'https://dashboard.ipg-invest.ae/login.html';
+const normalizeDashboardLoginUrl = (rawUrl) => {
+  const fallback = 'https://dashboard.ipg-invest.ae/login.html';
+  if (!rawUrl || typeof rawUrl !== 'string') return fallback;
+
+  try {
+    const parsed = new URL(rawUrl);
+    const host = (parsed.hostname || '').toLowerCase();
+    const isLandingHost = host === 'ipg-invest.ae' || host === 'www.ipg-invest.ae';
+    if (isLandingHost) {
+      parsed.hostname = 'dashboard.ipg-invest.ae';
+    }
+
+    if (!parsed.pathname || parsed.pathname === '/' || !parsed.pathname.endsWith('.html')) {
+      parsed.pathname = '/login.html';
+    }
+
+    parsed.search = '';
+    parsed.hash = '';
+    return parsed.toString().replace(/\/$/, '');
+  } catch (_) {
+    return fallback;
+  }
+};
+
+const getDashboardUrl = () =>
+  normalizeDashboardLoginUrl(process.env.DASHBOARD_APP_URL || process.env.VITE_DASHBOARD_APP_URL);
 const generateInvestorId = () => `INV-${crypto.randomBytes(4).toString('hex').toUpperCase()}`;
 const generateTempPassword = () => {
   const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789';
@@ -187,7 +212,10 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
       }
     }
 
-    const loginUrl = `${getDashboardUrl()}?login=${encodeURIComponent(loginAlias)}&next=profile`;
+    const loginUrlObj = new URL(getDashboardUrl());
+    loginUrlObj.searchParams.set('login', loginAlias);
+    loginUrlObj.searchParams.set('next', 'profile');
+    const loginUrl = loginUrlObj.toString();
     await sendRegistrationWelcome({
       chatId,
       firstName: telegramFirstName,
