@@ -10,7 +10,7 @@ if (!token) {
 
 const bot = new TelegramBot(token, { polling: true });
 
-let cachedBotUsername = process.env.TELEGRAM_BOT_USERNAME || '';
+let cachedBotUsername = process.env.TELEGRAM_BOT_USERNAME || 'IPGIVESTREG_bot';
 
 const getDomain = () => process.env.DOMAIN || 'ipg-invest.ae';
 const getDashboardUrl = () => process.env.DASHBOARD_APP_URL || 'https://dashboard.ipg-invest.ae/login.html';
