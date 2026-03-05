@@ -673,6 +673,57 @@ router.post(
 );
 
 router.post(
+  '/telegram/register-link',
+  registerLimiter,
+  asyncHandler(async (_req, res) => {
+    const bot = require('../telegram-bot');
+    const botLink = await bot.buildStartLink('register');
+    if (!botLink) {
+      return res.status(503).json({ error: 'Telegram bot link is unavailable' });
+    }
+    res.json({
+      success: true,
+      bot_link: botLink,
+      message: 'Open Telegram bot. You will receive registration link in chat.'
+    });
+  })
+);
+
+router.post(
+  '/telegram/bind-link',
+  authMiddleware,
+  authLimiter,
+  asyncHandler(async (req, res) => {
+    const redis = await getRedis();
+    if (!redis) {
+      return res.status(503).json({ error: 'Telegram binding is temporarily unavailable' });
+    }
+
+    const bindingCode = crypto.randomBytes(8).toString('hex').toUpperCase();
+    await redis.setEx(
+      `telegram_binding:${bindingCode}`,
+      900,
+      JSON.stringify({
+        userId: String(req.user.id),
+        createdAt: new Date().toISOString()
+      })
+    );
+
+    const bot = require('../telegram-bot');
+    const botLink = await bot.buildStartLink(`bind_${bindingCode}`);
+    if (!botLink) {
+      return res.status(503).json({ error: 'Telegram bot link is unavailable' });
+    }
+
+    res.json({
+      success: true,
+      bot_link: botLink,
+      message: 'Open Telegram bot. Follow the instructions in chat to complete binding.'
+    });
+  })
+);
+
+router.post(
   '/verify-telegram',
   authMiddleware,
   asyncHandler(async (req, res) => {

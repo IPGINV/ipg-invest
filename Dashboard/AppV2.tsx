@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
+﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
 import HeaderV2 from './components/HeaderV2';
 import FooterV2 from './components/FooterV2';
 import { HeaderVisibilityProvider } from './context/HeaderVisibilityContext';
@@ -22,9 +22,9 @@ type AppV2Props = {
 
 const toUserFriendlyError = (msg: string, lang: 'en' | 'ru'): string => {
   const m = msg.toLowerCase();
-  if (m.includes('unauthorized') || m.includes('token')) return lang === 'ru' ? 'Сессия истекла. Войдите снова.' : 'Session expired. Please log in again.';
-  if (m.includes('port') || m.includes('server') || m.includes('api') || m.includes('404') || m.includes('502') || m.includes('503')) return lang === 'ru' ? 'Сервис временно недоступен. Попробуйте позже.' : 'Service temporarily unavailable. Please try again later.';
-  if (m.includes('precheck') || m.includes('funding flow')) return lang === 'ru' ? 'Не удалось выполнить операцию. Попробуйте позже.' : 'Operation failed. Please try again later.';
+  if (m.includes('unauthorized') || m.includes('token')) return lang === 'ru' ? 'Ð¡ÐµÑÑÐ¸Ñ Ð¸ÑÑ‚ÐµÐºÐ»Ð°. Ð’Ð¾Ð¹Ð´Ð¸Ñ‚Ðµ ÑÐ½Ð¾Ð²Ð°.' : 'Session expired. Please log in again.';
+  if (m.includes('port') || m.includes('server') || m.includes('api') || m.includes('404') || m.includes('502') || m.includes('503')) return lang === 'ru' ? 'Ð¡ÐµÑ€Ð²Ð¸Ñ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾ Ð½ÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿ÐµÐ½. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ Ð¿Ð¾Ð·Ð¶Ðµ.' : 'Service temporarily unavailable. Please try again later.';
+  if (m.includes('precheck') || m.includes('funding flow')) return lang === 'ru' ? 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð²Ñ‹Ð¿Ð¾Ð»Ð½Ð¸Ñ‚ÑŒ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸ÑŽ. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ Ð¿Ð¾Ð·Ð¶Ðµ.' : 'Operation failed. Please try again later.';
   return msg;
 };
 
@@ -616,7 +616,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     if (!verified) {
       setContactHint(
         lang === 'ru'
-          ? 'Сначала завершите привязку Email или Telegram.'
+          ? 'Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚Ðµ Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÑƒ Email Ð¸Ð»Ð¸ Telegram.'
           : 'Please complete Email or Telegram binding first.'
       );
       return;
@@ -637,14 +637,28 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || 'Email resend failed');
     setContactHint(
-      lang === 'ru' ? 'Письмо отправлено. Перейдите по ссылке из почты.' : 'Verification email sent.'
+      lang === 'ru' ? 'ÐŸÐ¸ÑÑŒÐ¼Ð¾ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¾. ÐŸÐµÑ€ÐµÐ¹Ð´Ð¸Ñ‚Ðµ Ð¿Ð¾ ÑÑÑ‹Ð»ÐºÐµ Ð¸Ð· Ð¿Ð¾Ñ‡Ñ‚Ñ‹.' : 'Verification email sent.'
     );
   };
 
-  const openTelegramBinding = () => {
-    window.open('https://t.me/GoldenShareClub', '_blank');
+  const openTelegramBinding = async () => {
+    const base = resolveBase();
+    const res = await fetch(`${base}/auth/telegram/bind-link`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({})
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'Telegram link request failed');
+
+    if (body?.bot_link) {
+      window.open(body.bot_link, '_blank');
+    }
+
     setContactHint(
-      lang === 'ru' ? 'Откройте бота и завершите привязку.' : 'Open Telegram bot and finish binding.'
+      lang === 'ru'
+        ? 'Ссылка отправлена через бота. Следуйте инструкции в Telegram.'
+        : 'Bot link sent. Please follow the instructions in Telegram.'
     );
   };
 
@@ -662,7 +676,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     if (!verified) {
       setContactHint(
         lang === 'ru'
-          ? 'Сначала завершите привязку Email или Telegram.'
+          ? 'Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚Ðµ Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÑƒ Email Ð¸Ð»Ð¸ Telegram.'
           : 'Please complete Email or Telegram binding first.'
       );
       return;
@@ -682,7 +696,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) {
-      setKycPageError(toUserFriendlyError(body.error || '', lang) || (lang === 'ru' ? 'Ошибка проверки статуса' : 'Status check failed'));
+      setKycPageError(toUserFriendlyError(body.error || '', lang) || (lang === 'ru' ? 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ñ€Ð¾Ð²ÐµÑ€ÐºÐ¸ ÑÑ‚Ð°Ñ‚ÑƒÑÐ°' : 'Status check failed'));
       return;
     }
     const verified = Boolean(
@@ -691,7 +705,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     if (!verified) {
       setKycPageError(
         lang === 'ru'
-          ? 'Сначала завершите привязку Email или Telegram.'
+          ? 'Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚Ðµ Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÑƒ Email Ð¸Ð»Ð¸ Telegram.'
           : 'Please complete Email or Telegram binding first.'
       );
       return;
@@ -712,11 +726,11 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     return (
       <div className="fixed inset-0 bg-[#0c0c0e] flex flex-col items-center justify-center z-[100] p-6">
         <h1 className="font-serif text-xl text-white tracking-wider mb-4">
-          {lang === 'ru' ? 'Сервис временно недоступен' : 'Service temporarily unavailable'}
+          {lang === 'ru' ? 'Ð¡ÐµÑ€Ð²Ð¸Ñ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾ Ð½ÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿ÐµÐ½' : 'Service temporarily unavailable'}
         </h1>
         <p className="text-[#a0a0a0] text-sm text-center mb-6">
           {lang === 'ru'
-            ? 'Загрузка заняла слишком много времени. Проверьте подключение и попробуйте снова.'
+            ? 'Ð—Ð°Ð³Ñ€ÑƒÐ·ÐºÐ° Ð·Ð°Ð½ÑÐ»Ð° ÑÐ»Ð¸ÑˆÐºÐ¾Ð¼ Ð¼Ð½Ð¾Ð³Ð¾ Ð²Ñ€ÐµÐ¼ÐµÐ½Ð¸. ÐŸÑ€Ð¾Ð²ÐµÑ€ÑŒÑ‚Ðµ Ð¿Ð¾Ð´ÐºÐ»ÑŽÑ‡ÐµÐ½Ð¸Ðµ Ð¸ Ð¿Ð¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ ÑÐ½Ð¾Ð²Ð°.'
             : 'Loading took too long. Check your connection and try again.'}
         </p>
         <button
@@ -727,7 +741,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
           }}
           className="px-6 py-3 rounded-xl bg-[#d4af37] text-black font-bold hover:brightness-110 transition"
         >
-          {lang === 'ru' ? 'Повторить' : 'Retry'}
+          {lang === 'ru' ? 'ÐŸÐ¾Ð²Ñ‚Ð¾Ñ€Ð¸Ñ‚ÑŒ' : 'Retry'}
         </button>
       </div>
     );
@@ -758,7 +772,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
           {fundingError && (
             <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-900">
               <p className="text-xs font-black uppercase tracking-wider mb-1">
-                {lang === 'ru' ? 'Ошибка пополнения' : 'Funding Error'}
+                {lang === 'ru' ? 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ' : 'Funding Error'}
               </p>
               <p className="text-sm">{toUserFriendlyError(fundingError, lang)}</p>
             </div>
@@ -768,7 +782,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
               <p className="text-xs font-black uppercase tracking-wider mb-1">Onboarding Required</p>
               <p className="text-sm">
                 {lang === 'ru'
-                  ? 'Завершите подтверждение email/telegram и загрузите документы.'
+                  ? 'Ð—Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚Ðµ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ email/telegram Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹.'
                   : 'Complete email/telegram verification and upload documents.'}
               </p>
             </div>
@@ -859,11 +873,11 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
             const data = await res.json().catch(() => ({}));
             if (!res.ok) {
               const msg = toUserFriendlyError(data.error || '', lang);
-              throw new Error(msg || (lang === 'ru' ? 'Не удалось отправить пополнение. Попробуйте позже.' : 'Failed to submit deposit. Please try again later.'));
+              throw new Error(msg || (lang === 'ru' ? 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð¸Ñ‚ÑŒ Ð¿Ð¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ðµ. ÐŸÐ¾Ð¿Ñ€Ð¾Ð±ÑƒÐ¹Ñ‚Ðµ Ð¿Ð¾Ð·Ð¶Ðµ.' : 'Failed to submit deposit. Please try again later.'));
             }
             setShowPaymentPage(false);
             fetchUserDataRef.current?.();
-            alert(lang === 'ru' ? 'Ожидайте подтверждения депозита. Администратор проверит платёж и зачислит средства.' : 'Please wait for deposit confirmation. Administrator will verify the payment and credit your account.');
+            alert(lang === 'ru' ? 'ÐžÐ¶Ð¸Ð´Ð°Ð¹Ñ‚Ðµ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ñ Ð´ÐµÐ¿Ð¾Ð·Ð¸Ñ‚Ð°. ÐÐ´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€ Ð¿Ñ€Ð¾Ð²ÐµÑ€Ð¸Ñ‚ Ð¿Ð»Ð°Ñ‚Ñ‘Ð¶ Ð¸ Ð·Ð°Ñ‡Ð¸ÑÐ»Ð¸Ñ‚ ÑÑ€ÐµÐ´ÑÑ‚Ð²Ð°.' : 'Please wait for deposit confirmation. Administrator will verify the payment and credit your account.');
           }}
         />
         )}
@@ -873,3 +887,4 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
 };
 
 export default AppV2;
+

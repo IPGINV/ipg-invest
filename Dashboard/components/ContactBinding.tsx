@@ -3,7 +3,7 @@ import React, { useMemo } from 'react';
 type Props = {
   lang: 'ru' | 'en';
   onEmail: () => Promise<void>;
-  onTelegram: () => void;
+  onTelegram: () => Promise<void>;
   onContinue: () => Promise<void>;
   loading?: boolean;
   hint?: string;
@@ -46,7 +46,7 @@ const ContactBinding: React.FC<Props> = ({ lang, onEmail, onTelegram, onContinue
         </button>
         <button
           type="button"
-          onClick={onTelegram}
+          onClick={() => void onTelegram()}
           className="px-6 py-3 rounded-2xl border border-gray-200 text-gray-700 text-xs font-black uppercase tracking-widest hover:bg-gray-50"
         >
           {labels.telegram}

@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
@@ -52,8 +52,8 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
   const [pendingFunding, setPendingFunding] = useState<{ source: 'deposit' | 'activate'; amount?: number } | null>(null);
   const [fundingError, setFundingError] = useState('');
   const [fundingBusy, setFundingBusy] = useState(false);
-  const isRedirectingRef = useRef(false); // Используем ref вместо state
-  const fetchUserDataRef = useRef<(() => Promise<void>) | null>(null); // Ref для функции
+  const isRedirectingRef = useRef(false); // Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐµÐ¼ ref Ð²Ð¼ÐµÑÑ‚Ð¾ state
+  const fetchUserDataRef = useRef<(() => Promise<void>) | null>(null); // Ref Ð´Ð»Ñ Ñ„ÑƒÐ½ÐºÑ†Ð¸Ð¸
   const hasLoadedDataRef = useRef(false);
   const isFetchingRef = useRef(false);
   const retryTimeoutRef = useRef<number | null>(null);
@@ -120,7 +120,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
       }
       isFetchingRef.current = true;
 
-      // Всегда требуем реальный токен и userId для доступа к Dashboard
+      // Ð’ÑÐµÐ³Ð´Ð° Ñ‚Ñ€ÐµÐ±ÑƒÐµÐ¼ Ñ€ÐµÐ°Ð»ÑŒÐ½Ñ‹Ð¹ Ñ‚Ð¾ÐºÐµÐ½ Ð¸ userId Ð´Ð»Ñ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ðº Dashboard
       if (!token || !resolvedUserId) {
         setAuthStatus(AuthStatus.UNAUTHENTICATED);
         if (isHost) {
@@ -128,7 +128,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
           isFetchingRef.current = false;
           return;
         }
-        // Редиректим только если не на странице логина и еще не редиректим
+        // Ð ÐµÐ´Ð¸Ñ€ÐµÐºÑ‚Ð¸Ð¼ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÐµÑÐ»Ð¸ Ð½Ðµ Ð½Ð° ÑÑ‚Ñ€Ð°Ð½Ð¸Ñ†Ðµ Ð»Ð¾Ð³Ð¸Ð½Ð° Ð¸ ÐµÑ‰Ðµ Ð½Ðµ Ñ€ÐµÐ´Ð¸Ñ€ÐµÐºÑ‚Ð¸Ð¼
         const currentPath = window.location.pathname;
         if (currentPath !== '/login.html' && !currentPath.includes('/login') && !isRedirectingRef.current) {
           isRedirectingRef.current = true;
@@ -239,8 +239,8 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
             }, 5000);
           }
         }
-        // Не оставляем экран в вечном LOADING при первичном сбое API.
-        // Если не удалось загрузить данные ни разу, отправляем на логин.
+        // ÐÐµ Ð¾ÑÑ‚Ð°Ð²Ð»ÑÐµÐ¼ ÑÐºÑ€Ð°Ð½ Ð² Ð²ÐµÑ‡Ð½Ð¾Ð¼ LOADING Ð¿Ñ€Ð¸ Ð¿ÐµÑ€Ð²Ð¸Ñ‡Ð½Ð¾Ð¼ ÑÐ±Ð¾Ðµ API.
+        // Ð•ÑÐ»Ð¸ Ð½Ðµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚ÑŒ Ð´Ð°Ð½Ð½Ñ‹Ðµ Ð½Ð¸ Ñ€Ð°Ð·Ñƒ, Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÑÐµÐ¼ Ð½Ð° Ð»Ð¾Ð³Ð¸Ð½.
         if (!hasLoadedDataRef.current) {
           setAuthStatus(AuthStatus.UNAUTHENTICATED);
           if ((window as any).__IPG_HOST) {
@@ -256,12 +256,12 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
       isFetchingRef.current = false;
   }, [apiBase, envApiBase, userId, isLocalLikeHost, refreshAccessToken]);
 
-  // Сохраняем функцию в ref для использования в useEffect
+  // Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ñ„ÑƒÐ½ÐºÑ†Ð¸ÑŽ Ð² ref Ð´Ð»Ñ Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ð½Ð¸Ñ Ð² useEffect
   fetchUserDataRef.current = fetchUserData;
 
   useEffect(() => {
     console.log('[Dashboard] useEffect mounted - checking auth');
-    // Запускаем только если есть токен
+    // Ð—Ð°Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÐµÑÐ»Ð¸ ÐµÑÑ‚ÑŒ Ñ‚Ð¾ÐºÐµÐ½
     const token = localStorage.getItem('ipg_token');
     if (!token) {
       console.log('[Dashboard] No token found, setting UNAUTHENTICATED');
@@ -270,10 +270,10 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
     }
     
     console.log('[Dashboard] Token found, fetching user data');
-    // Вызываем через ref
+    // Ð’Ñ‹Ð·Ñ‹Ð²Ð°ÐµÐ¼ Ñ‡ÐµÑ€ÐµÐ· ref
     fetchUserDataRef.current?.();
     
-    // Обновляем данные каждые 30 секунд только если пользователь авторизован
+    // ÐžÐ±Ð½Ð¾Ð²Ð»ÑÐµÐ¼ Ð´Ð°Ð½Ð½Ñ‹Ðµ ÐºÐ°Ð¶Ð´Ñ‹Ðµ 30 ÑÐµÐºÑƒÐ½Ð´ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ ÐµÑÐ»Ð¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑŒ Ð°Ð²Ñ‚Ð¾Ñ€Ð¸Ð·Ð¾Ð²Ð°Ð½
     const interval = window.setInterval(() => {
       const currentToken = localStorage.getItem('ipg_token');
       if (currentToken) {
@@ -301,7 +301,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
         retryTimeoutRef.current = null;
       }
     };
-  }, []); // Пустые зависимости - запускаем только один раз!
+  }, []); // ÐŸÑƒÑÑ‚Ñ‹Ðµ Ð·Ð°Ð²Ð¸ÑÐ¸Ð¼Ð¾ÑÑ‚Ð¸ - Ð·Ð°Ð¿ÑƒÑÐºÐ°ÐµÐ¼ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð¾Ð´Ð¸Ð½ Ñ€Ð°Ð·!
 
   const loginUrl = () => {
     return isLocalLikeHost() ? 'http://localhost:3000/login.html' : 'https://dashboard.ipg-invest.ae/login.html';
@@ -524,12 +524,28 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
     });
     const body = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(body.error || 'Email resend failed');
-    setContactHint(lang === 'ru' ? 'Письмо отправлено. Перейдите по ссылке из почты.' : 'Verification email sent.');
+    setContactHint(lang === 'ru' ? 'ÐŸÐ¸ÑÑŒÐ¼Ð¾ Ð¾Ñ‚Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¾. ÐŸÐµÑ€ÐµÐ¹Ð´Ð¸Ñ‚Ðµ Ð¿Ð¾ ÑÑÑ‹Ð»ÐºÐµ Ð¸Ð· Ð¿Ð¾Ñ‡Ñ‚Ñ‹.' : 'Verification email sent.');
   };
 
-  const openTelegramBinding = () => {
-    window.open('https://t.me/GoldenShareClub', '_blank');
-    setContactHint(lang === 'ru' ? 'Откройте бота и завершите привязку.' : 'Open Telegram bot and finish binding.');
+  const openTelegramBinding = async () => {
+    const base = resolveBase();
+    const res = await fetch(`${base}/auth/telegram/bind-link`, {
+      method: 'POST',
+      headers: authHeaders(),
+      body: JSON.stringify({})
+    });
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(body.error || 'Telegram link request failed');
+
+    if (body?.bot_link) {
+      window.open(body.bot_link, '_blank');
+    }
+
+    setContactHint(
+      lang === 'ru'
+        ? 'Ссылка отправлена через бота. Следуйте инструкции в Telegram.'
+        : 'Bot link sent. Please follow the instructions in Telegram.'
+    );
   };
 
   const continueAfterBinding = async () => {
@@ -542,7 +558,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
     if (!res.ok) throw new Error(body.error || 'Onboarding status failed');
     const verified = Boolean(body?.email?.status === 'verified' || body?.telegram?.status === 'verified' || body?.email_verified);
     if (!verified) {
-      setContactHint(lang === 'ru' ? 'Сначала завершите привязку Email или Telegram.' : 'Please complete Email or Telegram binding first.');
+      setContactHint(lang === 'ru' ? 'Ð¡Ð½Ð°Ñ‡Ð°Ð»Ð° Ð·Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚Ðµ Ð¿Ñ€Ð¸Ð²ÑÐ·ÐºÑƒ Email Ð¸Ð»Ð¸ Telegram.' : 'Please complete Email or Telegram binding first.');
       return;
     }
     const funding = pendingFunding || { source: 'deposit' as const, amount: 100 };
@@ -655,7 +671,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
           {fundingError && (
             <div className="mb-6 rounded-2xl border border-red-200 bg-red-50 px-5 py-4 text-red-900">
               <p className="text-xs font-black uppercase tracking-wider mb-1">
-                {lang === 'ru' ? 'Ошибка пополнения' : 'Funding Error'}
+                {lang === 'ru' ? 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ' : 'Funding Error'}
               </p>
               <p className="text-sm">{fundingError}</p>
             </div>
@@ -664,7 +680,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
             <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-5 py-4 text-amber-900">
               <p className="text-xs font-black uppercase tracking-wider mb-1">Onboarding Required</p>
               <p className="text-sm">
-                Завершите подтверждение email/telegram и загрузите документы. Финансовые операции для pending-аккаунта временно недоступны.
+                Ð—Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚Ðµ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ email/telegram Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹. Ð¤Ð¸Ð½Ð°Ð½ÑÐ¾Ð²Ñ‹Ðµ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸Ð¸ Ð´Ð»Ñ pending-Ð°ÐºÐºÐ°ÑƒÐ½Ñ‚Ð° Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ð¾ Ð½ÐµÐ´Ð¾ÑÑ‚ÑƒÐ¿Ð½Ñ‹.
               </p>
             </div>
           )}
@@ -721,7 +737,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
               </h2>
               <p className="max-w-xl text-gray-500 font-medium leading-relaxed mb-10">
                 {lang === 'ru' 
-                  ? 'Рассчитайте потенциальную доходность ваших инвестиций на основе сложных процентов и текущих циклов 2026 года.' 
+                  ? 'Ð Ð°ÑÑÑ‡Ð¸Ñ‚Ð°Ð¹Ñ‚Ðµ Ð¿Ð¾Ñ‚ÐµÐ½Ñ†Ð¸Ð°Ð»ÑŒÐ½ÑƒÑŽ Ð´Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚ÑŒ Ð²Ð°ÑˆÐ¸Ñ… Ð¸Ð½Ð²ÐµÑÑ‚Ð¸Ñ†Ð¸Ð¹ Ð½Ð° Ð¾ÑÐ½Ð¾Ð²Ðµ ÑÐ»Ð¾Ð¶Ð½Ñ‹Ñ… Ð¿Ñ€Ð¾Ñ†ÐµÐ½Ñ‚Ð¾Ð² Ð¸ Ñ‚ÐµÐºÑƒÑ‰Ð¸Ñ… Ñ†Ð¸ÐºÐ»Ð¾Ð² 2026 Ð³Ð¾Ð´Ð°.' 
                   : 'Calculate the potential return on your investments based on compound interest and current 2026 cycles.'}
               </p>
               <div className="w-full max-w-md bg-gray-50 p-8 rounded-[2rem] border border-gray-100 italic text-gray-400">
@@ -740,7 +756,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
               </h2>
               <p className="max-w-xl text-gray-500 font-medium leading-relaxed mb-10">
                 {lang === 'ru'
-                  ? 'Imperial Pure Gold — это эксклюзивная платформа для инвестиций в физическое золото, сочетающая традиции и современные финансовые технологии.'
+                  ? 'Imperial Pure Gold â€” ÑÑ‚Ð¾ ÑÐºÑÐºÐ»ÑŽÐ·Ð¸Ð²Ð½Ð°Ñ Ð¿Ð»Ð°Ñ‚Ñ„Ð¾Ñ€Ð¼Ð° Ð´Ð»Ñ Ð¸Ð½Ð²ÐµÑÑ‚Ð¸Ñ†Ð¸Ð¹ Ð² Ñ„Ð¸Ð·Ð¸Ñ‡ÐµÑÐºÐ¾Ðµ Ð·Ð¾Ð»Ð¾Ñ‚Ð¾, ÑÐ¾Ñ‡ÐµÑ‚Ð°ÑŽÑ‰Ð°Ñ Ñ‚Ñ€Ð°Ð´Ð¸Ñ†Ð¸Ð¸ Ð¸ ÑÐ¾Ð²Ñ€ÐµÐ¼ÐµÐ½Ð½Ñ‹Ðµ Ñ„Ð¸Ð½Ð°Ð½ÑÐ¾Ð²Ñ‹Ðµ Ñ‚ÐµÑ…Ð½Ð¾Ð»Ð¾Ð³Ð¸Ð¸.'
                   : 'Imperial Pure Gold is an exclusive platform for investment in physical gold, combining tradition with modern financial technologies.'}
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full text-left">
@@ -764,3 +780,4 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
 };
 
 export default App;
+

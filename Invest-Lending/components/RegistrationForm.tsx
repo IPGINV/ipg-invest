@@ -31,6 +31,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [telegramLoading, setTelegramLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -99,6 +100,36 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
       setIsLogin(false);
     } else {
       setIsLogin(true);
+    }
+  };
+
+  const handleTelegramRegister = async () => {
+    if (telegramLoading) return;
+    setTelegramLoading(true);
+    setError('');
+    try {
+      const base = resolveApiBase();
+      const res = await fetch(`${base}/auth/telegram/register-link`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({})
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(body.error || 'Telegram link request failed');
+      }
+
+      const link = body?.bot_link || 'https://t.me/GoldenShareClub?start=register';
+      window.open(link, '_blank', 'noopener,noreferrer');
+      setError(
+        lang === 'RU'
+          ? 'Ссылка отправлена через бота. Проверьте Telegram и продолжите регистрацию по инструкции.'
+          : 'The link has been sent via bot. Check Telegram and follow the instructions.'
+      );
+    } catch (err: any) {
+      setError(err?.message || 'Telegram link request failed');
+    } finally {
+      setTelegramLoading(false);
     }
   };
 
@@ -237,13 +268,15 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
                 <div className="grid grid-cols-2 gap-3 md:gap-4">
                   {[
-                    { icon: Chrome, label: 'Google' },
-                    { icon: Send, label: 'Telegram' },
+                    { icon: Chrome, label: 'Google', onClick: undefined as undefined | (() => void), disabled: true },
+                    { icon: Send, label: 'Telegram', onClick: handleTelegramRegister, disabled: telegramLoading },
                   ].map((social) => (
                     <button
                       key={social.label}
                       type="button"
-                      className="flex flex-col items-center justify-center min-h-[56px] md:min-h-[64px] p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 active:bg-white/15 transition-all group touch-manipulation"
+                      onClick={social.onClick}
+                      disabled={social.disabled}
+                      className="flex flex-col items-center justify-center min-h-[56px] md:min-h-[64px] p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 active:bg-white/15 transition-all group touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <social.icon size={22} className="text-white/40 group-hover:text-[#d4af37] transition-colors" />
                     </button>
