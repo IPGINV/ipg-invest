@@ -428,18 +428,31 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
             <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6 border border-white/10">
               <User size={32} className="text-[#d4af37]" />
             </div>
-            <h3 className="text-xl font-playfair font-bold text-white mb-2">Personal Manager</h3>
-            <p className="text-white/40 text-xs uppercase tracking-widest mb-8">Premium Support 24/7</p>
+            <h3 className="text-xl font-playfair font-bold text-white mb-2">{lang === 'ru' ? 'Свяжитесь с нами' : 'Contact Us'}</h3>
+            <p className="text-white/40 text-xs uppercase tracking-widest mb-8">{lang === 'ru' ? 'Контакты проекта и менеджера' : 'Project and manager contacts'}</p>
             <div className="space-y-3">
-              <a href="https://t.me/GoldenShareClub" target="_blank" className="flex items-center justify-center gap-3 w-full py-3 bg-[#229ED9]/10 text-[#229ED9] border border-[#229ED9]/20 rounded-xl hover:bg-[#229ED9] hover:text-white transition-all">
-                <Send size={18} /> Telegram
-              </a>
-              <a href="https://wa.me/971529657370" target="_blank" className="flex items-center justify-center gap-3 w-full py-3 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 rounded-xl hover:bg-[#25D366] hover:text-black transition-all">
-                <MessageCircle size={18} /> WhatsApp
-              </a>
-              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" className="flex items-center justify-center gap-3 w-full py-3 bg-[#1877f2]/10 text-[#1877f2] border border-[#1877f2]/20 rounded-xl hover:bg-[#1877f2] hover:text-white transition-all">
-                <Facebook size={18} /> Facebook
-              </a>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-white/40 text-left">
+                {lang === 'ru' ? 'Контакты проекта' : 'Project contacts'}
+              </div>
+              <div className="grid grid-cols-2 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 border-r border-white/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all">
+                  <Send size={16} /> Telegram
+                </a>
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 text-[#1877f2] hover:bg-[#1877f2]/20 transition-all">
+                  <Facebook size={16} /> Facebook
+                </a>
+              </div>
+              <div className="pt-2 text-[10px] font-bold uppercase tracking-widest text-white/40 text-left">
+                {lang === 'ru' ? 'Ваш Персональный Менеджер' : 'Your Personal Manager'}
+              </div>
+              <div className="grid grid-cols-2 rounded-xl overflow-hidden border border-white/10 bg-white/5">
+                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 border-r border-white/10 text-[#229ED9] hover:bg-[#229ED9]/20 transition-all">
+                  <Send size={16} /> Telegram
+                </a>
+                <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 py-3 text-[#25D366] hover:bg-[#25D366]/20 transition-all">
+                  <MessageCircle size={16} /> WhatsApp
+                </a>
+              </div>
             </div>
           </div>
         </div>

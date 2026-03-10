@@ -370,18 +370,31 @@ const App: React.FC = () => {
           <div className="relative bg-white p-8 md:p-12 rounded-[2rem] w-full max-w-md border border-black/5 flex flex-col items-center shadow-2xl">
             <button onClick={() => setIsManagerModalOpen(false)} className="absolute top-6 right-6 p-2 text-black/20 hover:text-black transition-all"><X size={24} /></button>
             <div className="w-20 h-20 gold-gradient rounded-3xl flex items-center justify-center mb-8 shadow-xl shadow-[#d4af37]/20"><User className="text-black" size={32} /></div>
-            <h3 className="text-2xl md:text-3xl font-playfair font-black text-black text-center mb-4">{t.managerTitle}</h3>
-            <p className="text-black/40 text-center text-sm mb-10 max-w-[280px]">{t.managerDesc}</p>
+            <h3 className="text-2xl md:text-3xl font-playfair font-black text-black text-center mb-4">{lang === 'ru' ? 'Свяжитесь с нами' : 'Contact Us'}</h3>
+            <p className="text-black/40 text-center text-sm mb-10 max-w-[280px]">{lang === 'ru' ? 'Контакты проекта и менеджера' : 'Project and manager contacts'}</p>
             <div className="flex flex-col gap-4 w-full">
-              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group">
-                <span className="text-black font-bold text-lg">Telegram</span>
-              </a>
-              <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-green-500/40 hover:bg-black/[0.08] transition-all group">
-                <span className="text-black font-bold text-lg">WhatsApp</span>
-              </a>
-              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#1877f2]/40 hover:bg-black/[0.08] transition-all group">
-                <span className="text-black font-bold text-lg">Facebook</span>
-              </a>
+              <div className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+                {lang === 'ru' ? 'Контакты проекта' : 'Project contacts'}
+              </div>
+              <div className="grid grid-cols-2 rounded-2xl overflow-hidden border border-black/10 bg-black/5">
+                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 border-r border-black/10 hover:bg-black/10 transition-all">
+                  <span className="text-[#0088cc] font-bold text-base">Telegram</span>
+                </a>
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 hover:bg-black/10 transition-all">
+                  <span className="text-[#1877f2] font-bold text-base">Facebook</span>
+                </a>
+              </div>
+              <div className="pt-1 text-[10px] font-bold uppercase tracking-widest text-black/40">
+                {lang === 'ru' ? 'Ваш Персональный Менеджер' : 'Your Personal Manager'}
+              </div>
+              <div className="grid grid-cols-2 rounded-2xl overflow-hidden border border-black/10 bg-black/5">
+                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 border-r border-black/10 hover:bg-black/10 transition-all">
+                  <span className="text-[#0088cc] font-bold text-base">Telegram</span>
+                </a>
+                <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 hover:bg-black/10 transition-all">
+                  <span className="text-green-600 font-bold text-base">WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
         </div>

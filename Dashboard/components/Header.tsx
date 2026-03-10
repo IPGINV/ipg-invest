@@ -1,4 +1,4 @@
-﻿
+
 import React, { useState, useEffect } from 'react';
 import { locales } from '../locales';
 
@@ -241,45 +241,60 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
                 <i className="fa-solid fa-user-tie text-2xl"></i>
               </div>
               <h3 className="text-2xl md:text-3xl font-['Playfair_Display'] font-black text-white tracking-tight mb-2">
-                {t.personalManager}
+                {lang === 'ru' ? 'Свяжитесь с нами' : 'Contact Us'}
               </h3>
               <p className="text-[10px] md:text-[11px] font-black text-[#d4af37] uppercase tracking-[0.3em]">
-                {t.prioritySupportHub}
+                {lang === 'ru' ? 'Контакты проекта и менеджера' : 'Project and manager contacts'}
               </p>
             </div>
 
             <div className="flex flex-col gap-4">
-              <a 
-                href="https://t.me/IPG_Mark" 
-                target="_blank" 
-                className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-[1.5rem] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all group shadow-inner"
-              >
-                <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 group-hover:scale-110 transition-transform">
-                  <i className="fa-brands fa-telegram text-2xl"></i>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-white font-black text-lg">Telegram</span>
-                  <span className="text-white/30 text-[10px] font-black uppercase tracking-widest">
-                    {t.chatWithSupport}
-                  </span>
-                </div>
-              </a>
-
-              <a 
-                href="https://wa.me/447782280474" 
-                target="_blank" 
-                className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-[1.5rem] hover:border-green-500/40 hover:bg-white/[0.08] transition-all group shadow-inner"
-              >
-                <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform">
-                  <i className="fa-brands fa-whatsapp text-2xl"></i>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-white font-black text-lg">WhatsApp</span>
-                  <span className="text-white/30 text-[10px] font-black uppercase tracking-widest">
-                    {t.instantMessage}
-                  </span>
-                </div>
-              </a>
+              <div className="text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                {lang === 'ru' ? 'Контакты проекта' : 'Project contacts'}
+              </div>
+              <div className="grid grid-cols-2 rounded-[1.5rem] overflow-hidden border border-white/10 bg-white/5 shadow-inner">
+                <a 
+                  href="https://t.me/GoldenShareClub" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 p-4 border-r border-white/10 hover:bg-white/10 transition-all"
+                >
+                  <i className="fa-brands fa-telegram text-xl text-blue-400"></i>
+                  <span className="text-white font-black text-sm">{lang === 'ru' ? 'Telegram' : 'Telegram'}</span>
+                </a>
+                <a 
+                  href="https://www.facebook.com/share/1Dox5wK2MT/" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 p-4 hover:bg-white/10 transition-all"
+                >
+                  <i className="fa-brands fa-facebook-f text-xl text-[#1877f2]"></i>
+                  <span className="text-white font-black text-sm">Facebook</span>
+                </a>
+              </div>
+              <div className="pt-2 text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
+                {lang === 'ru' ? 'Ваш Персональный Менеджер' : 'Your Personal Manager'}
+              </div>
+              <div className="grid grid-cols-2 rounded-[1.5rem] overflow-hidden border border-white/10 bg-white/5 shadow-inner">
+                <a 
+                  href="https://t.me/IPG_Mark" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 p-4 border-r border-white/10 hover:bg-white/10 transition-all"
+                >
+                  <i className="fa-brands fa-telegram text-xl text-blue-400"></i>
+                  <span className="text-white font-black text-sm">Telegram</span>
+                </a>
+                <a 
+                  href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" 
+                  target="_blank" 
+                  rel="noreferrer"
+                  className="flex items-center justify-center gap-2 p-4 hover:bg-white/10 transition-all"
+                >
+                  <i className="fa-brands fa-whatsapp text-xl text-green-500"></i>
+                  <span className="text-white font-black text-sm">WhatsApp</span>
+                </a>
+              </div>
             </div>
 
             <div className="mt-8 pt-8 border-t border-white/5 text-center px-4">

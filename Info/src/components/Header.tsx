@@ -322,16 +322,27 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
               </div>
               
               <h3 className="text-2xl md:text-3xl font-playfair font-black text-black text-center mb-4">
-                {t.managerTitle}
+                {lang === 'RU' ? 'Свяжитесь с нами' : 'Contact Us'}
               </h3>
               <p className="text-black/40 text-center text-sm mb-10 max-w-[280px]">
-                {t.managerDesc}
+                {lang === 'RU' ? 'Контакты проекта и менеджера' : 'Project and manager contacts'}
               </p>
-              
+
               <div className="flex flex-col gap-3 w-full">
-                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="p-4 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all text-black font-bold text-center">Telegram</a>
-                <a href="https://wa.me/447776177435" target="_blank" rel="noreferrer" className="p-4 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all text-black font-bold text-center">WhatsApp</a>
-                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="p-4 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all text-black font-bold text-center">Facebook</a>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-black/40 text-left">
+                  {lang === 'RU' ? 'Контакты проекта' : 'Project contacts'}
+                </div>
+                <div className="grid grid-cols-2 rounded-2xl overflow-hidden border border-black/10 bg-black/5">
+                  <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="p-4 border-r border-black/10 hover:bg-black/10 transition-all text-[#0088cc] font-bold text-center">Telegram</a>
+                  <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="p-4 hover:bg-black/10 transition-all text-[#1877f2] font-bold text-center">Facebook</a>
+                </div>
+                <div className="pt-1 text-[10px] font-bold uppercase tracking-widest text-black/40 text-left">
+                  {lang === 'RU' ? 'Ваш Персональный Менеджер' : 'Your Personal Manager'}
+                </div>
+                <div className="grid grid-cols-2 rounded-2xl overflow-hidden border border-black/10 bg-black/5">
+                  <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="p-4 border-r border-black/10 hover:bg-black/10 transition-all text-[#0088cc] font-bold text-center">Telegram</a>
+                  <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="p-4 hover:bg-black/10 transition-all text-green-600 font-bold text-center">WhatsApp</a>
+                </div>
               </div>
             </motion.div>
           </div>

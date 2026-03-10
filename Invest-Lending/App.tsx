@@ -853,20 +853,34 @@ export default function App({ apiBase }: AppProps) {
               <button onClick={() => setIsManagerModalOpen(false)} className="absolute top-6 right-6 p-2 text-white/20 hover:text-white transition-all"><X size={24} /></button>
               <div className="w-16 h-16 md:w-20 md:h-20 gold-gradient rounded-3xl flex items-center justify-center mb-8 shadow-2xl"><User className="text-black" size={32} /></div>
               <h3 className="text-3xl md:text-4xl font-playfair font-black tracking-tight text-white text-center mb-4">{t.managerTitle}</h3>
-              <p className="text-white/40 text-center text-sm md:text-base mb-10 font-medium mx-auto max-w-[220px]">{t.managerDesc}</p>
+              <p className="text-white/40 text-center text-sm md:text-base mb-10 font-medium mx-auto max-w-[260px]">{lang === 'RU' ? 'Контакты проекта и менеджера' : 'Project and manager contacts'}</p>
               <div className="flex flex-col gap-4 w-full">
-                 <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all group">
-                    <div className="w-12 h-12 rounded-xl bg-[#0088cc]/20 flex items-center justify-center text-[#0088cc] group-hover:scale-110 transition-transform"><Send size={24} /></div>
-                    <span className="text-white font-black text-base">Telegram</span>
-                 </a>
-                 <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-green-500/40 hover:bg-white/[0.08] transition-all group">
-                    <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform"><MessageCircle size={24} /></div>
-                    <span className="text-white font-black text-base">WhatsApp</span>
-                 </a>
-                 <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#1877f2]/40 hover:bg-white/[0.08] transition-all group">
-                    <div className="w-12 h-12 rounded-xl bg-[#1877f2]/20 flex items-center justify-center text-[#1877f2] group-hover:scale-110 transition-transform"><Facebook size={24} /></div>
-                    <span className="text-white font-black text-base">Facebook</span>
-                 </a>
+                 <div className="text-[10px] font-bold uppercase tracking-widest text-white/40">
+                   {lang === 'RU' ? 'Контакты проекта' : 'Project contacts'}
+                 </div>
+                 <div className="grid grid-cols-2 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
+                   <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 border-r border-white/10 hover:bg-white/10 transition-all">
+                     <Send size={18} className="text-[#0088cc]" />
+                     <span className="text-white font-black text-sm">Telegram</span>
+                   </a>
+                   <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 hover:bg-white/10 transition-all">
+                     <Facebook size={18} className="text-[#1877f2]" />
+                     <span className="text-white font-black text-sm">Facebook</span>
+                   </a>
+                 </div>
+                 <div className="pt-1 text-[10px] font-bold uppercase tracking-widest text-white/40">
+                   {lang === 'RU' ? 'Ваш Персональный Менеджер' : 'Your Personal Manager'}
+                 </div>
+                 <div className="grid grid-cols-2 rounded-2xl overflow-hidden border border-white/10 bg-white/5">
+                   <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 border-r border-white/10 hover:bg-white/10 transition-all">
+                     <Send size={18} className="text-[#0088cc]" />
+                     <span className="text-white font-black text-sm">Telegram</span>
+                   </a>
+                   <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="flex items-center justify-center gap-2 p-4 hover:bg-white/10 transition-all">
+                     <MessageCircle size={18} className="text-green-500" />
+                     <span className="text-white font-black text-sm">WhatsApp</span>
+                   </a>
+                 </div>
               </div>
            </div>
         </div>
