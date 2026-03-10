@@ -1,4 +1,4 @@
-﻿
+
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { 
   Investor, 
@@ -28,10 +28,10 @@ const Sidebar = ({
   onLogout?: () => void;
 }) => {
   const navItems = [
-    { id: 'DASHBOARD', label: 'Ð“Ð»Ð°Ð²Ð½Ð°Ñ', icon: <Icons.Layout /> },
-    { id: 'INVESTORS', label: 'Ð˜Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ñ‹', icon: <Icons.Users /> },
-    { id: 'TRANSACTIONS', label: 'Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¸', icon: <Icons.Activity /> },
-    { id: 'CYCLES', label: 'Ð¦Ð¸ÐºÐ»Ñ‹', icon: <Icons.Cycles /> },
+    { id: 'DASHBOARD', label: 'Главная', icon: <Icons.Layout /> },
+    { id: 'INVESTORS', label: 'Инвесторы', icon: <Icons.Users /> },
+    { id: 'TRANSACTIONS', label: 'Транзакции', icon: <Icons.Activity /> },
+    { id: 'CYCLES', label: 'Циклы', icon: <Icons.Cycles /> },
     { id: 'HOST', label: 'Host Shell', icon: <Icons.Layout />, action: onOpenHost }
   ];
 
@@ -63,8 +63,8 @@ const Sidebar = ({
         <div className="flex items-center gap-3 text-sm text-slate-400 mb-6">
           <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-xs font-bold">A</div>
           <div>
-            <p className="text-white font-medium">ÐÐ´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€</p>
-            <p className="text-xs">Root-Ð´Ð¾ÑÑ‚ÑƒÐ¿</p>
+            <p className="text-white font-medium">Администратор</p>
+            <p className="text-xs">Root-доступ</p>
           </div>
         </div>
         <button
@@ -72,7 +72,7 @@ const Sidebar = ({
           className="w-full flex items-center gap-3 text-slate-400 hover:text-white transition-colors text-left"
         >
           <Icons.Logout />
-          <span>Ð’Ñ‹Ñ…Ð¾Ð´</span>
+          <span>Выход</span>
         </button>
       </div>
     </div>
@@ -81,10 +81,10 @@ const Sidebar = ({
 
 const Header = ({ title, onOpenMenu }: { title: string; onOpenMenu: () => void }) => {
   const viewTitles: Record<string, string> = {
-    'DASHBOARD': 'ÐŸÐ°Ð½ÐµÐ»ÑŒ ÑƒÐ¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ñ',
-    'INVESTORS': 'Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð°Ð¼Ð¸',
-    'TRANSACTIONS': 'Ð¡Ð¿Ð¸ÑÐ¾Ðº Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¹',
-    'CYCLES': 'Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ñ†Ð¸ÐºÐ»Ð°Ð¼Ð¸'
+    'DASHBOARD': 'Панель управления',
+    'INVESTORS': 'Управление инвесторами',
+    'TRANSACTIONS': 'Список транзакций',
+    'CYCLES': 'Управление циклами'
   };
 
   return (
@@ -170,11 +170,11 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
   };
 
   const transactionLabels: Record<string, string> = {
-    DEPOSIT: 'Ð”ÐµÐ¿Ð¾Ð·Ð¸Ñ‚',
-    WITHDRAWAL: 'Ð’Ñ‹Ð²Ð¾Ð´',
-    PROFIT_ACCRUAL: 'ÐÐ°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ðµ Ð´Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚Ð¸',
-    GHS_BONUS: 'Ð‘Ð¾Ð½ÑƒÑ GHS',
-    GHS_PURCHASE: 'ÐŸÐ¾ÐºÑƒÐ¿ÐºÐ° Ñ‚Ð¾ÐºÐµÐ½Ð¾Ð²'
+    DEPOSIT: 'Депозит',
+    WITHDRAWAL: 'Вывод',
+    PROFIT_ACCRUAL: 'Начисление доходности',
+    GHS_BONUS: 'Бонус GHS',
+    GHS_PURCHASE: 'Покупка токенов'
   };
 
   return (
@@ -183,7 +183,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
             <h2 className="text-2xl font-bold text-slate-900">{editedInvestor.fullName}</h2>
-            <p className="text-sm text-slate-500">ID Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð°: <span className="mono font-bold text-blue-600">{editedInvestor.investorDisplayId || editedInvestor.id}</span></p>
+            <p className="text-sm text-slate-500">ID инвестора: <span className="mono font-bold text-blue-600">{editedInvestor.investorDisplayId || editedInvestor.id}</span></p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600">
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -192,30 +192,30 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
 
         <div className="p-8 overflow-y-auto flex-1 space-y-10">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-            {/* Ð˜Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ Ð¾Ð± Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ðµ (read-only) */}
+            {/* Информация об инвесторе (read-only) */}
             <div className="space-y-6">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Ð˜Ð½Ñ„Ð¾Ñ€Ð¼Ð°Ñ†Ð¸Ñ Ð¾Ð± Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ðµ</h3>
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Информация об инвесторе</h3>
               <div className="p-5 bg-slate-50 rounded-2xl border border-slate-200 space-y-3">
                 <div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ÐŸÐ¾Ñ‡Ñ‚Ð°</span>
-                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.email || 'â€”'}</p>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Почта</span>
+                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.email || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Ð¢ÐµÐ»ÐµÑ„Ð¾Ð½</span>
-                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.phone || (editedInvestor as any).phone || 'â€”'}</p>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Телефон</span>
+                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.phone || (editedInvestor as any).phone || '—'}</p>
                 </div>
                 <div>
                   <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Telegram</span>
-                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.socialId || 'â€”'}</p>
+                  <p className="text-sm font-bold text-slate-800 mt-0.5">{editedInvestor.socialId || '—'}</p>
                 </div>
                 <div>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ÐŸÐ°Ñ€Ð¾Ð»ÑŒ</span>
-                  <p className="text-sm font-mono text-slate-600 mt-0.5">{editedInvestor.password ? String(editedInvestor.password) : 'â€”'}</p>
+                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Пароль</span>
+                  <p className="text-sm font-mono text-slate-600 mt-0.5">{editedInvestor.password ? String(editedInvestor.password) : '—'}</p>
                 </div>
                 {(editedInvestor as any).cryptoWallets?.length ? (
                   <div>
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ÐšÐ¾ÑˆÐµÐ»Ñ‘Ðº</span>
-                    <p className="text-sm font-mono text-slate-800 mt-0.5 break-all">{(editedInvestor as any).cryptoWallets[0] || 'â€”'}</p>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Кошелёк</span>
+                    <p className="text-sm font-mono text-slate-800 mt-0.5 break-all">{(editedInvestor as any).cryptoWallets[0] || '—'}</p>
                   </div>
                 ) : null}
               </div>
@@ -223,10 +223,10 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
 
             {/* Info Section - editable */}
             <div className="space-y-6">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Ð›Ð¸Ñ‡Ð½Ñ‹Ðµ Ð¸ ÑƒÑ‡ÐµÑ‚Ð½Ñ‹Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ</h3>
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Личные и учетные данные</h3>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Ð¤Ð˜Ðž / ÐŸÑÐµÐ²Ð´Ð¾Ð½Ð¸Ð¼</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">ФИО / Псевдоним</label>
                   <input 
                     type="text" 
                     value={editedInvestor.fullName} 
@@ -236,7 +236,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Email (Ð›Ð¾Ð³Ð¸Ð½)</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Email (Логин)</label>
                     <input 
                       type="email" 
                       value={editedInvestor.email} 
@@ -245,7 +245,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">ÐŸÐ°Ñ€Ð¾Ð»ÑŒ</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Пароль</label>
                     <input 
                       type="text" 
                       value={editedInvestor.password || ''} 
@@ -255,17 +255,17 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">ÐŸÐ°ÑÐ¿Ð¾Ñ€Ñ‚Ð½Ñ‹Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ (Ð¢ÐµÐºÑÑ‚)</label>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Паспортные данные (Текст)</label>
                   <textarea 
                     value={editedInvestor.passportData || ''} 
                     onChange={(e) => setEditedInvestor({...editedInvestor, passportData: e.target.value})}
                     className="w-full px-4 py-2 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-shadow h-20 resize-none text-sm" 
-                    placeholder="Ð¡ÐµÑ€Ð¸Ñ, Ð½Ð¾Ð¼ÐµÑ€, ÐºÐµÐ¼ Ð²Ñ‹Ð´Ð°Ð½..."
+                    placeholder="Серия, номер, кем выдан..."
                   />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Ð¡Ð¾Ñ†Ð¸Ð°Ð»ÑŒÐ½Ñ‹Ð¹ ID</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Социальный ID</label>
                     <input 
                       type="text" 
                       value={editedInvestor.socialId || ''} 
@@ -274,7 +274,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ Ð°ÐºÐºÐ°ÑƒÐ½Ñ‚Ð°</label>
+                    <label className="block text-sm font-medium text-slate-700 mb-1">Статус аккаунта</label>
                     <button 
                       onClick={handleStatusToggle}
                       className={`w-full px-4 py-2 rounded-lg font-bold text-xs transition-all border flex items-center justify-center gap-2 ${
@@ -284,7 +284,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                       }`}
                     >
                       <div className={`w-2 h-2 rounded-full ${editedInvestor.status === UserStatus.ACTIVE ? 'bg-green-500' : 'bg-red-500'}`} />
-                      {editedInvestor.status === UserStatus.ACTIVE ? 'ÐÐšÐ¢Ð˜Ð’Ð•Ð' : 'Ð—ÐÐ‘Ð›ÐžÐšÐ˜Ð ÐžÐ’ÐÐ'}
+                      {editedInvestor.status === UserStatus.ACTIVE ? 'АКТИВЕН' : 'ЗАБЛОКИРОВАН'}
                     </button>
                   </div>
                 </div>
@@ -293,11 +293,11 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
 
             {/* Finance and Wallets Section */}
             <div className="space-y-6">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Ð¤Ð¸Ð½Ð°Ð½ÑÑ‹ Ð¸ ÐšÐ¾ÑˆÐµÐ»ÑŒÐºÐ¸</h3>
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Финансы и Кошельки</h3>
               
               <div className="grid grid-cols-2 gap-4 p-5 bg-slate-900 rounded-2xl shadow-inner">
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-[0.1em]">ÐžÑÐ½Ð¾Ð²Ð½Ð¾Ð¹ Ð±Ð°Ð»Ð°Ð½Ñ (USD)</label>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-[0.1em]">Основной баланс (USD)</label>
                   <div className="relative">
                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 font-bold">$</span>
                      <input 
@@ -310,7 +310,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                   </div>
                 </div>
                 <div className="col-span-2 sm:col-span-1">
-                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-[0.1em]">Ð¢Ð¾ÐºÐµÐ½Ñ‹ GHS</label>
+                  <label className="block text-[10px] font-bold text-slate-500 mb-2 uppercase tracking-[0.1em]">Токены GHS</label>
                   <input 
                     type="number" 
                     value={editedInvestor.balances.ghs} 
@@ -335,29 +335,29 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                       disabled={isAccruing}
                       className="px-5 py-2.5 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700 disabled:opacity-60"
                     >
-                      {isAccruing ? '...' : 'ÐÐ°Ñ‡Ð¸ÑÐ»Ð¸Ñ‚ÑŒ Ð´Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚ÑŒ'}
+                      {isAccruing ? '...' : 'Начислить доходность'}
                     </button>
-                    <p className="text-[10px] text-slate-500 mt-2">Ð”Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚ÑŒ Ñ€Ð°ÑÑÑ‡Ð¸Ñ‚Ñ‹Ð²Ð°ÐµÑ‚ÑÑ Ð¿Ð¾ Ñ„Ð¾Ñ€Ð¼ÑƒÐ»Ðµ Ð¸ Ð½Ð°Ñ‡Ð¸ÑÐ»ÑÐµÑ‚ÑÑ Ñ‚Ð¾Ð»ÑŒÐºÐ¾ Ð²Ñ€ÑƒÑ‡Ð½ÑƒÑŽ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð¾Ð¼.</p>
+                    <p className="text-[10px] text-slate-500 mt-2">Доходность рассчитывается по формуле и начисляется только вручную администратором.</p>
                   </div>
                 )}
               </div>
 
               {pendingDeposits.length > 0 && (
                 <div className="space-y-3 p-5 bg-amber-50 border border-amber-200 rounded-2xl">
-                  <h4 className="text-xs font-black text-amber-800 uppercase tracking-widest">ÐžÐ¶Ð¸Ð´Ð°ÑŽÑ‰Ð¸Ðµ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ñ Ð¿Ð¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ</h4>
+                  <h4 className="text-xs font-black text-amber-800 uppercase tracking-widest">Ожидающие подтверждения пополнения</h4>
                   {pendingDeposits.map((dep) => (
                     <div key={dep.id} className="flex flex-wrap items-center gap-3 p-4 bg-white border border-amber-100 rounded-xl">
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-slate-800">TX #{dep.id}</p>
-                        <p className="text-xs text-slate-500 mono truncate">{dep.tx_hash || 'â€”'}</p>
-                        <p className="text-xs text-amber-700 mt-1">{dep.date} â€¢ {dep.amount} {dep.currency}</p>
+                        <p className="text-xs text-slate-500 mono truncate">{dep.tx_hash || '—'}</p>
+                        <p className="text-xs text-amber-700 mt-1">{dep.date} • {dep.amount} {dep.currency}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <input
                           type="number"
                           step="0.01"
                           min="0"
-                          placeholder="Ð¡ÑƒÐ¼Ð¼Ð°"
+                          placeholder="Сумма"
                           value={confirmAmount[dep.id] ?? dep.amount}
                           onChange={(e) => setConfirmAmount((prev) => ({ ...prev, [dep.id]: e.target.value }))}
                           className="w-24 px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-bold"
@@ -377,7 +377,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                           disabled={confirmingTxId !== null}
                           className="px-4 py-2 bg-emerald-600 text-white text-xs font-black uppercase rounded-lg hover:bg-emerald-700 disabled:opacity-60"
                         >
-                          {confirmingTxId === dep.id ? '...' : 'ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð´Ð¸Ñ‚ÑŒ'}
+                          {confirmingTxId === dep.id ? '...' : 'Подтвердить'}
                         </button>
                       </div>
                     </div>
@@ -386,12 +386,12 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
               )}
               <div>
                 <div className="flex items-center justify-between mb-3">
-                  <label className="block text-sm font-bold text-slate-700 tracking-tight">ÐšÑ€Ð¸Ð¿Ñ‚Ð¾ÐºÐ¾ÑˆÐµÐ»ÑŒÐºÐ¸ (ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŒ / Wallet App)</label>
+                  <label className="block text-sm font-bold text-slate-700 tracking-tight">Криптокошельки (Профиль / Wallet App)</label>
                   <button 
                     onClick={addWallet}
                     className="text-[10px] font-black text-blue-600 uppercase border border-blue-200 px-2 py-1 rounded-md hover:bg-blue-50 transition-colors"
                   >
-                    + Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ
+                    + Добавить
                   </button>
                 </div>
                 <div className="space-y-2 max-h-48 overflow-y-auto pr-2">
@@ -402,7 +402,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                         value={wallet} 
                         onChange={(e) => handleWalletChange(idx, e.target.value)}
                         className="flex-1 px-3 py-1.5 border border-slate-200 rounded-lg text-xs mono bg-slate-50 focus:ring-1 focus:ring-blue-500 outline-none"
-                        placeholder="ÐÐ´Ñ€ÐµÑ ÐºÐ¾ÑˆÐµÐ»ÑŒÐºÐ°..."
+                        placeholder="Адрес кошелька..."
                       />
                       <button 
                         onClick={() => removeWallet(idx)}
@@ -412,7 +412,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                       </button>
                     </div>
                   )) : (
-                    <p className="text-xs text-slate-400 italic py-2">ÐšÐ¾ÑˆÐµÐ»ÑŒÐºÐ¸ Ð½Ðµ Ð¿Ñ€Ð¸Ð²ÑÐ·Ð°Ð½Ñ‹.</p>
+                    <p className="text-xs text-slate-400 italic py-2">Кошельки не привязаны.</p>
                   )}
                 </div>
               </div>
@@ -422,7 +422,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
           {/* Documents Section */}
           <div className="space-y-6">
             <div className="flex items-center justify-between flex-wrap gap-3">
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Ð—Ð°Ð³Ñ€ÑƒÐ¶ÐµÐ½Ð½Ñ‹Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹ (Ð’ÐµÑ€Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ)</h3>
+              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Загруженные документы (Верификация)</h3>
               {documents.length > 0 && editedInvestor.kycStatus !== 'verified' && (
                 <div className="flex gap-2">
                   {onConfirmDocuments && (
@@ -437,7 +437,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                       }}
                       className="px-5 py-2 bg-emerald-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-emerald-700"
                     >
-                      ÐŸÐ¾Ð´Ñ‚Ð²ÐµÑ€Ð´Ð¸Ñ‚ÑŒ Ð²ÐµÑ€Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸ÑŽ
+                      Подтвердить верификацию
                     </button>
                   )}
                   {onRejectDocuments && (
@@ -452,7 +452,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                       }}
                       className="px-5 py-2 bg-red-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-red-700"
                     >
-                      ÐžÑ‚ÐºÐ»Ð¾Ð½Ð¸Ñ‚ÑŒ Ð²ÐµÑ€Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸ÑŽ
+                      Отклонить верификацию
                     </button>
                   )}
                 </div>
@@ -462,30 +462,38 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
               {(documents?.length ? documents : editedInvestor.documents || []).map((doc: any) => {
                 const fileUrl = doc.file_url || '';
                 const normalized = !fileUrl ? '' : fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`;
-                const downloadUrl = !fileUrl
+                const previewUrl = !fileUrl
                   ? ''
                   : fileUrl.startsWith('http') || fileUrl.startsWith('data:')
                     ? fileUrl
                     : `${String(apiBase || '').replace(/\/$/, '')}${normalized}`;
-                const fileName = doc.file_url?.split('/').pop() || 'document';
-                const d = typeof doc.id === 'number'
-                  ? { id: String(doc.id), name: doc.doc_type || fileName || 'Документ', type: (doc.doc_type || 'PASSPORT').toUpperCase(), uploadDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('ru-RU') : '', downloadUrl, fileName }
-                  : { ...doc, downloadUrl: doc.downloadUrl || doc.previewUrl || '', fileName: doc.fileName || doc.name || 'document' };
+                const d = typeof doc.id === 'number' ? { id: String(doc.id), name: doc.doc_type || doc.file_url?.split('/').pop() || 'Документ', type: (doc.doc_type || 'PASSPORT').toUpperCase(), uploadDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('ru-RU') : '', previewUrl } : doc;
                 return (
-                <div
-                  key={d.id}
+                <div 
+                  key={d.id} 
                   className="group relative bg-slate-50 border border-slate-200 rounded-xl overflow-hidden hover:border-blue-300 transition-all shadow-sm"
                 >
-                  <div className="aspect-[3/4] overflow-hidden bg-slate-100 flex items-center justify-center text-slate-400">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M14 2v4h4"/></svg>
+                  <div className="aspect-[3/4] overflow-hidden bg-slate-100">
+                    {d.previewUrl ? (
+                      <img src={d.previewUrl} alt={d.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onError={(e) => { (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M14 2v4h4"/></svg>'; }} />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-slate-400">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M14 2v4h4"/></svg>
+                      </div>
+                    )}
                   </div>
                   <div className="p-3 bg-white border-t border-slate-100">
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate">{d.type}</p>
                     <p className="text-[11px] font-bold text-slate-700 truncate">{d.name}</p>
                     <p className="text-[9px] text-slate-400">{d.uploadDate}</p>
-                    {d.downloadUrl && (
-                      <a href={d.downloadUrl} download={d.fileName} target="_blank" rel="noopener noreferrer" className="text-[10px] font-bold text-blue-600 hover:underline mt-2 inline-block">Скачать файл</a>
+                    {d.previewUrl && (
+                      <a href={d.previewUrl} download target="_blank" rel="noopener noreferrer" className="text-[9px] text-blue-600 hover:underline mt-1 inline-block">Скачать файл</a>
                     )}
+                  </div>
+                  <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
+                    <div className="bg-white p-2 rounded-full shadow-xl">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                    </div>
                   </div>
                 </div>
               );
@@ -493,14 +501,14 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
               {(!documents?.length && !editedInvestor.documents?.length) && (
                 <div className="col-span-full py-10 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mb-2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
-                  <p className="text-xs font-medium">ÐÐµÑ‚ Ð·Ð°Ð³Ñ€ÑƒÐ¶ÐµÐ½Ð½Ñ‹Ñ… Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð²</p>
+                  <p className="text-xs font-medium">Нет загруженных документов</p>
                 </div>
               )}
             </div>
           </div>
 
           <div className="space-y-6">
-            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">Ð˜ÑÑ‚Ð¾Ñ€Ð¸Ñ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¹</h3>
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">История транзакций</h3>
             <div className="space-y-3">
               {investorTransactions.length ? investorTransactions.map((tx) => (
                 <div key={tx.id} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
@@ -540,7 +548,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                 </div>
               )) : (
                 <div className="py-10 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400">
-                  <p className="text-xs font-medium">Ð¢Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¹ Ð¿Ð¾ÐºÐ° Ð½ÐµÑ‚</p>
+                  <p className="text-xs font-medium">Транзакций пока нет</p>
                 </div>
               )}
             </div>
@@ -552,13 +560,13 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
             {onDelete && (
               <button
                 onClick={async () => {
-                  if (!confirm(`Ð’Ñ‹ ÑƒÐ²ÐµÑ€ÐµÐ½Ñ‹, Ñ‡Ñ‚Ð¾ Ñ…Ð¾Ñ‚Ð¸Ñ‚Ðµ ÑƒÐ´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð° ${editedInvestor.fullName}? Ð­Ñ‚Ð¾ Ð´ÐµÐ¹ÑÑ‚Ð²Ð¸Ðµ Ð½ÐµÐ»ÑŒÐ·Ñ Ð¾Ñ‚Ð¼ÐµÐ½Ð¸Ñ‚ÑŒ.`)) return;
+                  if (!confirm(`Вы уверены, что хотите удалить инвестора ${editedInvestor.fullName}? Это действие нельзя отменить.`)) return;
                   setIsDeleting(true);
                   try {
                     await onDelete();
                     onClose();
                   } catch (err: any) {
-                    alert(err?.message || 'ÐžÑˆÐ¸Ð±ÐºÐ° ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ');
+                    alert(err?.message || 'Ошибка удаления');
                   } finally {
                     setIsDeleting(false);
                   }
@@ -566,21 +574,22 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                 disabled={isDeleting}
                 className="px-6 py-2.5 text-red-600 font-bold text-sm hover:bg-red-50 rounded-xl transition-colors border border-red-200"
               >
-                {isDeleting ? '...' : 'Ð£Ð´Ð°Ð»Ð¸Ñ‚ÑŒ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð°'}
+                {isDeleting ? '...' : 'Удалить инвестора'}
               </button>
             )}
           </div>
           <div className="flex gap-3">
-            <button onClick={onClose} className="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-colors">ÐžÑ‚Ð¼ÐµÐ½Ð°</button>
+            <button onClick={onClose} className="px-6 py-2.5 text-slate-600 font-bold text-sm hover:bg-slate-200 rounded-xl transition-colors">Отмена</button>
             <button 
               onClick={handleSave}
               className="px-12 py-2.5 bg-blue-600 text-white font-bold text-sm rounded-xl hover:bg-blue-700 transition-all shadow-lg shadow-blue-200 active:scale-95"
             >
-              Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ Ð¸Ð·Ð¼ÐµÐ½ÐµÐ½Ð¸Ñ
+              Сохранить изменения
             </button>
           </div>
         </div>
       </div>
+
     </div>
   );
 };
@@ -608,13 +617,13 @@ const CycleEditModal = ({
     setError('');
     const rate = parseFloat(yieldPercent);
     if (!Number.isFinite(rate) || rate < 0 || rate > 100) {
-      setError('Ð”Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚ÑŒ Ð´Ð¾Ð»Ð¶Ð½Ð° Ð±Ñ‹Ñ‚ÑŒ Ð¾Ñ‚ 0 Ð´Ð¾ 100%');
+      setError('Доходность должна быть от 0 до 100%');
       return;
     }
     setSaving(true);
     try {
       if (!token) {
-        setError('Ð¢Ñ€ÐµÐ±ÑƒÐµÑ‚ÑÑ Ð°Ð²Ñ‚Ð¾Ñ€Ð¸Ð·Ð°Ñ†Ð¸Ñ. Ð’Ñ‹Ð¹Ð´Ð¸Ñ‚Ðµ Ð¸ Ð²Ð¾Ð¹Ð´Ð¸Ñ‚Ðµ Ð·Ð°Ð½Ð¾Ð²Ð¾.');
+        setError('Требуется авторизация. Выйдите и войдите заново.');
         return;
       }
       const res = await fetch(`${base}/cycles/${cycle.id}`, {
@@ -624,13 +633,13 @@ const CycleEditModal = ({
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        const msg = data.error || data.message || 'ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ';
-        throw new Error(res.status === 401 ? 'Ð¡ÐµÑÑÐ¸Ñ Ð¸ÑÑ‚ÐµÐºÐ»Ð°. Ð’Ð¾Ð¹Ð´Ð¸Ñ‚Ðµ Ð·Ð°Ð½Ð¾Ð²Ð¾.' : msg);
+        const msg = data.error || data.message || 'Ошибка сохранения';
+        throw new Error(res.status === 401 ? 'Сессия истекла. Войдите заново.' : msg);
       }
       onSave();
       onClose();
     } catch (err: any) {
-      setError(err?.message || 'ÐžÑˆÐ¸Ð±ÐºÐ°');
+      setError(err?.message || 'Ошибка');
     } finally {
       setSaving(false);
     }
@@ -640,7 +649,7 @@ const CycleEditModal = ({
     <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-          <h2 className="text-xl font-bold text-slate-900">Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ Ñ†Ð¸ÐºÐ» #{cycle.cycle_number}</h2>
+          <h2 className="text-xl font-bold text-slate-900">Редактировать цикл #{cycle.cycle_number}</h2>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
           </button>
@@ -648,7 +657,7 @@ const CycleEditModal = ({
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           {error && <div className="p-3 rounded-xl bg-red-50 text-red-700 text-sm font-medium">{error}</div>}
           <div>
-            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Ð”Ð°Ñ‚Ð° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ</label>
+            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Дата открытия</label>
             <input
               type="date"
               value={cycleDate}
@@ -657,7 +666,7 @@ const CycleEditModal = ({
             />
           </div>
           <div>
-            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Ð”Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚ÑŒ (%)</label>
+            <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2">Доходность (%)</label>
             <input
               type="number"
               step="0.1"
@@ -670,10 +679,10 @@ const CycleEditModal = ({
           </div>
           <div className="flex gap-3 pt-2">
             <button type="button" onClick={onClose} className="flex-1 px-4 py-3 rounded-xl border border-slate-200 text-slate-700 font-bold hover:bg-slate-50">
-              ÐžÑ‚Ð¼ÐµÐ½Ð°
+              Отмена
             </button>
             <button type="submit" disabled={saving} className="flex-1 px-4 py-3 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 disabled:opacity-70">
-              {saving ? '...' : 'Ð¡Ð¾Ñ…Ñ€Ð°Ð½Ð¸Ñ‚ÑŒ'}
+              {saving ? '...' : 'Сохранить'}
             </button>
           </div>
         </form>
@@ -717,7 +726,7 @@ const CreateInvestorModal = ({
       });
       setCreatedInvestorId(result?.investor_id || null);
     } catch (err: any) {
-      setError(err?.message || 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ ÑÐ¾Ð·Ð´Ð°Ñ‚ÑŒ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð°');
+      setError(err?.message || 'Не удалось создать инвестора');
     } finally {
       setIsSubmitting(false);
     }
@@ -728,8 +737,8 @@ const CreateInvestorModal = ({
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-200">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">ÐÐ¾Ð²Ñ‹Ð¹ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€</h2>
-            <p className="text-xs text-slate-500">Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ Ð´Ð¾ÑÑ‚ÑƒÐ¿Ð° Ð² Ð»Ð¸Ñ‡Ð½Ñ‹Ð¹ ÐºÐ°Ð±Ð¸Ð½ÐµÑ‚</p>
+            <h2 className="text-xl font-bold text-slate-900">Новый инвестор</h2>
+            <p className="text-xs text-slate-500">Создание доступа в личный кабинет</p>
           </div>
           <button onClick={onClose} className="p-2 hover:bg-slate-200 rounded-full transition-colors text-slate-400 hover:text-slate-600">
             <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
@@ -740,30 +749,30 @@ const CreateInvestorModal = ({
           {createdInvestorId ? (
             <div className="space-y-4">
               <div className="p-4 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800">
-                <p className="text-xs font-black uppercase tracking-widest mb-2">Ð˜Ð½Ð²ÐµÑÑ‚Ð¾Ñ€ ÑÐ¾Ð·Ð´Ð°Ð½</p>
-                <p className="text-sm font-medium">Ð˜Ð˜Ð (Investor ID): <span className="mono font-bold">{createdInvestorId}</span></p>
-                <p className="text-xs text-emerald-700 mt-1">Ð¢ÐµÐ¿ÐµÑ€ÑŒ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€ Ð¼Ð¾Ð¶ÐµÑ‚ Ð²Ð¾Ð¹Ñ‚Ð¸ Ð¿Ð¾ email Ð¸ Ð¿Ð°Ñ€Ð¾Ð»ÑŽ.</p>
+                <p className="text-xs font-black uppercase tracking-widest mb-2">Инвестор создан</p>
+                <p className="text-sm font-medium">ИИН (Investor ID): <span className="mono font-bold">{createdInvestorId}</span></p>
+                <p className="text-xs text-emerald-700 mt-1">Теперь инвестор может войти по email и паролю.</p>
               </div>
               <div className="flex items-center gap-3">
                 <button onClick={resetForm} className="px-4 py-2.5 rounded-xl bg-slate-900 text-white text-xs font-black uppercase tracking-widest">
-                  Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ ÐµÑ‰Ðµ
+                  Создать еще
                 </button>
                 <button onClick={onClose} className="px-4 py-2.5 rounded-xl border border-slate-200 text-slate-700 text-xs font-black uppercase tracking-widest hover:bg-slate-50">
-                  Ð—Ð°ÐºÑ€Ñ‹Ñ‚ÑŒ
+                  Закрыть
                 </button>
               </div>
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-5">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Ð¤Ð˜Ðž</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">ФИО</label>
                 <input
                   type="text"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow"
-                  placeholder="Ð˜Ð²Ð°Ð½Ð¾Ð² Ð˜Ð²Ð°Ð½ Ð˜Ð²Ð°Ð½Ð¾Ð²Ð¸Ñ‡"
+                  placeholder="Иванов Иван Иванович"
                 />
               </div>
               <div>
@@ -778,14 +787,14 @@ const CreateInvestorModal = ({
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">ÐŸÐ°Ñ€Ð¾Ð»ÑŒ (Ð¼Ð¸Ð½. 8 ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð²)</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Пароль (мин. 8 символов)</label>
                 <input
                   type="text"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none transition-shadow mono font-bold text-slate-800 bg-slate-50"
-                  placeholder="Ð¡Ð³ÐµÐ½ÐµÑ€Ð¸Ñ€ÑƒÐ¹Ñ‚Ðµ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ"
+                  placeholder="Сгенерируйте пароль"
                 />
               </div>
               {error && (
@@ -797,10 +806,10 @@ const CreateInvestorModal = ({
                   disabled={isSubmitting}
                   className="px-5 py-3 rounded-xl bg-blue-600 text-white text-xs font-black uppercase tracking-widest hover:bg-blue-700 disabled:opacity-60"
                 >
-                  {isSubmitting ? 'Ð¡Ð¾Ð·Ð´Ð°Ð½Ð¸Ðµ...' : 'Ð¡Ð¾Ð·Ð´Ð°Ñ‚ÑŒ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð°'}
+                  {isSubmitting ? 'Создание...' : 'Создать инвестора'}
                 </button>
                 <button type="button" onClick={onClose} className="px-5 py-3 rounded-xl border border-slate-200 text-slate-700 text-xs font-black uppercase tracking-widest hover:bg-slate-50">
-                  ÐžÑ‚Ð¼ÐµÐ½Ð°
+                  Отмена
                 </button>
               </div>
             </form>
@@ -837,14 +846,14 @@ function AdminPasswordGate({ onAuthenticated, apiBase }: { onAuthenticated: () =
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setPasswordError(data.error || 'ÐÐµÐ²ÐµÑ€Ð½Ñ‹Ð¹ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ');
+        setPasswordError(data.error || 'Неверный пароль');
         return;
       }
       sessionStorage.setItem(ADMIN_AUTH_KEY, '1');
       sessionStorage.setItem(ADMIN_TOKEN_KEY, data.accessToken || '');
       onAuthenticated();
     } catch {
-      setPasswordError('ÐžÑˆÐ¸Ð±ÐºÐ° ÑÐµÑ‚Ð¸');
+      setPasswordError('Ошибка сети');
     } finally {
       setLoading(false);
     }
@@ -861,13 +870,13 @@ function AdminPasswordGate({ onAuthenticated, apiBase }: { onAuthenticated: () =
             <Icons.Shield />
           </div>
         </div>
-        <h2 className="text-xl font-bold text-white text-center mb-2">Ð”Ð¾ÑÑ‚ÑƒÐ¿ Ð² Ð°Ð´Ð¼Ð¸Ð½-Ð¿Ð°Ð½ÐµÐ»ÑŒ</h2>
-        <p className="text-slate-400 text-sm text-center mb-6">Ð’Ð²ÐµÐ´Ð¸Ñ‚Ðµ Ð¿Ð°Ñ€Ð¾Ð»ÑŒ Ð´Ð»Ñ Ð²Ñ…Ð¾Ð´Ð°</p>
+        <h2 className="text-xl font-bold text-white text-center mb-2">Доступ в админ-панель</h2>
+        <p className="text-slate-400 text-sm text-center mb-6">Введите пароль для входа</p>
         <input
           type="password"
           value={passwordInput}
           onChange={(e) => { setPasswordInput(e.target.value); setPasswordError(''); }}
-          placeholder="ÐŸÐ°Ñ€Ð¾Ð»ÑŒ"
+          placeholder="Пароль"
           className="w-full px-4 py-3 bg-slate-700 border border-slate-600 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           autoFocus
         />
@@ -879,7 +888,7 @@ function AdminPasswordGate({ onAuthenticated, apiBase }: { onAuthenticated: () =
           disabled={loading}
           className="w-full mt-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-xl transition-colors disabled:opacity-70"
         >
-          {loading ? 'Ð’Ñ…Ð¾Ð´...' : 'Ð’Ð¾Ð¹Ñ‚Ð¸'}
+          {loading ? 'Вход...' : 'Войти'}
         </button>
       </form>
     </div>
@@ -1075,7 +1084,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok) {
-      throw new Error(data.error || 'ÐÐµ ÑƒÐ´Ð°Ð»Ð¾ÑÑŒ ÑÐ¾Ð·Ð´Ð°Ñ‚ÑŒ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð°');
+      throw new Error(data.error || 'Не удалось создать инвестора');
     }
     await fetchAdminData();
     return data;
@@ -1110,7 +1119,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
     }
   }, [investors, selectedInvestor]);
 
-  // Filtering Logic: Ð¿Ð¾Ð¸ÑÐº + Ð²ÐµÑ€Ð¸Ñ„Ð¸ÐºÐ°Ñ†Ð¸Ñ
+  // Filtering Logic: поиск + верификация
   const filteredInvestors = useMemo(() => {
     let list = investors;
     if (investorVerificationFilter === 'verified') {
@@ -1140,11 +1149,11 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
   }, [transactions, searchQuery]);
 
   const transactionTypeMap: Record<string, string> = {
-    'DEPOSIT': 'Ð”Ð•ÐŸÐžÐ—Ð˜Ð¢',
-    'WITHDRAWAL': 'Ð’Ð«Ð’ÐžÐ”',
-    'PROFIT': 'ÐŸÐ Ð˜Ð‘Ð«Ð›Ð¬',
-    'TOKEN_PURCHASE': 'ÐŸÐžÐšÐ£ÐŸÐšÐ Ð¢ÐžÐšÐ•ÐÐžÐ’',
-    'CONTRACT_ACTIVATION': 'ÐÐšÐ¢Ð˜Ð’ÐÐ¦Ð˜Ð¯ ÐšÐžÐÐ¢Ð ÐÐšÐ¢Ð'
+    'DEPOSIT': 'ДЕПОЗИТ',
+    'WITHDRAWAL': 'ВЫВОД',
+    'PROFIT': 'ПРИБЫЛЬ',
+    'TOKEN_PURCHASE': 'ПОКУПКА ТОКЕНОВ',
+    'CONTRACT_ACTIVATION': 'АКТИВАЦИЯ КОНТРАКТА'
   };
 
   const totalDepositedFromBase = useMemo(() => {
@@ -1167,10 +1176,10 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
           <div className="space-y-10 animate-in fade-in duration-700 max-w-6xl mx-auto">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
               {[
-                { label: 'Ð’ÑÐµÐ³Ð¾ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð¾Ð²', val: investors.length, icon: <Icons.Users />, color: 'bg-indigo-600', sub: 'Ð—Ð°Ñ€ÐµÐ³Ð¸ÑÑ‚Ñ€Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ñ… Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹' },
-                { label: 'Ð’ÐµÑ€Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ðµ', val: investors.filter(i => i.kycStatus === 'verified').length, icon: <Icons.Shield />, color: 'bg-emerald-600', sub: 'Ð’ÐµÑ€Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¹ Ð¿Ð»Ð°Ñ‚Ð¸Ð½ÑƒÐ¼, Ð¿Ð¾Ð»Ð½Ñ‹Ð¹ Ð´Ð¾ÑÑ‚ÑƒÐ¿' },
-                { label: 'ÐÐµÐ²ÐµÑ€Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ðµ', val: investors.filter(i => i.kycStatus !== 'verified').length, icon: <Icons.Users />, color: 'bg-amber-500', sub: 'ÐžÐ¶Ð¸Ð´Ð°ÑŽÑ‚ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ñ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ð¾Ð²' },
-                { label: 'Ð’ÑÐµÐ³Ð¾ Ð²Ð½ÐµÑÐµÐ½Ð¾ (USD)', val: `$${totalDepositedFromBase.toLocaleString()}`, icon: <Icons.Activity />, color: 'bg-blue-600', sub: 'ÐÐ° Ð¾ÑÐ½Ð¾Ð²Ðµ Ð²ÑÐµÑ… Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¹ Ð±Ð°Ð·Ñ‹ Ð´Ð°Ð½Ð½Ñ‹Ñ…' },
+                { label: 'Всего инвесторов', val: investors.length, icon: <Icons.Users />, color: 'bg-indigo-600', sub: 'Зарегистрированных пользователей' },
+                { label: 'Верифицированные', val: investors.filter(i => i.kycStatus === 'verified').length, icon: <Icons.Shield />, color: 'bg-emerald-600', sub: 'Верифицированный платинум, полный доступ' },
+                { label: 'Неверифицированные', val: investors.filter(i => i.kycStatus !== 'verified').length, icon: <Icons.Users />, color: 'bg-amber-500', sub: 'Ожидают подтверждения документов' },
+                { label: 'Всего внесено (USD)', val: `$${totalDepositedFromBase.toLocaleString()}`, icon: <Icons.Activity />, color: 'bg-blue-600', sub: 'На основе всех транзакций базы данных' },
               ].map((stat, idx) => (
                 <div key={idx} className="bg-white p-10 rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 flex items-center justify-between group hover:border-blue-400 transition-all hover:-translate-y-1">
                   <div>
@@ -1185,14 +1194,14 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
 
             <div className="bg-white rounded-3xl border border-slate-100 shadow-xl shadow-slate-200/50 p-10 relative overflow-hidden">
                <div className="absolute top-0 right-0 w-64 h-64 bg-blue-50 rounded-full blur-3xl -mr-32 -mt-32" />
-               <h3 className="text-2xl font-black text-slate-800 mb-4 relative z-10">Ð”Ð¾Ð±Ñ€Ð¾ Ð¿Ð¾Ð¶Ð°Ð»Ð¾Ð²Ð°Ñ‚ÑŒ Ð² AdminApp</h3>
+               <h3 className="text-2xl font-black text-slate-800 mb-4 relative z-10">Добро пожаловать в AdminApp</h3>
                <p className="text-slate-500 max-w-2xl text-lg font-medium relative z-10">
-                 ÐŸÐ°Ð½ÐµÐ»ÑŒ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð° MF-04 Ð¿Ñ€ÐµÐ´Ð¾ÑÑ‚Ð°Ð²Ð»ÑÐµÑ‚ Ð¿Ð¾Ð»Ð½Ñ‹Ð¹ ÐºÐ¾Ð½Ñ‚Ñ€Ð¾Ð»ÑŒ Ð½Ð°Ð´ Ñ„Ð¸Ð½Ð°Ð½ÑÐ¾Ð²Ñ‹Ð¼Ð¸ Ð¾Ð¿ÐµÑ€Ð°Ñ†Ð¸ÑÐ¼Ð¸ Ð¸ Ð´Ð°Ð½Ð½Ñ‹Ð¼Ð¸ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÐµÐ¹. 
-                 Ð˜ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÐ¹Ñ‚Ðµ Ñ€Ð°Ð·Ð´ÐµÐ»Ñ‹ Ð¼ÐµÐ½ÑŽ ÑÐ»ÐµÐ²Ð° Ð´Ð»Ñ Ð¿ÐµÑ€ÐµÑ…Ð¾Ð´Ð° Ðº Ð´ÐµÑ‚Ð°Ð»ÑŒÐ½Ð¾Ð¼Ñƒ ÑƒÐ¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸ÑŽ Ð±Ð°Ð·Ð¾Ð¹ Ð´Ð°Ð½Ð½Ñ‹Ñ….
+                 Панель администратора MF-04 предоставляет полный контроль над финансовыми операциями и данными пользователей. 
+                 Используйте разделы меню слева для перехода к детальному управлению базой данных.
                </p>
                <div className="mt-8 flex gap-4 relative z-10">
-                 <button onClick={() => setView('INVESTORS')} className="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all">Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ Ð¿Ð¾Ð»ÑŒÐ·Ð¾Ð²Ð°Ñ‚ÐµÐ»ÑÐ¼Ð¸</button>
-                 <button onClick={() => setView('TRANSACTIONS')} className="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all">ÐŸÑ€Ð¾ÑÐ¼Ð¾Ñ‚Ñ€ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¹</button>
+                 <button onClick={() => setView('INVESTORS')} className="px-6 py-3 bg-slate-900 text-white font-bold rounded-xl hover:bg-slate-800 transition-all">Управление пользователями</button>
+                 <button onClick={() => setView('TRANSACTIONS')} className="px-6 py-3 bg-white border border-slate-200 text-slate-700 font-bold rounded-xl hover:bg-slate-50 transition-all">Просмотр транзакций</button>
                </div>
             </div>
           </div>
@@ -1203,11 +1212,11 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2 duration-300">
             <div className="flex flex-col gap-4">
               <div className="flex flex-wrap items-center gap-2">
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-2">Ð¤Ð¸Ð»ÑŒÑ‚Ñ€:</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mr-2">Фильтр:</span>
                 {[
-                  { key: 'all' as const, label: 'Ð’ÑÐµ', count: investors.length },
-                  { key: 'verified' as const, label: 'Ð’ÐµÑ€Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ðµ', count: investors.filter(i => i.kycStatus === 'verified').length },
-                  { key: 'unverified' as const, label: 'ÐÐµÐ²ÐµÑ€Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ðµ', count: investors.filter(i => i.kycStatus !== 'verified').length },
+                  { key: 'all' as const, label: 'Все', count: investors.length },
+                  { key: 'verified' as const, label: 'Верифицированные', count: investors.filter(i => i.kycStatus === 'verified').length },
+                  { key: 'unverified' as const, label: 'Неверифицированные', count: investors.filter(i => i.kycStatus !== 'verified').length },
                 ].map(({ key, label, count }) => (
                   <button
                     key={key}
@@ -1227,7 +1236,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></span>
                   <input
                     type="text"
-                    placeholder="ÐŸÐ¾Ð¸ÑÐº Ð¿Ð¾ Ð¸Ð¼ÐµÐ½Ð¸, email, ID Ð¸Ð»Ð¸ Ð¿Ð°ÑÐ¿Ð¾Ñ€Ñ‚Ñƒ..."
+                    placeholder="Поиск по имени, email, ID или паспорту..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     className="w-full pl-12 pr-4 py-3.5 border border-slate-200 rounded-2xl bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm font-medium"
@@ -1237,7 +1246,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                   onClick={() => setIsCreateOpen(true)}
                   className="px-5 py-3 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-2xl hover:bg-blue-700 transition-all shadow-lg"
                 >
-                  Ð”Ð¾Ð±Ð°Ð²Ð¸Ñ‚ÑŒ Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð°
+                  Добавить инвестора
                 </button>
               </div>
             </div>
@@ -1246,11 +1255,11 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-200">
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð˜Ð½Ð²ÐµÑÑ‚Ð¾Ñ€</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Инвестор</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Статус</th>
                     <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">KYC</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð‘Ð°Ð»Ð°Ð½Ñ (USD)</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Ð£Ð¿Ñ€Ð°Ð²Ð»ÐµÐ½Ð¸Ðµ</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Баланс (USD)</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Управление</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1263,7 +1272,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                           </div>
                           <div>
                             <p className="font-bold text-slate-900 text-base leading-none mb-1.5">{inv.fullName}</p>
-                            <p className="text-xs text-slate-500 mono font-medium">{(inv.investorDisplayId || inv.id)} â€¢ {inv.email}</p>
+                            <p className="text-xs text-slate-500 mono font-medium">{(inv.investorDisplayId || inv.id)} • {inv.email}</p>
                           </div>
                         </div>
                       </td>
@@ -1271,7 +1280,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                         <span className={`px-3 py-1 text-[10px] font-black rounded-lg uppercase tracking-widest border shadow-sm ${
                           inv.status === UserStatus.ACTIVE ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'
                         }`}>
-                          {inv.status === UserStatus.ACTIVE ? 'ÐÐºÑ‚Ð¸Ð²ÐµÐ½' : 'Ð‘Ð»Ð¾Ðº'}
+                          {inv.status === UserStatus.ACTIVE ? 'Активен' : 'Блок'}
                         </span>
                       </td>
                       <td className="px-6 py-5">
@@ -1280,7 +1289,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                             ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
                             : 'bg-amber-50 text-amber-700 border-amber-200'
                         }`}>
-                          {inv.kycStatus === 'verified' ? 'Ð’ÐµÑ€Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¹ Ð¿Ð»Ð°Ñ‚Ð¸Ð½ÑƒÐ¼' : 'ÐÐµÐ²ÐµÑ€Ð¸Ñ„Ð¸Ñ†Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð½Ñ‹Ð¹'}
+                          {inv.kycStatus === 'verified' ? 'Верифицированный платинум' : 'Неверифицированный'}
                         </span>
                         <p className="text-[10px] text-slate-400 mt-1">{inv.onboardingStep}</p>
                       </td>
@@ -1295,14 +1304,14 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                           onClick={() => setSelectedInvestor(inv)}
                           className="px-6 py-2.5 bg-slate-900 text-white text-[10px] font-black uppercase tracking-[0.1em] rounded-xl hover:bg-blue-600 transition-all shadow-lg active:scale-95"
                         >
-                          Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ
+                          Редактировать
                         </button>
                       </td>
                     </tr>
                   ))}
                   {filteredInvestors.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-6 py-16 text-center text-slate-400 italic font-medium">ÐÐ¸Ñ‡ÐµÐ³Ð¾ Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½Ð¾ Ð¿Ð¾ Ð´Ð°Ð½Ð½Ð¾Ð¼Ñƒ Ð·Ð°Ð¿Ñ€Ð¾ÑÑƒ.</td>
+                      <td colSpan={5} className="px-6 py-16 text-center text-slate-400 italic font-medium">Ничего не найдено по данному запросу.</td>
                     </tr>
                   )}
                 </tbody>
@@ -1319,7 +1328,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Icons.Search /></span>
                  <input 
                    type="text" 
-                   placeholder="Ð¤Ð¸Ð»ÑŒÑ‚Ñ€ Ñ‚Ñ€Ð°Ð½Ð·Ð°ÐºÑ†Ð¸Ð¹..." 
+                   placeholder="Фильтр транзакций..." 
                    value={searchQuery}
                    onChange={(e) => setSearchQuery(e.target.value)}
                    className="w-full pl-12 pr-4 py-3 border border-slate-200 rounded-2xl bg-white shadow-sm outline-none focus:ring-2 focus:ring-blue-500 transition-all text-sm"
@@ -1327,7 +1336,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                </div>
                <div className="flex gap-4">
                   <div className="px-5 py-3 bg-emerald-50 text-emerald-700 rounded-2xl border border-emerald-100 flex flex-col items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60 leading-none mb-1">ÐžÐ±Ñ‰Ð¸Ð¹ Ð²Ð²Ð¾Ð´</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest opacity-60 leading-none mb-1">Общий ввод</span>
                     <span className="text-xl font-black leading-none">${totalDepositedFromBase.toLocaleString()}</span>
                   </div>
                </div>
@@ -1337,10 +1346,10 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-200">
                     <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">ID TX</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð˜Ð½Ð²ÐµÑÑ‚Ð¾Ñ€</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð¡ÑƒÐ¼Ð¼Ð°</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð’Ñ€ÐµÐ¼Ñ</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð¡Ñ‚Ð°Ñ‚ÑƒÑ</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Инвестор</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Сумма</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Время</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Статус</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1362,7 +1371,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                         <span className={`px-2.5 py-1 text-[9px] font-black rounded-lg uppercase tracking-widest border ${
                           tx.status === 'SUCCESS' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 'bg-amber-50 text-amber-700 border-amber-100'
                         }`}>
-                          {tx.status === 'SUCCESS' ? 'Ð£ÑÐ¿ÐµÑˆÐ½Ð¾' : tx.status === 'PENDING' ? 'ÐžÐ¶Ð¸Ð´Ð°Ð½Ð¸Ðµ' : 'ÐžÑˆÐ¸Ð±ÐºÐ°'}
+                          {tx.status === 'SUCCESS' ? 'Успешно' : tx.status === 'PENDING' ? 'Ожидание' : 'Ошибка'}
                         </span>
                       </td>
                     </tr>
@@ -1409,7 +1418,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                     {!paymentIntents.length && (
                       <tr>
                         <td colSpan={4} className="px-6 py-10 text-center text-slate-400 italic">
-                          ÐÐµÑ‚ Ð´Ð°Ð½Ð½Ñ‹Ñ… Ð¿Ð¾ ÐºÑ€Ð¸Ð¿Ñ‚Ð¾Ð¿Ð»Ð°Ñ‚ÐµÐ¶Ð°Ð¼
+                          Нет данных по криптоплатежам
                         </td>
                       </tr>
                     )}
@@ -1424,16 +1433,16 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
         {view === 'CYCLES' && (
           <div className="space-y-6 animate-in fade-in duration-300">
             <p className="text-slate-500 text-sm max-w-2xl">
-              Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ Ñ†Ð¸ÐºÐ»Ð¾Ð² Ð¿Ð¾ÑÑ‚Ð°Ð²ÐºÐ¸ 1â€“14: Ð´Ð°Ñ‚Ð° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ Ð¸ Ð´Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚ÑŒ. ÐŸÐ¾Ð¿Ð¾Ð»Ð½ÐµÐ½Ð¸Ñ Ð´Ð¾ 24 Ñ‡Ð°ÑÐ¾Ð² Ð´Ð¾ Ð´Ð°Ñ‚Ñ‹ Ñ†Ð¸ÐºÐ»Ð° ÑƒÑ‡Ð°ÑÑ‚Ð²ÑƒÑŽÑ‚ Ð² Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ð¸.
+              Редактирование циклов поставки 1–14: дата открытия и доходность. Пополнения до 24 часов до даты цикла участвуют в начислении.
             </p>
             <div className="bg-white rounded-2xl border border-slate-200 shadow-xl shadow-slate-200/30 overflow-hidden">
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-slate-50/50 border-b border-slate-200">
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">â„– Ñ†Ð¸ÐºÐ»Ð°</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð”Ð°Ñ‚Ð° Ð¾Ñ‚ÐºÑ€Ñ‹Ñ‚Ð¸Ñ</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Ð”Ð¾Ñ…Ð¾Ð´Ð½Ð¾ÑÑ‚ÑŒ (%)</th>
-                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Ð”ÐµÐ¹ÑÑ‚Ð²Ð¸Ñ</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">№ цикла</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Дата открытия</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest">Доходность (%)</th>
+                    <th className="px-6 py-5 text-[10px] font-black text-slate-400 uppercase tracking-widest text-right">Действия</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -1449,14 +1458,14 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
                           onClick={() => setEditingCycle(c)}
                           className="px-5 py-2 bg-slate-900 text-white text-[10px] font-black uppercase tracking-widest rounded-xl hover:bg-blue-600 transition-all"
                         >
-                          Ð ÐµÐ´Ð°ÐºÑ‚Ð¸Ñ€Ð¾Ð²Ð°Ñ‚ÑŒ
+                          Редактировать
                         </button>
                       </td>
                     </tr>
                   ))}
                   {!cycles.length && (
                     <tr>
-                      <td colSpan={4} className="px-6 py-16 text-center text-slate-400 italic">ÐÐµÑ‚ Ñ†Ð¸ÐºÐ»Ð¾Ð². Ð—Ð°Ð¿ÑƒÑÑ‚Ð¸Ñ‚Ðµ Ð¼Ð¸Ð³Ñ€Ð°Ñ†Ð¸ÑŽ migrate-investment-cycles.</td>
+                      <td colSpan={4} className="px-6 py-16 text-center text-slate-400 italic">Нет циклов. Запустите миграцию migrate-investment-cycles.</td>
                     </tr>
                   )}
                 </tbody>
@@ -1473,48 +1482,48 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
           documents={investorDocuments}
           onConfirmDocuments={async () => {
             const dbId = userIdMap[selectedInvestor.id];
-            if (!dbId) throw new Error('ID Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½');
+            if (!dbId) throw new Error('ID инвестора не найден');
             const res = await fetch(`${base}/users/${dbId}/confirm-documents`, {
               method: 'POST',
               headers: getAuthHeaders()
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ñ');
+            if (!res.ok) throw new Error(data.error || 'Ошибка подтверждения');
             await fetchAdminData();
           }}
           onRejectDocuments={async () => {
             const dbId = userIdMap[selectedInvestor.id];
-            if (!dbId) throw new Error('ID Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½');
+            if (!dbId) throw new Error('ID инвестора не найден');
             const res = await fetch(`${base}/users/${dbId}/reject-documents`, {
               method: 'POST',
               headers: getAuthHeaders()
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð¾Ñ‚ÐºÐ»Ð¾Ð½ÐµÐ½Ð¸Ñ');
+            if (!res.ok) throw new Error(data.error || 'Ошибка отклонения');
             await fetchAdminData();
           }}
           onClose={() => setSelectedInvestor(null)} 
           onAccrueYield={async () => {
             const dbId = userIdMap[selectedInvestor.id];
-            if (!dbId) throw new Error('ID Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½');
+            if (!dbId) throw new Error('ID инвестора не найден');
             const res = await fetch(`${base}/users/${dbId}/accrue-yield`, {
               method: 'POST',
               headers: getAuthHeaders()
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð½Ð°Ñ‡Ð¸ÑÐ»ÐµÐ½Ð¸Ñ');
+            if (!res.ok) throw new Error(data.error || 'Ошибка начисления');
             await fetchAdminData();
             return data;
           }}
           onDelete={async () => {
             const dbId = userIdMap[selectedInvestor.id];
-            if (!dbId) throw new Error('ID Ð¸Ð½Ð²ÐµÑÑ‚Ð¾Ñ€Ð° Ð½Ðµ Ð½Ð°Ð¹Ð´ÐµÐ½');
+            if (!dbId) throw new Error('ID инвестора не найден');
             const res = await fetch(`${base}/users/${dbId}`, {
               method: 'DELETE',
               headers: getAuthHeaders()
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || 'ÐžÑˆÐ¸Ð±ÐºÐ° ÑƒÐ´Ð°Ð»ÐµÐ½Ð¸Ñ');
+            if (!res.ok) throw new Error(data.error || 'Ошибка удаления');
             setSelectedInvestor(null);
             await fetchAdminData();
           }}
@@ -1525,7 +1534,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
           apiBase={base}
           onConfirmDeposit={async (txId, amount) => {
             const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);
-            if (!token) throw new Error('Ð¢Ñ€ÐµÐ±ÑƒÐµÑ‚ÑÑ Ð°Ð²Ñ‚Ð¾Ñ€Ð¸Ð·Ð°Ñ†Ð¸Ñ Ð°Ð´Ð¼Ð¸Ð½Ð¸ÑÑ‚Ñ€Ð°Ñ‚Ð¾Ñ€Ð°');
+            if (!token) throw new Error('Требуется авторизация администратора');
             const res = await fetch(`${base}/transactions/${txId}/confirm`, {
               method: 'PATCH',
               headers: {
@@ -1535,7 +1544,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
               body: JSON.stringify({ amount })
             });
             const data = await res.json().catch(() => ({}));
-            if (!res.ok) throw new Error(data.error || 'ÐžÑˆÐ¸Ð±ÐºÐ° Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ñ');
+            if (!res.ok) throw new Error(data.error || 'Ошибка подтверждения');
             await fetchAdminData();
           }}
           onUpdate={async (updated) => {
@@ -1641,4 +1650,3 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
     </div>
   );
 }
-
