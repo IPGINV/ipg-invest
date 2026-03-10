@@ -105,7 +105,7 @@ const translations = {
     heroBtnAbout: "О проекте",
     heroCompliance: ["Лицензия DMCC", "Стандарт LBMA", "Физический актив"],
     heroCardValuation: "Онлайн цена золота",
-    heroCardDesc: "Эксклюзивная модель участия в циклах закупки золота  в Гане и последующей продажей в в DMCC АОЭ.",
+    heroCardDesc: "Эксклюзивная модель участия в циклах закупки золота в Гане и последующей продажей в DMCC АОЭ.",
     heroCardMore: "Подробнее",
     calcTitle: "Калькулятор",
     calcTitleGold: "профита",

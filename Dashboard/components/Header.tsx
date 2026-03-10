@@ -14,6 +14,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContactExpanded, setIsContactExpanded] = useState(false);
   const [isManagerPopupOpen, setIsManagerPopupOpen] = useState(false);
+  const [lbmaPrice, setLbmaPrice] = useState<number | null>(null);
   const t = locales[lang];
 
   useEffect(() => {
@@ -23,6 +24,29 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
       document.body.style.overflow = 'auto';
     }
   }, [isMenuOpen, isManagerPopupOpen]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLbmaPrice = async () => {
+      try {
+        const response = await fetch('https://api.gold-api.com/price/XAU');
+        if (!response.ok) return;
+        const payload = await response.json();
+        const price = Number(payload?.price);
+        if (isMounted && Number.isFinite(price) && price > 0) {
+          setLbmaPrice(price);
+        }
+      } catch {
+        // keep previous value
+      }
+    };
+    fetchLbmaPrice();
+    const timer = window.setInterval(fetchLbmaPrice, 60000);
+    return () => {
+      isMounted = false;
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const resolveLocalBase = (port: number) => {
     const host = window.location.hostname;
@@ -145,6 +169,17 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
           >
             <i className="fa-solid fa-xmark text-3xl"></i>
           </button>
+
+          <div className="w-full max-w-lg flex items-center justify-between mb-10">
+            <div className="flex flex-col">
+              <span className="font-['Playfair_Display'] font-black text-xs uppercase tracking-[0.15em] text-[#d4af37] leading-tight">Imperial</span>
+              <span className="font-['Playfair_Display'] font-black text-xs uppercase tracking-[0.15em] text-black leading-tight">Pure Gold</span>
+            </div>
+            <div className="px-2.5 py-1.5 rounded-xl border border-black/10 bg-black/[0.03] flex items-center gap-2">
+              <span className="text-[8px] font-bold uppercase tracking-widest text-[#d4af37]">LBMA</span>
+              <span className="text-[11px] font-black text-black">{lbmaPrice ? `$${Math.round(lbmaPrice).toLocaleString()}` : '...'}</span>
+            </div>
+          </div>
           
           <div className="flex flex-col gap-12 w-full max-w-lg text-center">
             <button onClick={openDashboard} className="group flex flex-col items-center gap-2">

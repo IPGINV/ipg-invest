@@ -24,6 +24,7 @@ const App: React.FC = () => {
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
   const [lang, setLang] = useState<'ru' | 'en'>('ru');
+  const [lbmaPrice, setLbmaPrice] = useState<number | null>(null);
 
   const resolveLocalBase = (port: number) => {
     const host = window.location.hostname;
@@ -95,6 +96,29 @@ const App: React.FC = () => {
       document.body.style.overflow = 'auto';
     }
   }, [isMenuOpen, isManagerModalOpen]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLbmaPrice = async () => {
+      try {
+        const response = await fetch('https://api.gold-api.com/price/XAU');
+        if (!response.ok) return;
+        const payload = await response.json();
+        const price = Number(payload?.price);
+        if (isMounted && Number.isFinite(price) && price > 0) {
+          setLbmaPrice(price);
+        }
+      } catch {
+        // keep previous value
+      }
+    };
+    fetchLbmaPrice();
+    const timer = window.setInterval(fetchLbmaPrice, 60000);
+    return () => {
+      isMounted = false;
+      window.clearInterval(timer);
+    };
+  }, []);
 
   const t = locales[lang];
 
@@ -307,12 +331,18 @@ const App: React.FC = () => {
         <>
           <div onClick={() => setIsMenuOpen(false)} className="fixed inset-0 z-[150] bg-black/20 backdrop-blur-sm" />
           <div className="fixed inset-y-0 left-0 w-full max-w-xs z-[160] bg-white border-r border-black/5 p-8 flex flex-col">
-            <div className="flex justify-between items-center mb-12">
+            <div className="flex items-center justify-between gap-3 mb-12">
               <div className="flex flex-col">
                 <span className="font-playfair font-black text-xs uppercase tracking-tight text-[#d4af37]">Imperial</span>
                 <span className="font-playfair font-black text-xs uppercase tracking-tight text-black">Pure Gold</span>
               </div>
-              <button onClick={() => setIsMenuOpen(false)} className="p-2 text-black/40 hover:text-black"><X size={24} /></button>
+              <div className="flex items-center gap-2 ml-auto">
+                <div className="px-2.5 py-1.5 rounded-xl border border-black/10 bg-black/[0.03] flex items-center gap-2">
+                  <span className="text-[8px] font-bold uppercase tracking-widest text-[#d4af37]">LBMA</span>
+                  <span className="text-[11px] font-black text-black">{lbmaPrice ? `$${Math.round(lbmaPrice).toLocaleString()}` : '...'}</span>
+                </div>
+                <button onClick={() => setIsMenuOpen(false)} className="p-2 text-black/40 hover:text-black"><X size={24} /></button>
+              </div>
             </div>
             <nav className="flex flex-col gap-2">
               <MenuBtn icon={<LayoutDashboard size={20}/>} label={t.menuDashboard} onClick={() => { openApp('dashboard'); setIsMenuOpen(false); }} />
