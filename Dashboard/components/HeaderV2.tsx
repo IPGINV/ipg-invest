@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
@@ -75,7 +75,7 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
     ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
   const getInfoBase = () => (isLocalHost() ? 'http://localhost:3003' : 'https://info.ipg-invest.ae');
-  const profileText = t.profileLabel ?? (lang === 'ru' ? 'ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŒ' : 'Profile');
+  const profileText = t.profileLabel ?? (lang === 'ru' ? 'Профиль' : 'Profile');
 
   const openProfileMenu = () => {
     setIsProfileMenuOpen(true);
@@ -105,8 +105,7 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
           headerVisible ? 'translate-y-0' : '-translate-y-full'
         )}
       >
-        {/* Layer 1: Marquee (h-8 â€” Info standard) */}
-        {/* Layer 2: Main Header â€” ÐºÐ°Ðº Ð² Info */}
+        {/* Layer 2: Main Header */}
         <header className="bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center">
           <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border transition-all bg-white/5 border-white/10 hover:bg-white/10">
@@ -165,7 +164,7 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
         )}
       </div>
 
-      {/* Hamburger Menu â€” Info standard: left slide, white panel */}
+      {/* Hamburger Menu */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
@@ -192,14 +191,14 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
               <div className="h-px bg-black/5 my-6" />
               </nav>
               <div className="mt-auto pt-8 border-t border-black/5">
-                <p className="text-[10px] text-black/20 uppercase font-bold">Â© 2026 Imperial Pure Gold</p>
+                <p className="text-[10px] text-black/20 uppercase font-bold">© 2026 Imperial Pure Gold</p>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/* Profile Menu â€” like Info profile functionality */}
+      {/* Profile Menu */}
       <AnimatePresence>
         {isProfileMenuOpen && (
           <div className="fixed inset-0 z-[220] flex items-center justify-center p-6">
@@ -265,4 +264,3 @@ const MenuBtn = ({ icon, label, onClick, active = false }: { icon: React.ReactNo
 );
 
 export default HeaderV2;
-
