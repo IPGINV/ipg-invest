@@ -596,7 +596,6 @@ export default function App({ apiBase }: AppProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [amount, setAmount] = useState(50000); 
   const [marketData, setMarketData] = useState<PricePoint[]>(() => generatePastSixMonths('RU'));
-  const [currencyRates, setCurrencyRates] = useState({ AED: 3.67, RUB: 91.42 });
   const [currentCard, setCurrentCard] = useState(0);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
@@ -696,9 +695,8 @@ export default function App({ apiBase }: AppProps) {
       try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
-          const { timestamp, rates, lastPrice } = JSON.parse(cached);
+          const { timestamp, lastPrice } = JSON.parse(cached);
           if (Date.now() - timestamp < CACHE_EXPIRY) {
-            setCurrencyRates(rates);
             const pastSix = generatePastSixMonths(lang);
             // Anchor historical trend to live price
             const trending = pastSix.map((p, i) => {
@@ -719,12 +717,6 @@ export default function App({ apiBase }: AppProps) {
         if (response.ok && result?.goldPrice) {
           const livePrice = Math.round(Number(result.goldPrice) || 2780);
           
-          const newRates = {
-            AED: Number(result.currencyRates?.AED) || 3.67,
-            RUB: Number(result.currencyRates?.RUB) || 91.42
-          };
-          setCurrencyRates(newRates);
-
           const pastSix = generatePastSixMonths(lang);
           const trending = pastSix.map((p, i) => {
              const trendFactor = (i / (pastSix.length - 1));
@@ -736,8 +728,7 @@ export default function App({ apiBase }: AppProps) {
           setMarketData(trending);
           localStorage.setItem(CACHE_KEY, JSON.stringify({ 
             timestamp: Date.now(), 
-            lastPrice: livePrice,
-            rates: newRates
+            lastPrice: livePrice
           }));
         }
       } catch (err) { 
@@ -796,31 +787,14 @@ export default function App({ apiBase }: AppProps) {
 
 
   const currentPrice = marketData[marketData.length - 1]?.price || 2780;
-  const yearlyGrowth = marketData.length > 1 ? (((marketData[marketData.length - 1].price - marketData[0].price) / marketData[0].price) * 100).toFixed(1) : '8.4';
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-[#d4af37] selection:text-black font-inter text-[#f0f0f0] overflow-x-hidden">
       <InteractiveBackground />
 
       {/* Marquee — Info standard h-8 */}
-      <div className={`fixed top-0 w-full z-[100] bg-[#0a0a0a] border-b border-white/5 h-8 flex items-center overflow-hidden transition-all duration-500 ease-out ${isOfferModalOpen ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[1, 2].map((i) => (
-            <div key={i} className="flex items-center shrink-0">
-              <span className="text-[10px] font-mono font-bold text-[#d4af37] px-8 uppercase tracking-widest flex items-center gap-2">
-                <Gem size={10} /> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)
-              </span>
-              <span className="text-[10px] font-mono font-bold text-white/30 px-8 uppercase tracking-widest">{t.marqueeSpotAU}: ${currentPrice.toLocaleString()}</span>
-              <span className="text-[10px] font-mono font-bold text-white/30 px-8 uppercase tracking-widest">USD/AED: {currencyRates.AED}</span>
-              <span className="text-[10px] font-mono font-bold text-[#d4af37] px-8 uppercase tracking-widest">{t.marqueeInstLevel}</span>
-              <span className="text-[10px] font-mono font-bold text-white/30 px-8 uppercase tracking-widest">USD/RUB: {currencyRates.RUB}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Header — Info standard h-16 */}
-      <header className={`fixed top-8 left-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center transition-all duration-500 ease-out ${isOfferModalOpen ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+      <header className={`fixed top-0 left-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center transition-all duration-500 ease-out ${isOfferModalOpen ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
             <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">

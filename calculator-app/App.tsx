@@ -8,7 +8,7 @@ import { SummaryCard } from './components/SummaryCard';
 import { GrowthChart } from './components/GrowthChart';
 import { ResultsTable } from './components/ResultsTable';
 import { Button } from './components/Button';
-import { Calculator, ArrowRight, AlertTriangle, Gem, Menu, X, Send, User, MessageCircle, Mail, LayoutDashboard, Building2, Info, Phone, Globe, LogOut, Facebook } from 'lucide-react';
+import { Calculator, ArrowRight, AlertTriangle, Menu, X, Send, User, MessageCircle, Mail, LayoutDashboard, Building2, Info, Phone, Globe, LogOut, Facebook } from 'lucide-react';
 import { locales } from './locales';
 
 const App: React.FC = () => {
@@ -24,9 +24,6 @@ const App: React.FC = () => {
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
   const [lang, setLang] = useState<'ru' | 'en'>('ru');
-  const [currentPrice, setCurrentPrice] = useState(2050.5);
-  const [yearlyGrowth, setYearlyGrowth] = useState(8.4);
-  const [currencyRates, setCurrencyRates] = useState({ AED: '3.67', RUB: '98.50' });
 
   const resolveLocalBase = (port: number) => {
     const host = window.location.hostname;
@@ -90,49 +87,6 @@ const App: React.FC = () => {
       reinvestmentPercentage
     );
   }, [initialInvestment, cycles, reinvestmentEnabled, reinvestmentPercentage]);
-
-  // Handle Action
-  useEffect(() => {
-    const CACHE_KEY = 'ipg:calculator:market-data';
-    const CACHE_TTL = 5 * 60 * 1000;
-
-    const applyData = (data: any) => {
-      const price = Number(data?.goldPrice) || 2050.5;
-      setCurrentPrice(price);
-      setCurrencyRates({
-        AED: Number(data?.currencyRates?.AED || 3.67).toFixed(2),
-        RUB: Number(data?.currencyRates?.RUB || 98.5).toFixed(2)
-      });
-      setYearlyGrowth(Number(data?.yearlyGrowth || 8.4));
-    };
-
-    const fetchMarket = async () => {
-      const cached = localStorage.getItem(CACHE_KEY);
-      if (cached) {
-        try {
-          const parsed = JSON.parse(cached);
-          if (Date.now() - parsed.timestamp < CACHE_TTL) {
-            applyData(parsed.data);
-            return;
-          }
-        } catch {
-          // ignore cache
-        }
-      }
-
-      try {
-        const res = await fetch(`${apiBase}${API_ENDPOINTS.MARKET_DATA}`);
-        if (!res.ok) throw new Error('Market data unavailable');
-        const data = await res.json();
-        applyData(data);
-        localStorage.setItem(CACHE_KEY, JSON.stringify({ timestamp: Date.now(), data }));
-      } catch {
-        applyData(null);
-      }
-    };
-
-    fetchMarket();
-  }, [apiBase]);
 
   useEffect(() => {
     if (isMenuOpen || isManagerModalOpen) {
@@ -212,24 +166,8 @@ const App: React.FC = () => {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#d4af37] selection:text-black pb-20">
       {/* Marquee — Info standard h-8 */}
-      <div className="fixed top-0 w-full z-[100] border-b h-8 flex items-center overflow-hidden bg-[#0a0a0a] border-white/5">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[1, 2].map((i) => (
-            <div key={i} className="flex items-center shrink-0">
-              <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase flex items-center gap-2">
-                <Gem size={10} /> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)
-              </span>
-              <span className="text-[9px] font-bold text-white/30 px-8 uppercase">{t.marqueeSpotAU}: ${currentPrice.toLocaleString()}</span>
-              <span className="text-[9px] font-bold text-white/30 px-8 uppercase">USD/AED: {currencyRates.AED}</span>
-              <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase">{t.marqueeInstLevel}</span>
-              <span className="text-[9px] font-bold text-white/30 px-8 uppercase">USD/RUB: {currencyRates.RUB}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Header — Info standard h-16 */}
-      <header className="fixed top-8 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center">
+      <header className="fixed top-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center">
         <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
             <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">

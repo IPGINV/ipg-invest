@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Gem, Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut } from 'lucide-react';
+import { Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language, Translation, ViewState } from '../types';
 
@@ -38,16 +38,6 @@ const buildAppUrl = (app: 'dashboard' | 'wallet' | 'invest' | 'info' | 'calculat
   return subdomains[app];
 };
 
-const resolveApiBase = () => {
-  const envBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
-  if (envBase) return envBase.replace(/\/$/, '');
-  const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
-  if (runtimeBase) return String(runtimeBase).replace(/\/$/, '');
-  const localBase = resolveLocalBase(3001);
-  if (localBase) return localBase;
-  return 'https://api.ipg-invest.ae';
-};
-
 const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -59,62 +49,10 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
   const borderColor = isDark ? 'border-white/10' : 'border-black/5';
   const bgColor = isDark ? 'bg-white/5' : 'bg-black/5';
 
-  const [currentPrice, setCurrentPrice] = useState(2780);
-  const [yearlyGrowth, setYearlyGrowth] = useState(8.4);
-  const [currencyRates, setCurrencyRates] = useState({ AED: '3.67', RUB: '91.42' });
-
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  useEffect(() => {
-    const CACHE_KEY = 'imperial_gold_price_data_v4';
-    const CACHE_EXPIRY = 1000 * 60 * 60;
-
-    const applyPrice = (price: number, rates: { AED: number; RUB: number }) => {
-      setCurrentPrice(price);
-      setCurrencyRates({
-        AED: rates.AED.toFixed(2),
-        RUB: rates.RUB.toFixed(2)
-      });
-      const baseline = price * 0.92;
-      const growth = ((price - baseline) / baseline) * 100;
-      setYearlyGrowth(Number(growth.toFixed(1)));
-    };
-
-    const fetchPrices = async () => {
-      try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-          const { timestamp, rates, lastPrice } = JSON.parse(cached);
-          if (Date.now() - timestamp < CACHE_EXPIRY) {
-            applyPrice(lastPrice, rates);
-            return;
-          }
-        }
-
-        const response = await fetch(`${resolveApiBase()}/api/market-data`);
-        const result = await response.json();
-        if (response.ok && result && result.goldPrice) {
-          const livePrice = Math.round(Number(result.goldPrice) || 2780);
-          const newRates = {
-            AED: Number(result.currencyRates?.AED) || 3.67,
-            RUB: Number(result.currencyRates?.RUB) || 91.42
-          };
-          applyPrice(livePrice, newRates);
-          localStorage.setItem(
-            CACHE_KEY,
-            JSON.stringify({ timestamp: Date.now(), lastPrice: livePrice, rates: newRates })
-          );
-        }
-      } catch (err) {
-        // keep defaults
-      }
-    };
-
-    fetchPrices();
   }, []);
 
   const handleNavClick = (view: ViewState) => {
@@ -144,31 +82,7 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
 
   return (
     <>
-      <div className={`fixed top-0 w-full z-[100] border-b h-8 flex items-center overflow-hidden transition-colors duration-500 ${isDark ? 'bg-[#0a0a0a] border-white/5' : 'bg-white border-black/5'}`}>
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[1, 2].map((i) => (
-            <div key={i} className="flex items-center shrink-0">
-               <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase flex items-center gap-2">
-                <Gem size={10} /> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)
-              </span>
-               <span className={`text-[9px] font-bold px-8 uppercase transition-colors duration-500 ${isDark ? 'text-white/30' : 'text-black/30'}`}>
-                {t.marqueeSpotAU}: ${currentPrice.toLocaleString()}
-              </span>
-               <span className={`text-[9px] font-bold px-8 uppercase transition-colors duration-500 ${isDark ? 'text-white/30' : 'text-black/30'}`}>
-                USD/AED: {currencyRates.AED}
-              </span>
-               <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase">
-                {t.marqueeInstLevel}
-              </span>
-               <span className={`text-[9px] font-bold px-8 uppercase transition-colors duration-500 ${isDark ? 'text-white/30' : 'text-black/30'}`}>
-                USD/RUB: {currencyRates.RUB}
-              </span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <header className={`fixed top-8 w-full z-[90] transition-all duration-500 px-6 md:px-12 h-16 flex justify-between items-center ${scrolled ? (isDark ? 'bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5' : 'bg-white/80 backdrop-blur-xl border-b border-black/5') : 'bg-transparent'}`}>
+      <header className={`fixed top-0 w-full z-[90] transition-all duration-500 px-6 md:px-12 h-16 flex justify-between items-center ${scrolled ? (isDark ? 'bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5' : 'bg-white/80 backdrop-blur-xl border-b border-black/5') : 'bg-transparent'}`}>
         <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <div className={`flex items-center gap-3 p-1 pr-4 rounded-xl border transition-all ${bgColor} ${borderColor} hover:bg-opacity-20`}>
             <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">

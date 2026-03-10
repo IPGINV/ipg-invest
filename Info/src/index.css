@@ -29,12 +29,3 @@
     @apply bg-white/80 backdrop-blur-2xl border border-black/5 rounded-[1.5rem];
   }
 }
-
-@keyframes marquee {
-  0% { transform: translateX(0%); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-marquee {
-  animation: marquee 30s linear infinite;
-}

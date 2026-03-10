@@ -81,60 +81,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
   const [withDrawModalOpen, setWithdrawModalOpen] = useState(false);
   const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
 
-  // Market Data
-  const [currentPrice, setCurrentPrice] = useState(2780);
-  const [yearlyGrowth, setYearlyGrowth] = useState(8.4);
-  const [currencyRates, setCurrencyRates] = useState({ AED: 3.67, RUB: 91.42 });
-
   const t = TRANSLATIONS[lang];
-
-  useEffect(() => {
-    const CACHE_KEY = 'imperial_gold_price_data_v4';
-    const CACHE_EXPIRY = 1000 * 60 * 60;
-
-    const applyPrice = (price: number, rates: { AED: number; RUB: number }) => {
-      setCurrentPrice(price);
-      setCurrencyRates({
-        AED: Number(rates.AED.toFixed(2)),
-        RUB: Number(rates.RUB.toFixed(2))
-      });
-      const baseline = price * 0.92;
-      const growth = ((price - baseline) / baseline) * 100;
-      setYearlyGrowth(Number(growth.toFixed(1)));
-    };
-
-    const fetchPrices = async () => {
-      try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-          const { timestamp, rates, lastPrice } = JSON.parse(cached);
-          if (Date.now() - timestamp < CACHE_EXPIRY) {
-            applyPrice(lastPrice, rates);
-            return;
-          }
-        }
-
-        const response = await fetch(`${resolveApiBase(apiBase)}/api/market-data`);
-        const result = await response.json();
-        if (response.ok && result?.goldPrice) {
-          const livePrice = Math.round(Number(result.goldPrice) || 2780);
-          const newRates = {
-            AED: Number(result.currencyRates?.AED) || 3.67,
-            RUB: Number(result.currencyRates?.RUB) || 91.42
-          };
-          applyPrice(livePrice, newRates);
-          localStorage.setItem(
-            CACHE_KEY,
-            JSON.stringify({ timestamp: Date.now(), lastPrice: livePrice, rates: newRates })
-          );
-        }
-      } catch (err) {
-        // keep defaults on error
-      }
-    };
-
-    fetchPrices();
-  }, [apiBase]);
 
   useEffect(() => {
     const run = async () => {
@@ -277,9 +224,6 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
       <Header 
         lang={lang} 
         setLang={setLang}
-        currencyRates={currencyRates}
-        currentPrice={currentPrice}
-        yearlyGrowth={yearlyGrowth}
         onManagerClick={() => setIsManagerModalOpen(true)}
       />
 

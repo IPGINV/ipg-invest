@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, Gem, LogOut } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { locales } from '../locales';
@@ -14,22 +14,6 @@ interface HeaderV2Props {
   onNavigate: (page: string) => void;
   hideNavBar?: boolean;
 }
-
-const resolveApiBase = () => {
-  const envBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
-  if (envBase) return envBase.replace(/\/$/, '');
-  const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
-  if (runtimeBase) return String(runtimeBase).replace(/\/$/, '');
-  const host = window.location.hostname;
-  const isLocalLike =
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host === '::1' ||
-    host.startsWith('192.168.') ||
-    host.startsWith('10.') ||
-    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
-  return isLocalLike ? `http://${host}:3001` : 'https://api.ipg-invest.ae';
-};
 
 const HeaderV2: React.FC<HeaderV2Props> = ({
   onLogout,
@@ -47,57 +31,6 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
   const headerVisible = visibility?.headerVisible ?? true;
   const setModalOverlay = visibility?.setModalOverlay;
   const t = locales[lang];
-
-  const [currentPrice, setCurrentPrice] = useState(2780);
-  const [yearlyGrowth, setYearlyGrowth] = useState(8.4);
-  const [currencyRates, setCurrencyRates] = useState({ AED: '3.67', RUB: '91.42' });
-
-  useEffect(() => {
-    const CACHE_KEY = 'imperial_gold_price_data_v5';
-    const CACHE_EXPIRY = 1000 * 60 * 60;
-
-    const applyPrice = (price: number, rates: { AED: number; RUB: number }) => {
-      setCurrentPrice(price);
-      setCurrencyRates({
-        AED: rates.AED.toFixed(2),
-        RUB: rates.RUB.toFixed(2)
-      });
-      const baseline = price * 0.92;
-      const growth = ((price - baseline) / baseline) * 100;
-      setYearlyGrowth(Number(growth.toFixed(1)));
-    };
-
-    const fetchPrices = async () => {
-      try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-          const { timestamp, rates, lastPrice } = JSON.parse(cached);
-          if (Date.now() - timestamp < CACHE_EXPIRY) {
-            applyPrice(lastPrice, rates);
-            return;
-          }
-        }
-
-        const response = await fetch(`${resolveApiBase()}/api/market-data`);
-        const result = await response.json();
-        if (!response.ok || !result?.goldPrice) throw new Error('market-data unavailable');
-        const goldPricePerOunce = Number(result.goldPrice) || 2780;
-        const newRates = {
-          AED: Number(result.currencyRates?.AED) || 3.67,
-          RUB: Number(result.currencyRates?.RUB) || 91.42
-        };
-        applyPrice(goldPricePerOunce, newRates);
-        localStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({ timestamp: Date.now(), lastPrice: goldPricePerOunce, rates: newRates })
-        );
-      } catch {
-        applyPrice(2780, { AED: 3.67, RUB: 91.42 });
-      }
-    };
-
-    fetchPrices();
-  }, []);
 
   useEffect(() => {
     if (isMenuOpen || isProfileMenuOpen || isManagerPopupOpen) {
@@ -142,7 +75,7 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
     ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
   const getInfoBase = () => (isLocalHost() ? 'http://localhost:3003' : 'https://info.ipg-invest.ae');
-  const profileText = t.profileLabel ?? (lang === 'ru' ? 'Профиль' : 'Profile');
+  const profileText = t.profileLabel ?? (lang === 'ru' ? 'ÐŸÑ€Ð¾Ñ„Ð¸Ð»ÑŒ' : 'Profile');
 
   const openProfileMenu = () => {
     setIsProfileMenuOpen(true);
@@ -172,24 +105,8 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
           headerVisible ? 'translate-y-0' : '-translate-y-full'
         )}
       >
-        {/* Layer 1: Marquee (h-8 — Info standard) */}
-        <div className="bg-[#0a0a0a] border-b border-white/5 h-8 flex items-center overflow-hidden">
-          <div className="flex animate-marquee whitespace-nowrap">
-            {[1, 2].map((i) => (
-              <div key={i} className="flex items-center shrink-0">
-                <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase flex items-center gap-2">
-                  <Gem size={10} /> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)
-                </span>
-                <span className="text-[9px] font-bold text-white/30 px-8 uppercase">{t.marqueeSpotAU}: ${currentPrice.toLocaleString()}</span>
-                <span className="text-[9px] font-bold text-white/30 px-8 uppercase">USD/AED: {currencyRates.AED}</span>
-                <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase">{t.marqueeInstLevel}</span>
-                <span className="text-[9px] font-bold text-white/30 px-8 uppercase">USD/RUB: {currencyRates.RUB}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Layer 2: Main Header — как в Info */}
+        {/* Layer 1: Marquee (h-8 â€” Info standard) */}
+        {/* Layer 2: Main Header â€” ÐºÐ°Ðº Ð² Info */}
         <header className="bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center">
           <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
             <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border transition-all bg-white/5 border-white/10 hover:bg-white/10">
@@ -248,7 +165,7 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
         )}
       </div>
 
-      {/* Hamburger Menu — Info standard: left slide, white panel */}
+      {/* Hamburger Menu â€” Info standard: left slide, white panel */}
       <AnimatePresence>
         {isMenuOpen && (
           <>
@@ -275,14 +192,14 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
               <div className="h-px bg-black/5 my-6" />
               </nav>
               <div className="mt-auto pt-8 border-t border-black/5">
-                <p className="text-[10px] text-black/20 uppercase font-bold">© 2026 Imperial Pure Gold</p>
+                <p className="text-[10px] text-black/20 uppercase font-bold">Â© 2026 Imperial Pure Gold</p>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
 
-      {/* Profile Menu — like Info profile functionality */}
+      {/* Profile Menu â€” like Info profile functionality */}
       <AnimatePresence>
         {isProfileMenuOpen && (
           <div className="fixed inset-0 z-[220] flex items-center justify-center p-6">
@@ -348,3 +265,4 @@ const MenuBtn = ({ icon, label, onClick, active = false }: { icon: React.ReactNo
 );
 
 export default HeaderV2;
+

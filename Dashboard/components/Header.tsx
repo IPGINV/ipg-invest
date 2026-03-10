@@ -1,4 +1,4 @@
-
+﻿
 import React, { useState, useEffect } from 'react';
 import { locales } from '../locales';
 
@@ -10,82 +10,11 @@ interface HeaderProps {
   onNavigate?: (view: string) => void;
 }
 
-const resolveApiBase = () => {
-  const envBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
-  if (envBase) return envBase.replace(/\/$/, '');
-  const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
-  if (runtimeBase) return String(runtimeBase).replace(/\/$/, '');
-  const host = window.location.hostname;
-  const isLocalLike =
-    host === 'localhost' ||
-    host === '127.0.0.1' ||
-    host === '::1' ||
-    host.startsWith('192.168.') ||
-    host.startsWith('10.') ||
-    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
-  return isLocalLike ? `http://${host}:3001` : 'https://api.ipg-invest.ae';
-};
-
 const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContactExpanded, setIsContactExpanded] = useState(false);
   const [isManagerPopupOpen, setIsManagerPopupOpen] = useState(false);
   const t = locales[lang];
-
-  // Mock dynamic data for ticker
-  const [currentPrice, setCurrentPrice] = useState(2780);
-  const [yearlyGrowth, setYearlyGrowth] = useState(8.4);
-  const [currencyRates, setCurrencyRates] = useState({ AED: '3.67', RUB: '91.42' });
-
-  useEffect(() => {
-    const CACHE_KEY = 'imperial_gold_price_data_v5';
-    const CACHE_EXPIRY = 1000 * 60 * 60; // 1 час
-
-    const applyPrice = (price: number, rates: { AED: number; RUB: number }) => {
-      setCurrentPrice(price);
-      setCurrencyRates({
-        AED: rates.AED.toFixed(2),
-        RUB: rates.RUB.toFixed(2)
-      });
-      const baseline = price * 0.92;
-      const growth = ((price - baseline) / baseline) * 100;
-      setYearlyGrowth(Number(growth.toFixed(1)));
-    };
-
-    const fetchPrices = async () => {
-      try {
-        const cached = localStorage.getItem(CACHE_KEY);
-        if (cached) {
-          const { timestamp, rates, lastPrice } = JSON.parse(cached);
-          if (Date.now() - timestamp < CACHE_EXPIRY) {
-            applyPrice(lastPrice, rates);
-            return;
-          }
-        }
-
-        const response = await fetch(`${resolveApiBase()}/api/market-data`);
-        const result = await response.json();
-        if (!response.ok || !result?.goldPrice) throw new Error('market-data unavailable');
-        const goldPricePerOunce = Number(result.goldPrice) || 2780;
-        const newRates = {
-          AED: Number(result.currencyRates?.AED) || 3.67,
-          RUB: Number(result.currencyRates?.RUB) || 91.42
-        };
-        applyPrice(goldPricePerOunce, newRates);
-        localStorage.setItem(
-          CACHE_KEY,
-          JSON.stringify({ timestamp: Date.now(), lastPrice: goldPricePerOunce, rates: newRates })
-        );
-      } catch (err) {
-        // External market APIs may be blocked by CORS in browsers.
-        // Keep UI stable with fallback values without noisy console errors.
-        // Используем актуальные дефолтные значения при ошибке
-        applyPrice(2780, { AED: 3.67, RUB: 91.42 });
-      }
-    };
-
-    fetchPrices();
-  }, []);
 
   useEffect(() => {
     if (isMenuOpen || isManagerPopupOpen) {
@@ -110,7 +39,7 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
   const handleNav = (view: string) => {
     setIsMenuOpen(false);
     if (view === 'dashboard' || view === 'profile') {
-      // Если уже в Dashboard app, просто переключаем вкладку
+      // Ð•ÑÐ»Ð¸ ÑƒÐ¶Ðµ Ð² Dashboard app, Ð¿Ñ€Ð¾ÑÑ‚Ð¾ Ð¿ÐµÑ€ÐµÐºÐ»ÑŽÑ‡Ð°ÐµÐ¼ Ð²ÐºÐ»Ð°Ð´ÐºÑƒ
       if (onNavigate) onNavigate(view);
     } else {
       if (onNavigate) onNavigate(view);
@@ -145,26 +74,6 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-[110]">
-        {/* Layer 1: Top Marquee (40px) */}
-        <div className="bg-[#0c0c0e] border-b border-white/5 h-10 flex items-center overflow-hidden">
-          <div className="ticker-content">
-            {[1, 2].map((group) => (
-              <div key={group} className="flex items-center">
-                <span className="text-[10px] font-bold text-[#d4af37] px-8 tracking-widest uppercase flex items-center gap-2">
-                  <i className="fa-solid fa-gem text-[10px]"></i> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)
-                </span>
-                <span className="text-[10px] font-bold text-white/40 px-8 tracking-widest uppercase">{t.marqueeSpotAU}: ${currentPrice.toLocaleString()}</span>
-                <span className="text-[10px] font-bold text-white/40 px-8 tracking-widest uppercase">USD/AED: {currencyRates.AED}</span>
-                <span className="text-[10px] font-bold text-[#d4af37] px-8 tracking-widest uppercase">{t.marqueeInstLevel}</span>
-                <span className="text-[10px] font-bold text-[#d4af37] px-8 tracking-widest uppercase flex items-center gap-2">
-                  <i className="fa-solid fa-gem text-[10px]"></i> {t.marqueeLivePhysical}
-                </span>
-                <span className="text-[10px] font-bold text-white/40 px-8 tracking-widest uppercase">USD/RUB: {currencyRates.RUB}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
         {/* Layer 2: Main Header (80px) */}
         <header className="bg-[#141417]/90 backdrop-blur-3xl border-b border-white/5 px-4 md:px-12 h-20 flex justify-between items-center">
           {/* Left: Burger + Brand */}
@@ -351,3 +260,4 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
 };
 
 export default Header;
+

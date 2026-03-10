@@ -1,23 +1,17 @@
 import React, { useState } from 'react';
-import { Gem, Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut } from 'lucide-react';
-import { Language, CurrencyRates } from '../types';
+import { Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut } from 'lucide-react';
+import { Language } from '../types';
 import { TRANSLATIONS } from '../constants';
 
 interface HeaderProps {
   lang: Language;
   setLang: (lang: Language) => void;
-  currencyRates: CurrencyRates;
-  currentPrice: number;
-  yearlyGrowth: number;
   onManagerClick: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   lang,
   setLang,
-  currencyRates,
-  currentPrice,
-  yearlyGrowth,
   onManagerClick
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -75,23 +69,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <div className="fixed top-0 w-full z-[100] border-b h-8 flex items-center overflow-hidden bg-[#0a0a0a] border-white/5">
-        <div className="flex animate-marquee whitespace-nowrap">
-          {[1, 2].map((i) => (
-            <div key={i} className="flex items-center shrink-0">
-              <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase flex items-center gap-2">
-                <Gem size={10} /> {t.marqueeLBMABench}: ${currentPrice.toLocaleString()} (+{yearlyGrowth}%)
-              </span>
-              <span className="text-[9px] font-bold text-white/30 px-8 uppercase">{t.marqueeSpotAU}: ${currentPrice.toLocaleString()}</span>
-              <span className="text-[9px] font-bold text-white/30 px-8 uppercase">USD/AED: {currencyRates.AED}</span>
-              <span className="text-[9px] font-bold text-[#d4af37] px-8 uppercase">{t.marqueeInstLevel}</span>
-              <span className="text-[9px] font-bold text-white/30 px-8 uppercase">USD/RUB: {currencyRates.RUB}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <header className="fixed top-8 w-full z-[90] bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center">
+      <header className="fixed top-0 w-full z-[90] bg-[#0a0a0a]/80 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center">
         <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
             <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
