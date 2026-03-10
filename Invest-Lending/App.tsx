@@ -348,7 +348,6 @@ const Logo = ({ className = "", size = 24 }: { className?: string, size?: number
 );
 
 // --- Constants ---
-const METAL_PRICE_API_KEY = 'd74227f0722d7eb9cf7b1dd6ebc5cad6';
 const CACHE_KEY = 'imperial_gold_price_data_v4';
 const CACHE_EXPIRY = 60 * 60 * 1000; 
 
@@ -714,16 +713,15 @@ export default function App({ apiBase }: AppProps) {
           }
         }
 
-        const response = await fetch(`https://api.metalpriceapi.com/v1/latest?api_key=${METAL_PRICE_API_KEY}&base=USD&currencies=XAU,AED,RUB`);
+        const response = await fetch(`${resolveApiBase()}/api/market-data`);
         const result = await response.json();
 
-        if (result.success && result.rates) {
-          const goldPricePerOunce = 1 / result.rates.XAU; 
-          const livePrice = Math.round(goldPricePerOunce || 2780);
+        if (response.ok && result?.goldPrice) {
+          const livePrice = Math.round(Number(result.goldPrice) || 2780);
           
           const newRates = {
-            AED: parseFloat(result.rates.AED.toFixed(2)) || 3.67,
-            RUB: parseFloat(result.rates.RUB.toFixed(2)) || 91.42
+            AED: Number(result.currencyRates?.AED) || 3.67,
+            RUB: Number(result.currencyRates?.RUB) || 91.42
           };
           setCurrencyRates(newRates);
 

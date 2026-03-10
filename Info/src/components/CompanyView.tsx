@@ -187,7 +187,7 @@ const CompanyView: React.FC<CompanyViewProps> = ({ t, lang }) => {
                 </div>
                 <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-2 text-white/80 font-medium text-sm hover:text-[#d4af37] transition-colors bg-white/5 px-4 py-2 rounded-full border border-white/5">
                   <MessageCircle size={14} className="text-[#d4af37]" />
-                  <span>+971 52 965 7370 (Менеджер по маркетингу)</span>
+                  <span>+971 52 965 7370</span>
                 </a>
               </div>
 

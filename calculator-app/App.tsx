@@ -388,18 +388,6 @@ const App: React.FC = () => {
                 <MenuBtn icon={<LogOut size={20}/>} label={t.signOut} onClick={handleLogout} />
               )}
               <div className="h-px bg-black/5 my-6" />
-              <div className="flex items-center justify-center gap-3">
-                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
-                  <Facebook size={18} />
-                </a>
-                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
-                  <Send size={18} />
-                </a>
-                <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
-                  <MessageCircle size={18} />
-                </a>
-              </div>
-              <div className="h-px bg-black/5 my-6" />
             </nav>
             <div className="mt-auto pt-8 border-t border-black/5">
               <p className="text-[10px] text-black/20 uppercase font-bold">© 2026 Imperial Pure Gold</p>
@@ -418,15 +406,12 @@ const App: React.FC = () => {
             <p className="text-black/40 text-center text-sm mb-10 max-w-[280px]">{t.managerDesc}</p>
             <div className="flex flex-col gap-4 w-full">
               <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#0088cc]/10 text-[#0088cc] group-hover:scale-110 transition-transform"><Send size={24} /></div>
                 <span className="text-black font-bold text-lg">Telegram</span>
               </a>
               <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-green-500/40 hover:bg-black/[0.08] transition-all group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-green-500/10 text-green-500 group-hover:scale-110 transition-transform"><MessageCircle size={24} /></div>
                 <span className="text-black font-bold text-lg">WhatsApp</span>
               </a>
               <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#1877f2]/40 hover:bg-black/[0.08] transition-all group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#1877f2]/10 text-[#1877f2] group-hover:scale-110 transition-transform"><Facebook size={24} /></div>
                 <span className="text-black font-bold text-lg">Facebook</span>
               </a>
             </div>

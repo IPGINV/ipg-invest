@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, Gem, Send, MessageCircle, LogOut, Facebook } from 'lucide-react';
+import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, Gem, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { locales } from '../locales';
@@ -14,6 +14,22 @@ interface HeaderV2Props {
   onNavigate: (page: string) => void;
   hideNavBar?: boolean;
 }
+
+const resolveApiBase = () => {
+  const envBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
+  if (envBase) return envBase.replace(/\/$/, '');
+  const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
+  if (runtimeBase) return String(runtimeBase).replace(/\/$/, '');
+  const host = window.location.hostname;
+  const isLocalLike =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '::1' ||
+    host.startsWith('192.168.') ||
+    host.startsWith('10.') ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+  return isLocalLike ? `http://${host}:3001` : 'https://api.ipg-invest.ae';
+};
 
 const HeaderV2: React.FC<HeaderV2Props> = ({
   onLogout,
@@ -62,12 +78,13 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
           }
         }
 
-        const currencyResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        const currencyData = await currencyResponse.json();
-        const goldPricePerOunce = 2780;
+        const response = await fetch(`${resolveApiBase()}/api/market-data`);
+        const result = await response.json();
+        if (!response.ok || !result?.goldPrice) throw new Error('market-data unavailable');
+        const goldPricePerOunce = Number(result.goldPrice) || 2780;
         const newRates = {
-          AED: Number(currencyData.rates?.AED?.toFixed(2)) || 3.67,
-          RUB: Number(currencyData.rates?.RUB?.toFixed(2)) || 91.42
+          AED: Number(result.currencyRates?.AED) || 3.67,
+          RUB: Number(result.currencyRates?.RUB) || 91.42
         };
         applyPrice(goldPricePerOunce, newRates);
         localStorage.setItem(
@@ -255,19 +272,7 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
                 {isLoggedIn && onLogout && (
                   <MenuBtn icon={<LogOut size={20}/>} label={t.signOut} onClick={() => { setIsMenuOpen(false); onLogout(); }} />
                 )}
-                <div className="h-px bg-black/5 my-6" />
-                <div className="flex items-center justify-center gap-3">
-                  <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
-                    <Facebook size={18} />
-                  </a>
-                  <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
-                    <Send size={18} />
-                  </a>
-                  <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
-                    <MessageCircle size={18} />
-                  </a>
-                </div>
-                <div className="h-px bg-black/5 my-6" />
+              <div className="h-px bg-black/5 my-6" />
               </nav>
               <div className="mt-auto pt-8 border-t border-black/5">
                 <p className="text-[10px] text-black/20 uppercase font-bold">© 2026 Imperial Pure Gold</p>
@@ -303,41 +308,6 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
                   <span className="text-black/40 text-[10px] font-bold uppercase tracking-normal">{t.menuDashboard}</span>
                 </div>
               </button>
-
-              <div className="p-5 bg-black/5 rounded-2xl space-y-4">
-                <div className="flex items-center gap-2 text-black/40">
-                  <Globe size={16} />
-                  <span className="text-[10px] font-black uppercase tracking-normal">{t.languageLabel ?? 'Language'}</span>
-                </div>
-                <div className="flex gap-2">
-                  {(['ru', 'en'] as const).map((l) => (
-                    <button key={l} onClick={() => setLang(l)} className={cn('flex-1 py-3 text-[11px] font-bold rounded-xl transition-all', lang === l ? 'bg-[#d4af37] text-black shadow-md' : 'bg-white text-black/40 hover:text-black')}>
-                      {l === 'ru' ? 'Русский' : 'English'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-5 bg-black/5 rounded-2xl space-y-4">
-                <div className="flex items-center gap-2 text-black/40">
-                  <MessageCircle size={16} />
-                  <span className="text-[10px] font-black uppercase tracking-normal">{t.personalManagerLabel ?? t.personalManager}</span>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group">
-                    <Send size={18} className="text-[#0088cc]" />
-                    <span className="text-sm font-bold text-black tracking-tight">Telegram</span>
-                  </a>
-                  <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group">
-                    <MessageCircle size={18} className="text-green-500" />
-                    <span className="text-sm font-bold text-black tracking-tight">WhatsApp</span>
-                  </a>
-                  <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group">
-                    <Facebook size={18} className="text-[#1877f2]" />
-                    <span className="text-sm font-bold text-black tracking-tight">Facebook</span>
-                  </a>
-                </div>
-              </div>
             </motion.div>
           </div>
         )}
@@ -354,15 +324,12 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
             <p className="text-black/40 text-center text-sm mb-10 max-w-[280px]">{t.managerDesc}</p>
             <div className="flex flex-col gap-4 w-full">
               <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#0088cc]/10 text-[#0088cc] group-hover:scale-110 transition-transform"><Send size={24} /></div>
                 <span className="text-black font-bold text-lg">Telegram</span>
               </a>
               <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-green-500/40 hover:bg-black/[0.08] transition-all group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-green-500/10 text-green-500 group-hover:scale-110 transition-transform"><MessageCircle size={24} /></div>
                 <span className="text-black font-bold text-lg">WhatsApp</span>
               </a>
               <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#1877f2]/40 hover:bg-black/[0.08] transition-all group">
-                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#1877f2]/10 text-[#1877f2] group-hover:scale-110 transition-transform"><Facebook size={24} /></div>
                 <span className="text-black font-bold text-lg">Facebook</span>
               </a>
             </div>

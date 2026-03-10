@@ -8,21 +8,101 @@ const router = express.Router();
 const CACHE_TTL = 5 * 60 * 1000;
 const cache = { data: null, expiresAt: 0 };
 
-const getGoldData = async () => {
-  const apiKey = process.env.METAL_PRICE_API_KEY || 'd74227f0722d7eb9cf7b1dd6ebc5cad6';
+const toPositiveNumber = (value) => {
+  const n = Number(value);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+const fetchGoldFromGoldApi = async () => {
+  const urls = [
+    'https://api.gold-api.com/price/XAU',
+    'https://api.gold-api.com/price/XAU/USD'
+  ];
+  for (const url of urls) {
+    try {
+      const response = await axios.get(url, { timeout: 7000 });
+      const price = toPositiveNumber(response?.data?.price);
+      if (price) return { price, source: 'gold-api' };
+    } catch (error) {
+      // try next provider URL
+    }
+  }
+  throw new Error('gold-api unavailable');
+};
+
+const fetchGoldFromStooq = async () => {
+  const response = await axios.get('https://stooq.com/q/l/?s=xauusd&i=d', { timeout: 7000 });
+  const line = String(response?.data || '').trim().split('\n')[1] || '';
+  const parts = line.split(',');
+  // Format: SYMBOL,DATE,TIME,OPEN,HIGH,LOW,CLOSE,VOLUME
+  const close = parts[6];
+  const price = toPositiveNumber(close);
+  if (!price) throw new Error('stooq invalid response');
+  return { price, source: 'stooq' };
+};
+
+const fetchGoldFromMetalPrice = async () => {
+  const apiKey = process.env.METAL_PRICE_API_KEY;
+  if (!apiKey) throw new Error('metalprice api key is not configured');
   const response = await axios.get(
-    `https://api.metalpriceapi.com/v1/latest?api_key=${apiKey}&base=USD&currencies=XAU,AED,RUB`
+    `https://api.metalpriceapi.com/v1/latest?api_key=${apiKey}&base=USD&currencies=XAU`,
+    { timeout: 7000 }
   );
-  const result = response.data || {};
-  if (!result.success || !result.rates) throw new Error('Invalid metalprice response');
-  const goldPrice = 1 / result.rates.XAU;
+  const result = response?.data || {};
+  const xauRate = toPositiveNumber(result?.rates?.XAU);
+  if (!xauRate) throw new Error('invalid metalprice response');
+  return { price: 1 / xauRate, source: 'metalpriceapi' };
+};
+
+const fetchFxRates = async () => {
+  const providers = [
+    'https://open.er-api.com/v6/latest/USD',
+    'https://api.exchangerate-api.com/v4/latest/USD'
+  ];
+  for (const url of providers) {
+    try {
+      const response = await axios.get(url, { timeout: 7000 });
+      const rates = response?.data?.rates || {};
+      const aed = toPositiveNumber(rates.AED);
+      const rub = toPositiveNumber(rates.RUB);
+      if (aed && rub) {
+        return { AED: Number(aed.toFixed(2)), RUB: Number(rub.toFixed(2)) };
+      }
+    } catch (error) {
+      // try next rates provider
+    }
+  }
+  return { AED: 3.67, RUB: 98.5 };
+};
+
+const getGoldData = async () => {
+  const goldProviders = [fetchGoldFromGoldApi, fetchGoldFromStooq, fetchGoldFromMetalPrice];
+  let goldPrice = null;
+  let source = 'fallback';
+  for (const provider of goldProviders) {
+    try {
+      const result = await provider();
+      const price = toPositiveNumber(result?.price);
+      if (price) {
+        goldPrice = price;
+        source = result?.source || source;
+        break;
+      }
+    } catch (error) {
+      // try next provider
+    }
+  }
+
+  if (!goldPrice) {
+    throw new Error('all gold providers failed');
+  }
+
+  const fxRates = await fetchFxRates();
   return {
-    goldPrice: Number(goldPrice.toFixed(2)) || 2050.5,
+    goldPrice: Number(goldPrice.toFixed(2)),
     yearlyGrowth: 8.4,
-    currencyRates: {
-      AED: Number(result.rates.AED?.toFixed(2)) || 3.67,
-      RUB: Number(result.rates.RUB?.toFixed(2)) || 98.5
-    },
+    currencyRates: fxRates,
+    source,
     timestamp: new Date().toISOString()
   };
 };

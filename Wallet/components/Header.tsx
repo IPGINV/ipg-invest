@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gem, Menu, Send, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut, MessageCircle, Facebook } from 'lucide-react';
+import { Gem, Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut } from 'lucide-react';
 import { Language, CurrencyRates } from '../types';
 import { TRANSLATIONS } from '../constants';
 
@@ -141,18 +141,6 @@ const Header: React.FC<HeaderProps> = ({
               {typeof sessionStorage !== 'undefined' && sessionStorage.getItem('ipg_token') && (
                 <MenuBtn icon={<LogOut size={20}/>} label={t.signOut} onClick={handleLogout} />
               )}
-              <div className="h-px bg-black/5 my-6" />
-              <div className="flex items-center justify-center gap-3">
-                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
-                  <Facebook size={18} />
-                </a>
-                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
-                  <Send size={18} />
-                </a>
-                <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
-                  <MessageCircle size={18} />
-                </a>
-              </div>
               <div className="h-px bg-black/5 my-6" />
             </nav>
             <div className="mt-auto pt-8 border-t border-black/5">

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Mail, Send, Gem, Phone, Facebook } from 'lucide-react';
+import { Mail, Gem, Phone } from 'lucide-react';
 
 export type LegalModalType = 'privacy' | 'terms' | 'risks';
 
@@ -9,7 +9,6 @@ export interface FooterTranslations {
   footerTerms: string;
   footerRisk: string;
   footerNetwork: string;
-  footerSupport: string;
   rights: string;
 }
 
@@ -61,20 +60,6 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
               <a href="tel:+447587413404" className="flex items-center justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                 <Phone size={14} className="text-[#d4af37]/50 flex-shrink-0" /> +44 75 8741 3404
               </a>
-              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-start justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
-                <Send size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
-                <span className="flex flex-col items-start leading-tight">
-                  <span>Telegram</span>
-                  <span className="text-[9px] opacity-50 normal-case tracking-normal">({t.footerSupport})</span>
-                </span>
-              </a>
-              <a href="#" className="flex items-start justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
-                <Facebook size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
-                <span className="flex flex-col items-start leading-tight">
-                  <span>Facebook</span>
-                  <span className="text-[9px] opacity-50 normal-case tracking-normal">(Imperial Pure Gold)</span>
-                </span>
-              </a>
             </div>
             <div className="hidden sm:grid sm:grid-cols-2 gap-x-8 gap-y-5">
               <div className="space-y-4">
@@ -88,20 +73,6 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
               <div className="space-y-4 flex flex-col items-end text-right sm:items-start sm:text-left">
                 <a href="tel:+447587413404" className="flex items-center justify-end gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight sm:justify-start">
                   <Phone size={14} className="text-[#d4af37]/50" /> +44 75 8741 3404
-                </a>
-                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-start justify-end gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight sm:justify-start">
-                  <Send size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
-                  <span className="flex flex-col items-end leading-tight sm:items-start">
-                    <span>Telegram</span>
-                    <span className="text-[9px] opacity-50 normal-case tracking-normal">({t.footerSupport})</span>
-                  </span>
-                </a>
-                <a href="#" className="flex items-start justify-end gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight sm:justify-start">
-                  <Facebook size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
-                  <span className="flex flex-col items-end leading-tight sm:items-start">
-                    <span>Facebook</span>
-                    <span className="text-[9px] opacity-50 normal-case tracking-normal">(Imperial Pure Gold)</span>
-                  </span>
                 </a>
               </div>
             </div>

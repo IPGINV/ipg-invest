@@ -39,16 +39,6 @@ const Footer: React.FC<FooterProps> = ({ lang }) => {
                   <i className="fa-solid fa-envelope text-[10px]"></i> <span className="break-all">info@ipg-invest.ae</span>
                 </a>
               </li>
-              <li className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
-                <a href="https://t.me/GoldenShareClub" target="_blank" className="flex items-center gap-1">
-                  <i className="fa-solid fa-paper-plane text-[10px]"></i> <span>Official Telegram</span>
-                </a>
-              </li>
-              <li className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
-                <a href="https://wa.me/971529657370" target="_blank" className="flex items-center gap-1">
-                  <i className="fa-solid fa-comments text-[10px]"></i> <span>{t.footerSupport}</span>
-                </a>
-              </li>
             </ul>
           </div>
         </div>

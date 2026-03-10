@@ -10,6 +10,22 @@ interface HeaderProps {
   onNavigate?: (view: string) => void;
 }
 
+const resolveApiBase = () => {
+  const envBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
+  if (envBase) return envBase.replace(/\/$/, '');
+  const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
+  if (runtimeBase) return String(runtimeBase).replace(/\/$/, '');
+  const host = window.location.hostname;
+  const isLocalLike =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '::1' ||
+    host.startsWith('192.168.') ||
+    host.startsWith('10.') ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+  return isLocalLike ? `http://${host}:3001` : 'https://api.ipg-invest.ae';
+};
+
 const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, onNavigate }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContactExpanded, setIsContactExpanded] = useState(false);
@@ -47,14 +63,13 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
           }
         }
 
-        // data-asg.goldprice.org is CORS-blocked in browsers, so keep a stable gold
-        // spot fallback and only refresh FX rates from a CORS-friendly endpoint.
-        const currencyResponse = await fetch('https://api.exchangerate-api.com/v4/latest/USD');
-        const currencyData = await currencyResponse.json();
-        const goldPricePerOunce = 2780;
+        const response = await fetch(`${resolveApiBase()}/api/market-data`);
+        const result = await response.json();
+        if (!response.ok || !result?.goldPrice) throw new Error('market-data unavailable');
+        const goldPricePerOunce = Number(result.goldPrice) || 2780;
         const newRates = {
-          AED: Number(currencyData.rates?.AED?.toFixed(2)) || 3.67,
-          RUB: Number(currencyData.rates?.RUB?.toFixed(2)) || 91.42
+          AED: Number(result.currencyRates?.AED) || 3.67,
+          RUB: Number(result.currencyRates?.RUB) || 91.42
         };
         applyPrice(goldPricePerOunce, newRates);
         localStorage.setItem(
@@ -185,9 +200,6 @@ const Header: React.FC<HeaderProps> = ({ onLogout, isLoggedIn, lang, setLang, on
 
             <div className="flex items-center gap-2 bg-white/5 p-1 rounded-2xl border border-white/10 group/hub relative">
               <div className={`flex items-center gap-2 transition-all duration-500 overflow-hidden ${isContactExpanded ? 'max-w-[150px] md:max-w-[200px] opacity-100 pr-2' : 'max-w-0 opacity-0'}`}>
-                <a href="https://t.me/GoldenShareClub" target="_blank" className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-white/5 text-[#d4af37] hover:bg-[#d4af37] hover:text-black transition-all flex-shrink-0">
-                  <i className="fa-solid fa-paper-plane text-sm"></i>
-                </a>
                 <button 
                   onClick={() => setIsManagerPopupOpen(true)}
                   className="w-9 h-9 md:w-10 md:h-10 rounded-xl flex items-center justify-center bg-white/5 text-white/40 hover:text-[#d4af37] transition-all flex-shrink-0"

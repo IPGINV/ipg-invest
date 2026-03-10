@@ -133,7 +133,7 @@ const LoginApp: React.FC = () => {
       if (!res.ok) {
         throw new Error(body.error || 'Request failed');
       }
-      setRecoveryDone('Заявка отправлена владельцу бота.');
+      setRecoveryDone('Заявка отправлена.');
       setRecoveryEmail('');
       setRecoverySocial('');
       setRecoveryPhone('');

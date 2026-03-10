@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Gem, Menu, MessageCircle, Send, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut, Facebook } from 'lucide-react';
+import { Gem, Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language, Translation, ViewState } from '../types';
 
@@ -38,6 +38,16 @@ const buildAppUrl = (app: 'dashboard' | 'wallet' | 'invest' | 'info' | 'calculat
   return subdomains[app];
 };
 
+const resolveApiBase = () => {
+  const envBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
+  if (envBase) return envBase.replace(/\/$/, '');
+  const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
+  if (runtimeBase) return String(runtimeBase).replace(/\/$/, '');
+  const localBase = resolveLocalBase(3001);
+  if (localBase) return localBase;
+  return 'https://api.ipg-invest.ae';
+};
+
 const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
@@ -60,7 +70,6 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
   }, []);
 
   useEffect(() => {
-    const METAL_PRICE_API_KEY = 'd74227f0722d7eb9cf7b1dd6ebc5cad6';
     const CACHE_KEY = 'imperial_gold_price_data_v4';
     const CACHE_EXPIRY = 1000 * 60 * 60;
 
@@ -86,16 +95,13 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
           }
         }
 
-        const response = await fetch(
-          `https://api.metalpriceapi.com/v1/latest?api_key=${METAL_PRICE_API_KEY}&base=USD&currencies=XAU,AED,RUB`
-        );
+        const response = await fetch(`${resolveApiBase()}/api/market-data`);
         const result = await response.json();
-        if (result.success && result.rates) {
-          const goldPricePerOunce = 1 / result.rates.XAU;
-          const livePrice = Math.round(goldPricePerOunce || 2780);
+        if (response.ok && result && result.goldPrice) {
+          const livePrice = Math.round(Number(result.goldPrice) || 2780);
           const newRates = {
-            AED: Number(result.rates.AED.toFixed(2)) || 3.67,
-            RUB: Number(result.rates.RUB.toFixed(2)) || 91.42
+            AED: Number(result.currencyRates?.AED) || 3.67,
+            RUB: Number(result.currencyRates?.RUB) || 91.42
           };
           applyPrice(livePrice, newRates);
           localStorage.setItem(
@@ -247,60 +253,6 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
                   <span className="text-black/40 text-[10px] font-bold uppercase tracking-normal">{t.profileLabel}</span>
                 </div>
               </button>
-
-              <div className="p-5 bg-black/5 rounded-2xl space-y-4">
-                <div className="flex items-center gap-2 text-black/40">
-                  <Globe size={16} />
-                  <span className="text-[10px] font-black uppercase tracking-normal">{t.languageLabel}</span>
-                </div>
-                <div className="flex gap-2">
-                  {['RU', 'EN'].map((l) => (
-                    <button 
-                      key={l}
-                      onClick={() => setLang(l as Language)} 
-                      className={`flex-1 py-3 text-[11px] font-bold rounded-xl transition-all ${lang === l ? 'bg-[#d4af37] text-black shadow-md' : 'bg-white text-black/40 hover:text-black'}`}
-                    >
-                      {l === 'RU' ? 'Русский' : 'English'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="p-5 bg-black/5 rounded-2xl space-y-4">
-                <div className="flex items-center gap-2 text-black/40">
-                  <MessageCircle size={16} />
-                  <span className="text-[10px] font-black uppercase tracking-normal">{t.personalManagerLabel}</span>
-                </div>
-                <div className="flex flex-col gap-3">
-                  <a 
-                    href="https://t.me/IPG_Mark" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group"
-                  >
-                    <Send size={18} className="text-[#0088cc]" />
-                    <span className="text-sm font-bold text-black tracking-tight">Telegram</span>
-                  </a>
-                  <a 
-                    href="https://wa.me/447776177435" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group"
-                  >
-                    <MessageCircle size={18} className="text-green-500" />
-                    <span className="text-sm font-bold text-black tracking-tight">WhatsApp</span>
-                  </a>
-                  <a 
-                    href="https://www.facebook.com/share/1Dox5wK2MT/" 
-                    target="_blank" 
-                    rel="noreferrer"
-                    className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group"
-                  >
-                    <Facebook size={18} className="text-[#1877f2]" />
-                    <span className="text-sm font-bold text-black tracking-tight">Facebook</span>
-                  </a>
-                </div>
-              </div>
             </motion.div>
           </div>
         )}
@@ -361,19 +313,7 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
                 />
                 <MenuButton icon={<Globe size={20}/>} label={t.menuCompanySite} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://imperialpuregold.ae'; }} />
                 <MenuButton icon={<LogOut size={20}/>} label={t.signOut} onClick={handleLogout} />
-                <div className="h-px bg-black/5 my-6" />
-                <div className="flex items-center justify-center gap-3">
-                  <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
-                    <Facebook size={18} />
-                  </a>
-                  <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
-                    <Send size={18} />
-                  </a>
-                  <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
-                    <MessageCircle size={18} />
-                  </a>
-                </div>
-                <div className="h-px bg-black/5 my-6" />
+              <div className="h-px bg-black/5 my-6" />
               </nav>
 
               <div className="mt-auto pt-8 border-t border-black/5">
@@ -418,25 +358,10 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
                 {t.managerDesc}
               </p>
               
-              <div className="flex flex-col gap-4 w-full">
-                <ContactOption 
-                  icon={<Send size={24} />} 
-                  label="Telegram" 
-                  href="https://t.me/IPG_Mark" 
-                  color="bg-[#0088cc]/10 text-[#0088cc]"
-                />
-                <ContactOption 
-                  icon={<MessageCircle size={24} />} 
-                  label="WhatsApp" 
-                  href="https://wa.me/447776177435" 
-                  color="bg-green-500/10 text-green-500"
-                />
-                <ContactOption 
-                  icon={<Facebook size={24} />} 
-                  label="Facebook" 
-                  href="https://www.facebook.com/share/1Dox5wK2MT/" 
-                  color="bg-[#1877f2]/10 text-[#1877f2]"
-                />
+              <div className="flex flex-col gap-3 w-full">
+                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="p-4 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all text-black font-bold text-center">Telegram</a>
+                <a href="https://wa.me/447776177435" target="_blank" rel="noreferrer" className="p-4 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all text-black font-bold text-center">WhatsApp</a>
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="p-4 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all text-black font-bold text-center">Facebook</a>
               </div>
             </motion.div>
           </div>
@@ -454,20 +379,6 @@ const MenuButton = ({ icon, label, onClick, active = false }: { icon: React.Reac
     <span className={`${active ? 'text-[#d4af37]' : 'text-black/20 group-hover:text-[#d4af37]'} transition-colors`}>{icon}</span>
     <span className="text-sm font-bold uppercase">{label}</span>
   </button>
-);
-
-const ContactOption = ({ icon, label, href, color }: { icon: React.ReactNode, label: string, href: string, color: string }) => (
-  <a
-    href={href}
-    target="_blank"
-    rel="noreferrer"
-    className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group"
-  >
-    <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${color} group-hover:scale-110 transition-transform`}>
-      {icon}
-    </div>
-    <span className="text-black font-bold text-lg">{label}</span>
-  </a>
 );
 
 export default Header;

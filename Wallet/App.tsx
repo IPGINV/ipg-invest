@@ -12,6 +12,21 @@ type AppProps = {
   userId?: string;
 };
 
+const resolveApiBase = (apiBase?: string) => {
+  if (apiBase) return apiBase.replace(/\/$/, '');
+  const runtimeBase = (window as any).__IPG_API_BASE as string | undefined;
+  if (runtimeBase) return String(runtimeBase).replace(/\/$/, '');
+  const host = window.location.hostname;
+  const isLocalLike =
+    host === 'localhost' ||
+    host === '127.0.0.1' ||
+    host === '::1' ||
+    host.startsWith('192.168.') ||
+    host.startsWith('10.') ||
+    /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+  return isLocalLike ? `http://${host}:3001` : 'https://api.ipg-invest.ae';
+};
+
 const mapTxType = (type: string): Transaction['type'] => {
   switch (type) {
     case 'DEPOSIT':
@@ -74,7 +89,6 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
   const t = TRANSLATIONS[lang];
 
   useEffect(() => {
-    const METAL_PRICE_API_KEY = 'd74227f0722d7eb9cf7b1dd6ebc5cad6';
     const CACHE_KEY = 'imperial_gold_price_data_v4';
     const CACHE_EXPIRY = 1000 * 60 * 60;
 
@@ -100,16 +114,13 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
           }
         }
 
-        const response = await fetch(
-          `https://api.metalpriceapi.com/v1/latest?api_key=${METAL_PRICE_API_KEY}&base=USD&currencies=XAU,AED,RUB`
-        );
+        const response = await fetch(`${resolveApiBase(apiBase)}/api/market-data`);
         const result = await response.json();
-        if (result.success && result.rates) {
-          const goldPricePerOunce = 1 / result.rates.XAU;
-          const livePrice = Math.round(goldPricePerOunce || 2780);
+        if (response.ok && result?.goldPrice) {
+          const livePrice = Math.round(Number(result.goldPrice) || 2780);
           const newRates = {
-            AED: Number(result.rates.AED.toFixed(2)) || 3.67,
-            RUB: Number(result.rates.RUB.toFixed(2)) || 91.42
+            AED: Number(result.currencyRates?.AED) || 3.67,
+            RUB: Number(result.currencyRates?.RUB) || 91.42
           };
           applyPrice(livePrice, newRates);
           localStorage.setItem(
@@ -123,11 +134,11 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
     };
 
     fetchPrices();
-  }, []);
+  }, [apiBase]);
 
   useEffect(() => {
     const run = async () => {
-      const base = apiBase || (window as any).__IPG_API_BASE || 'http://localhost:3001';
+      const base = resolveApiBase(apiBase);
       const resolvedUserId = userId || '1';
       try {
         const [balancesRes, txRes, priceRes] = await Promise.all([
