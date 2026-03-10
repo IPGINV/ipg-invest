@@ -462,12 +462,12 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
               {(documents?.length ? documents : editedInvestor.documents || []).map((doc: any) => {
                 const fileUrl = doc.file_url || '';
                 const normalized = !fileUrl ? '' : fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`;
-                const previewUrl = !fileUrl
+                const downloadUrl = !fileUrl
                   ? ''
                   : fileUrl.startsWith('http') || fileUrl.startsWith('data:')
                     ? fileUrl
                     : `${String(apiBase || '').replace(/\/$/, '')}${normalized}`;
-                const d = typeof doc.id === 'number' ? { id: String(doc.id), name: doc.doc_type || doc.file_url?.split('/').pop() || 'Документ', type: (doc.doc_type || 'PASSPORT').toUpperCase(), uploadDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('ru-RU') : '', previewUrl } : doc;
+                const d = typeof doc.id === 'number' ? { id: String(doc.id), name: doc.doc_type || doc.file_url?.split('/').pop() || 'Документ', type: (doc.doc_type || 'PASSPORT').toUpperCase(), uploadDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('ru-RU') : '', previewUrl: downloadUrl } : doc;
                 return (
                 <div 
                   key={d.id} 
@@ -486,8 +486,8 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-tighter truncate">{d.type}</p>
                     <p className="text-[11px] font-bold text-slate-700 truncate">{d.name}</p>
                     <p className="text-[9px] text-slate-400">{d.uploadDate}</p>
-                    {d.previewUrl && (
-                      <a href={d.previewUrl} download target="_blank" rel="noopener noreferrer" className="text-[9px] text-blue-600 hover:underline mt-1 inline-block">Скачать файл</a>
+                    {downloadUrl && (
+                      <a href={downloadUrl} download target="_blank" rel="noopener noreferrer" className="mt-2 inline-flex items-center rounded-md border border-blue-200 px-2 py-1 text-[10px] font-bold text-blue-700 hover:bg-blue-50">Download</a>
                     )}
                   </div>
                   <div className="absolute inset-0 bg-blue-600/0 group-hover:bg-blue-600/10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all pointer-events-none">
