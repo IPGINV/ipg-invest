@@ -210,7 +210,7 @@ const CompanyView: React.FC<CompanyViewProps> = ({ t, lang }) => {
         >
           <div className="flex flex-col items-center gap-3 text-[#d4af37]">
             <Building2 size={32} />
-            <h4 className="text-lg font-bold uppercase tracking-widest">{t.projectManagersTitle}</h4>
+            <h4 className="w-full text-center text-lg font-bold uppercase tracking-widest">{t.projectManagersTitle}</h4>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">

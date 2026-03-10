@@ -822,8 +822,8 @@ export default function App({ apiBase }: AppProps) {
       </div>
 
       {/* Header — Info standard h-16 */}
-      <header className={`fixed top-8 left-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-3 md:px-12 h-16 flex justify-between items-center transition-all duration-500 ease-out ${isOfferModalOpen ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+      <header className={`fixed top-8 left-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center transition-all duration-500 ease-out ${isOfferModalOpen ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+        <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
             <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               {isMenuOpen ? <X className="text-black" size={16} /> : <Menu className="text-black" size={16} />}

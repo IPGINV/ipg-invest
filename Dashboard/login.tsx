@@ -40,7 +40,17 @@ const LoginApp: React.FC = () => {
     return params.get('next');
   }, [params]);
 
-  const registrationUrl = 'http://localhost:5192/?step%3DREGISTRATION';
+  const registrationUrl = useMemo(() => {
+    const configuredBase = (import.meta as any).env?.VITE_LENDING_APP_URL as string | undefined;
+    const fallbackBase = 'https://ipg-invest.ae';
+    try {
+      const url = new URL(configuredBase || fallbackBase);
+      url.searchParams.set('step', 'REGISTRATION');
+      return url.toString();
+    } catch {
+      return `${fallbackBase}/?step=REGISTRATION`;
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

@@ -28,7 +28,42 @@ const App: React.FC = () => {
   const [yearlyGrowth, setYearlyGrowth] = useState(8.4);
   const [currencyRates, setCurrencyRates] = useState({ AED: '3.67', RUB: '98.50' });
 
-  const apiBase = (window as any).__IPG_API_BASE || 'http://localhost:3001';
+  const resolveLocalBase = (port: number) => {
+    const host = window.location.hostname;
+    const isLocalLike =
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      host === '::1' ||
+      host.startsWith('192.168.') ||
+      host.startsWith('10.') ||
+      /^172\.(1[6-9]|2\d|3[0-1])\./.test(host);
+    return isLocalLike ? `http://${host}:${port}` : null;
+  };
+
+  const buildAppUrl = (app: 'dashboard' | 'info' | 'invest' | 'wallet' | 'calculator') => {
+    const ports: Record<typeof app, number> = {
+      dashboard: 3000,
+      info: 3003,
+      invest: 5182,
+      wallet: 5177,
+      calculator: 5178
+    };
+    const localBase = resolveLocalBase(ports[app]);
+    if (localBase) return localBase;
+    const subdomains: Record<typeof app, string> = {
+      dashboard: 'https://dashboard.ipg-invest.ae',
+      info: 'https://info.ipg-invest.ae',
+      invest: 'https://ipg-invest.ae',
+      wallet: 'https://wallet.ipg-invest.ae',
+      calculator: 'https://calculator.ipg-invest.ae'
+    };
+    return subdomains[app];
+  };
+
+  const apiBase =
+    (window as any).__IPG_API_BASE ||
+    resolveLocalBase(3001) ||
+    'https://api.ipg-invest.ae';
 
   // Validate Input
   useEffect(() => {
@@ -108,25 +143,13 @@ const App: React.FC = () => {
   }, [isMenuOpen, isManagerModalOpen]);
 
   const t = locales[lang];
-  const isLocalHost = typeof window !== 'undefined' && ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
   const openApp = (app: 'dashboard' | 'info' | 'invest') => {
-    const base = 'https://ipg-invest.ae';
-    const localPorts: Record<typeof app, number> = {
-      dashboard: 3000,
-      info: 3003,
-      invest: 5182
-    };
-    const paths: Record<typeof app, string> = {
-      dashboard: '/dashboard',
-      info: '/info',
-      invest: '/'
-    };
-    window.location.href = isLocalHost ? `http://localhost:${localPorts[app]}` : `${base}${paths[app]}`;
+    window.location.href = buildAppUrl(app);
   };
 
   const openInfoView = (view: 'company' | 'project') => {
-    const base = isLocalHost ? 'http://localhost:3003' : 'https://info.ipg-invest.ae';
+    const base = buildAppUrl('info');
     const url = new URL(base);
     url.searchParams.set('view', view);
     url.searchParams.set('lang', lang === 'ru' ? 'RU' : 'EN');
@@ -134,8 +157,7 @@ const App: React.FC = () => {
   };
 
   const openCalculator = () => {
-    if (isLocalHost) window.location.href = 'http://localhost:5178';
-    else window.location.href = 'https://calculator.ipg-invest.ae';
+    window.location.href = buildAppUrl('calculator');
   };
 
   const handleLogout = () => {
@@ -143,7 +165,7 @@ const App: React.FC = () => {
     sessionStorage.removeItem('ipg_token');
     sessionStorage.removeItem('ipg_refresh_token');
     sessionStorage.removeItem('ipg_user_id');
-    const loginUrl = isLocalHost ? 'http://localhost:3000/login.html' : 'https://dashboard.ipg-invest.ae/login.html';
+    const loginUrl = `${buildAppUrl('dashboard').replace(/\/$/, '')}/login.html`;
     window.location.href = loginUrl;
   };
 
@@ -173,8 +195,8 @@ const App: React.FC = () => {
       })
     }).catch(() => {});
 
-    const dashboardBase = isLocalHost ? 'http://localhost:3000' : 'https://dashboard.ipg-invest.ae';
-    const fundingUrl = new URL(`${dashboardBase}/`);
+    const dashboardBase = buildAppUrl('dashboard');
+    const fundingUrl = new URL(`${dashboardBase.replace(/\/$/, '')}/`);
     fundingUrl.searchParams.set('flow', 'funding');
     fundingUrl.searchParams.set('amount', String(initialInvestment));
     window.location.href = fundingUrl.toString();
@@ -207,8 +229,8 @@ const App: React.FC = () => {
       </div>
 
       {/* Header — Info standard h-16 */}
-      <header className="fixed top-8 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-4 md:px-12 h-16 flex justify-between items-center">
-        <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
+      <header className="fixed top-8 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-6 md:px-12 h-16 flex justify-between items-center">
+        <div className="flex items-center gap-4 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
             <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
               {isMenuOpen ? <X className="text-black" size={16} /> : <Menu className="text-black" size={16} />}
@@ -358,7 +380,7 @@ const App: React.FC = () => {
               <MenuBtn icon={<LayoutDashboard size={20}/>} label={t.menuDashboard} onClick={() => { openApp('dashboard'); setIsMenuOpen(false); }} />
               <MenuBtn icon={<Building2 size={20}/>} label={t.menuCompany} onClick={() => { openInfoView('company'); setIsMenuOpen(false); }} />
               <MenuBtn icon={<Info size={20}/>} label={t.menuProject} onClick={() => { openInfoView('project'); setIsMenuOpen(false); }} />
-              <MenuBtn icon={<Calculator size={20}/>} label={t.menuCalculator} active onClick={() => { setIsMenuOpen(false); const dashboardUrl = isLocalHost ? 'http://localhost:3000' : 'https://dashboard.ipg-invest.ae'; window.location.href = `${dashboardUrl}?calculator=true`; }} />
+              <MenuBtn icon={<Calculator size={20}/>} label={t.menuCalculator} active onClick={() => { setIsMenuOpen(false); window.location.href = `${buildAppUrl('dashboard')}?calculator=true`; }} />
               <div className="h-px bg-black/5 my-6" />
               <MenuBtn icon={<Phone size={20}/>} label={t.contactBtn} onClick={() => { setIsMenuOpen(false); setIsManagerModalOpen(true); }} />
               <MenuBtn icon={<Globe size={20}/>} label={t.menuCompanySite} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://imperialpuregold.ae'; }} />
