@@ -52,14 +52,18 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
               {t.footerNetwork}
             </h4>
             <div className="flex flex-col items-start text-left gap-4 sm:hidden">
-              <a href="mailto:info@ipg-invest.ae" className="flex items-center justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
-                <Mail size={14} className="text-[#d4af37]/50 flex-shrink-0" /> info@ipg-invest.ae
-              </a>
               <a href="mailto:info@imperialpuregold.ae" className="flex items-center justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                 <Mail size={14} className="text-[#d4af37]/50 flex-shrink-0" /> info@imperialpuregold.ae
               </a>
               <a href="tel:+447587413404" className="flex items-center justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                 <Phone size={14} className="text-[#d4af37]/50 flex-shrink-0" /> +44 75 8741 3404
+              </a>
+              <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-start justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
+                <Phone size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
+                <span className="flex flex-col items-start leading-tight">
+                  <span>WhatsApp</span>
+                  <span className="text-[9px] opacity-50 normal-case tracking-normal">+971 52 965 7370 (Маркетинг)</span>
+                </span>
               </a>
               <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-start justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                 <Send size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
@@ -68,7 +72,7 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
                   <span className="text-[9px] opacity-50 normal-case tracking-normal">({t.footerSupport})</span>
                 </span>
               </a>
-              <a href="#" className="flex items-start justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
+              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-start justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                 <Facebook size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
                 <span className="flex flex-col items-start leading-tight">
                   <span>Facebook</span>
@@ -78,11 +82,15 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
             </div>
             <div className="hidden sm:grid sm:grid-cols-2 gap-x-8 gap-y-5">
               <div className="space-y-4">
-                <a href="mailto:info@ipg-invest.ae" className="flex items-center gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
-                  <Mail size={14} className="text-[#d4af37]/50" /> info@ipg-invest.ae
-                </a>
                 <a href="mailto:info@imperialpuregold.ae" className="flex items-center gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                   <Mail size={14} className="text-[#d4af37]/50" /> info@imperialpuregold.ae
+                </a>
+                <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
+                  <Phone size={14} className="text-[#d4af37]/50 mt-0.5" />
+                  <span className="flex flex-col items-start leading-tight">
+                    <span>WhatsApp</span>
+                    <span className="text-[9px] opacity-50 normal-case tracking-normal">+971 52 965 7370 (Маркетинг)</span>
+                  </span>
                 </a>
               </div>
               <div className="space-y-4 flex flex-col items-end text-right sm:items-start sm:text-left">
@@ -96,7 +104,7 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
                     <span className="text-[9px] opacity-50 normal-case tracking-normal">({t.footerSupport})</span>
                   </span>
                 </a>
-                <a href="#" className="flex items-start justify-end gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight sm:justify-start">
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-start justify-end gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight sm:justify-start">
                   <Facebook size={14} className="text-[#d4af37]/50 mt-0.5 flex-shrink-0" />
                   <span className="flex flex-col items-end leading-tight sm:items-start">
                     <span>Facebook</span>
