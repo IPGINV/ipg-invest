@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, LogOut } from 'lucide-react';
+﻿import React, { useState, useEffect } from 'react';
+import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, LogOut, Send, MessageCircle, Facebook } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { locales } from '../locales';
@@ -120,6 +120,26 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
           </div>
 
           <div className="flex items-center gap-4">
+            <div className="hidden md:flex p-1 rounded-lg border bg-white/5 border-white/10">
+              <button
+                onClick={() => setLang('ru')}
+                className={cn(
+                  'px-3 py-1 text-[10px] font-bold rounded transition-all',
+                  lang === 'ru' ? 'bg-[#d4af37] text-black shadow-sm' : 'text-white/40 hover:text-white'
+                )}
+              >
+                RU
+              </button>
+              <button
+                onClick={() => setLang('en')}
+                className={cn(
+                  'px-3 py-1 text-[10px] font-bold rounded transition-all',
+                  lang === 'en' ? 'bg-[#d4af37] text-black shadow-sm' : 'text-white/40 hover:text-white'
+                )}
+              >
+                EN
+              </button>
+            </div>
             {isLoggedIn && onLogout && (
               <button onClick={onLogout} className="hidden md:flex items-center justify-center px-4 py-2 rounded-xl bg-white/5 text-white/40 text-[10px] font-bold uppercase hover:text-white transition-all border border-white/10">
                 {t.signOut}
@@ -215,6 +235,29 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
                 <div className="h-0.5 w-8 bg-[#d4af37] mx-auto" />
               </div>
 
+              <div className="flex justify-center">
+                <div className="inline-flex p-1 rounded-xl border border-black/10 bg-black/[0.03]">
+                  <button
+                    onClick={() => setLang('ru')}
+                    className={cn(
+                      'px-3 py-1 text-[10px] font-bold uppercase rounded-lg transition-all',
+                      lang === 'ru' ? 'bg-[#d4af37] text-black' : 'text-black/50 hover:text-black'
+                    )}
+                  >
+                    RU
+                  </button>
+                  <button
+                    onClick={() => setLang('en')}
+                    className={cn(
+                      'px-3 py-1 text-[10px] font-bold uppercase rounded-lg transition-all',
+                      lang === 'en' ? 'bg-[#d4af37] text-black' : 'text-black/50 hover:text-black'
+                    )}
+                  >
+                    EN
+                  </button>
+                </div>
+              </div>
+
               <button onClick={() => { setIsProfileMenuOpen(false); handleNav('profile'); }} className="flex items-center gap-4 p-5 bg-black/5 rounded-2xl hover:bg-black/10 transition-all text-left group">
                 <div className="w-12 h-12 rounded-xl bg-[#d4af37]/20 flex items-center justify-center text-[#d4af37] group-hover:scale-110 transition-transform">
                   <User size={24} />
@@ -224,6 +267,36 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
                   <span className="text-black/40 text-[10px] font-bold uppercase tracking-normal">{t.menuDashboard}</span>
                 </div>
               </button>
+
+              <div className="flex items-center justify-center gap-3">
+                <a
+                  href="https://t.me/GoldenShareClub"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all"
+                  aria-label="Telegram"
+                >
+                  <Send size={18} />
+                </a>
+                <a
+                  href="https://wa.me/971529657370"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all"
+                  aria-label="WhatsApp"
+                >
+                  <MessageCircle size={18} />
+                </a>
+                <a
+                  href="https://www.facebook.com/share/1Dox5wK2MT/"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all"
+                  aria-label="Facebook"
+                >
+                  <Facebook size={18} />
+                </a>
+              </div>
             </motion.div>
           </div>
         )}
@@ -239,15 +312,9 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
             <h3 className="text-2xl md:text-3xl font-playfair font-black text-black text-center mb-4">{t.managerTitle}</h3>
             <p className="text-black/40 text-center text-sm mb-10 max-w-[280px]">{t.managerDesc}</p>
             <div className="flex flex-col gap-4 w-full">
-              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group">
-                <span className="text-black font-bold text-lg">Telegram</span>
-              </a>
-              <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-green-500/40 hover:bg-black/[0.08] transition-all group">
-                <span className="text-black font-bold text-lg">WhatsApp</span>
-              </a>
-              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#1877f2]/40 hover:bg-black/[0.08] transition-all group">
-                <span className="text-black font-bold text-lg">Facebook</span>
-              </a>
+              <ContactOption icon={<Send size={24} />} label="Telegram" sub={lang === 'ru' ? 'Канал проекта' : 'Project channel'} href="https://t.me/GoldenShareClub" color="bg-[#0088cc]/10 text-[#0088cc]" />
+              <ContactOption icon={<MessageCircle size={24} />} label="WhatsApp" sub={lang === 'ru' ? 'Связаться в WhatsApp' : 'Contact via WhatsApp'} href="https://wa.me/971529657370" color="bg-green-500/10 text-green-500" />
+              <ContactOption icon={<Facebook size={24} />} label="Facebook" sub={lang === 'ru' ? 'Официальная страница' : 'Official page'} href="https://www.facebook.com/share/1Dox5wK2MT/" color="bg-[#1877f2]/10 text-[#1877f2]" />
             </div>
           </div>
         </div>
@@ -263,4 +330,27 @@ const MenuBtn = ({ icon, label, onClick, active = false }: { icon: React.ReactNo
   </button>
 );
 
+const ContactOption = ({
+  icon,
+  label,
+  sub,
+  href,
+  color
+}: {
+  icon: React.ReactNode;
+  label: string;
+  sub: string;
+  href: string;
+  color: string;
+}) => (
+  <a href={href} target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group">
+    <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform', color)}>{icon}</div>
+    <div className="flex flex-col">
+      <span className="text-black font-bold text-lg">{label}</span>
+      <span className="text-black/30 text-[10px] font-bold uppercase">{sub}</span>
+    </div>
+  </a>
+);
+
 export default HeaderV2;
+

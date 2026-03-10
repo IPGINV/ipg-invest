@@ -99,13 +99,13 @@ const translations = {
     heroTitleGold: "физическое золото",
     heroSlider: [
       "Зарабатывайте на международной торговле драгоценными металлами.",
-      "Гарантированная доля в контракте на оптовую поставку Ганского золота покупателям мировой ювелирной столицы."
+      "Участие в масштабной международной цепочке поставок ганского золота с выходом на ключевые ювелирные рынки."
     ],
     heroBtnStart: "Подробнее",
     heroBtnAbout: "О проекте",
     heroCompliance: ["Лицензия DMCC", "Стандарт LBMA", "Физический актив"],
-    heroCardValuation: "Целевая оценка портфеля",
-    heroCardDesc: "Эксклюзивная модель прямого участия в циклах закупки сырья у артелей в Гане и последующей аффинажной переработке в ОАЭ с продажей через DMCC.",
+    heroCardValuation: "Онлайн цена золота",
+    heroCardDesc: "Эксклюзивная модель участия в циклах закупки золота  в Гане и последующей продажей в в DMCC АОЭ.",
     heroCardMore: "Подробнее",
     calcTitle: "Калькулятор",
     calcTitleGold: "профита",
@@ -225,7 +225,7 @@ const translations = {
     heroBtnStart: "Learn more",
     heroBtnAbout: "About Project",
     heroCompliance: ["DMCC Licensed", "LBMA Standard", "Physical Asset"],
-    heroCardValuation: "Portfolio Target Valuation",
+    heroCardValuation: "Live Gold Price",
     heroCardDesc: "An exclusive model of direct participation in cycles of purchasing raw materials from Ghana and subsequent refinery in the UAE with sales via DMCC.",
     heroCardMore: "Learn More",
     calcTitle: "Profit",
@@ -596,6 +596,7 @@ export default function App({ apiBase }: AppProps) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [amount, setAmount] = useState(50000); 
   const [marketData, setMarketData] = useState<PricePoint[]>(() => generatePastSixMonths('RU'));
+  const [onlineGoldPrice, setOnlineGoldPrice] = useState<number | null>(null);
   const [currentCard, setCurrentCard] = useState(0);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
   const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
@@ -667,6 +668,30 @@ export default function App({ apiBase }: AppProps) {
     if (!Number.isNaN(parsed)) {
       setLockedAmount(parsed);
     }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    const fetchOnlineGoldPrice = async () => {
+      try {
+        const response = await fetch('https://api.gold-api.com/price/XAU');
+        if (!response.ok) return;
+        const payload = await response.json();
+        const price = Number(payload?.price);
+        if (!cancelled && Number.isFinite(price) && price > 0) {
+          setOnlineGoldPrice(price);
+        }
+      } catch {
+        // Keep current fallback price from local market data.
+      }
+    };
+
+    fetchOnlineGoldPrice();
+    const intervalId = window.setInterval(fetchOnlineGoldPrice, 60000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(intervalId);
+    };
   }, []);
 
   // Optional: load cached registration payload if needed
@@ -787,6 +812,11 @@ export default function App({ apiBase }: AppProps) {
 
 
   const currentPrice = marketData[marketData.length - 1]?.price || 2780;
+  const lbmaDateLabel = new Intl.DateTimeFormat(lang === 'RU' ? 'ru-RU' : 'en-GB', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  }).format(new Date());
 
   return (
     <div className="min-h-screen flex flex-col selection:bg-[#d4af37] selection:text-black font-inter text-[#f0f0f0] overflow-x-hidden">
@@ -1039,8 +1069,13 @@ export default function App({ apiBase }: AppProps) {
               <div className="glass-card rounded-2xl md:rounded-[3.5rem] p-6 md:p-12 border-white/[0.08] relative overflow-hidden group shadow-2xl">
                  <div className="flex justify-between items-center mb-10">
                     <div className="flex flex-col">
-                      <span className="text-[#d4af37] text-[10px] font-mono font-black uppercase tracking-widest mb-2">{t.heroCardValuation}</span>
-                      <span className="text-4xl md:text-6xl font-black text-white tracking-tighter">${Math.round(currentPrice * 600 * 32.1507).toLocaleString()}</span>
+                      <span className="text-[#d4af37] text-[10px] font-mono font-black uppercase tracking-widest mb-2">
+                        {lang === 'RU' ? `Цена по LBMA на ${lbmaDateLabel}` : `LBMA Price as of ${lbmaDateLabel}`}
+                      </span>
+                      <span className="text-4xl md:text-6xl font-black text-white tracking-tighter">
+                        ${(onlineGoldPrice ?? currentPrice).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                      </span>
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-widest text-white/35 mt-2">XAU / USD</span>
                     </div>
                     <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center border border-white/10"><Gem className="text-[#d4af37]" size={32} /></div>
                  </div>
@@ -1183,26 +1218,26 @@ export default function App({ apiBase }: AppProps) {
               <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] text-center md:text-left">
                 Официальные каналы
               </h4>
-              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
-                <Facebook size={14} />
-                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Официальный Facebook</span>
+              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="group flex items-center justify-center md:justify-start gap-2 rounded-xl border border-[#d4af37]/20 bg-gradient-to-r from-white/10 to-white/5 px-3 py-3 text-white shadow-lg shadow-black/20 hover:shadow-[#d4af37]/20 hover:border-[#d4af37]/50 hover:from-[#d4af37]/20 hover:to-[#d4af37]/5 hover:scale-[1.02] transition-all">
+                <Facebook size={14} className="text-[#d4af37] group-hover:text-[#f4d27a] transition-colors" />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest text-white">Официальный Facebook</span>
               </a>
-              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
-                <Send size={14} />
-                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Официальный Telegram</span>
+              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="group flex items-center justify-center md:justify-start gap-2 rounded-xl border border-[#d4af37]/20 bg-gradient-to-r from-white/10 to-white/5 px-3 py-3 text-white shadow-lg shadow-black/20 hover:shadow-[#d4af37]/20 hover:border-[#d4af37]/50 hover:from-[#d4af37]/20 hover:to-[#d4af37]/5 hover:scale-[1.02] transition-all">
+                <Send size={14} className="text-[#d4af37] group-hover:text-[#f4d27a] transition-colors" />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest text-white">Официальный Telegram</span>
               </a>
             </div>
             <div className="space-y-2">
               <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] text-center md:text-right">
                 Контакты менеджера
               </h4>
-              <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-end gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
-                <Send size={14} />
-                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Telegram</span>
+              <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="group flex items-center justify-center md:justify-end gap-2 rounded-xl border border-[#d4af37]/20 bg-gradient-to-r from-white/10 to-white/5 px-3 py-3 text-white shadow-lg shadow-black/20 hover:shadow-[#d4af37]/20 hover:border-[#d4af37]/50 hover:from-[#d4af37]/20 hover:to-[#d4af37]/5 hover:scale-[1.02] transition-all">
+                <Send size={14} className="text-[#d4af37] group-hover:text-[#f4d27a] transition-colors" />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest text-white">Telegram</span>
               </a>
-              <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-end gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
-                <MessageCircle size={14} />
-                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Whatsapp</span>
+              <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="group flex items-center justify-center md:justify-end gap-2 rounded-xl border border-[#d4af37]/20 bg-gradient-to-r from-white/10 to-white/5 px-3 py-3 text-white shadow-lg shadow-black/20 hover:shadow-[#d4af37]/20 hover:border-[#d4af37]/50 hover:from-[#d4af37]/20 hover:to-[#d4af37]/5 hover:scale-[1.02] transition-all">
+                <MessageCircle size={14} className="text-[#d4af37] group-hover:text-[#f4d27a] transition-colors" />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest text-white">Whatsapp</span>
               </a>
             </div>
           </div>

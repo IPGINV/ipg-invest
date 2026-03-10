@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut } from 'lucide-react';
+import { Menu, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut, Send, MessageCircle, Facebook } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Language, Translation, ViewState } from '../types';
 
@@ -155,6 +155,20 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
                 <div className="h-0.5 w-8 bg-[#d4af37] mx-auto" />
               </div>
 
+              <div className="flex justify-center">
+                <div className="inline-flex p-1 rounded-xl border border-black/10 bg-black/[0.03]">
+                  {(['RU', 'EN'] as const).map((l) => (
+                    <button
+                      key={l}
+                      onClick={() => setLang(l)}
+                      className={`px-3 py-1 text-[10px] font-bold uppercase rounded-lg transition-all ${lang === l ? 'bg-[#d4af37] text-black' : 'text-black/50 hover:text-black'}`}
+                    >
+                      {l}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
               <button 
                 onClick={() => openApp('dashboard')}
                 className="flex items-center gap-4 p-5 bg-black/5 rounded-2xl hover:bg-black/10 transition-all text-left group"
@@ -167,6 +181,18 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
                   <span className="text-black/40 text-[10px] font-bold uppercase tracking-normal">{t.profileLabel}</span>
                 </div>
               </button>
+
+              <div className="flex items-center justify-center gap-3">
+                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
+                  <Send size={18} />
+                </a>
+                <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
+                  <MessageCircle size={18} />
+                </a>
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
+                  <Facebook size={18} />
+                </a>
+              </div>
             </motion.div>
           </div>
         )}
