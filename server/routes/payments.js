@@ -5,6 +5,7 @@ const { asyncHandler, parseLimit } = require('./utils');
 const { authMiddleware } = require('../middleware/auth');
 const { createPaymentIntent, verifyWebhookSignature } = require('../services/cryptoGateway');
 const { settleInternalAmount } = require('../services/paymentSettlement');
+const { applyDepositBonuses } = require('../services/depositBonuses');
 
 const router = express.Router();
 const gatewayEnabled = () => ['1', 'true', 'yes', 'on'].includes(String(process.env.CRYPTO_GATEWAY_ENABLED || 'true').toLowerCase());
@@ -236,10 +237,19 @@ router.post(
         settlementCurrency: intent.settlement_currency || 'USD'
       });
       const depositAmount = settlement.amount;
-      await query(
+      const { rows: depositRows } = await query(
         `INSERT INTO transactions (user_id, type, amount, status, comment)
-         VALUES ($1, 'DEPOSIT', $2, 'completed', $3)`,
+         VALUES ($1, 'DEPOSIT', $2, 'completed', $3)
+         RETURNING id`,
         [intent.user_id, depositAmount, `Crypto gateway deposit (${intent.intent_id})`]
+      );
+      const depositTxId = depositRows[0]?.id;
+      await query(
+        `INSERT INTO balances (user_id, currency, amount)
+         VALUES ($1, 'USD', $2)
+         ON CONFLICT (user_id, currency)
+         DO UPDATE SET amount = balances.amount + EXCLUDED.amount`,
+        [intent.user_id, depositAmount]
       );
       const { rows: contractRows } = await query(
         `SELECT id, amount_invested FROM contracts
@@ -262,6 +272,24 @@ router.post(
           [intent.user_id, depositAmount, startDate, endDate]
         );
       }
+
+      const { rows: firstDepositCheck } = await query(
+        `SELECT id
+         FROM transactions
+         WHERE user_id = $1
+           AND type = 'DEPOSIT'
+           AND status = 'completed'
+         ORDER BY created_at ASC
+         LIMIT 1`,
+        [intent.user_id]
+      );
+      const isFirstCompletedDeposit = String(firstDepositCheck[0]?.id || '') === String(depositTxId || '');
+      await applyDepositBonuses({
+        userId: intent.user_id,
+        depositTxId,
+        depositAmount,
+        isFirstCompletedDeposit
+      });
     }
 
     res.json({ success: true });

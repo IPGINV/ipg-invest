@@ -22,6 +22,7 @@ interface DashboardProps {
   contract: Contract;
   lang: 'en' | 'ru';
   isPending?: boolean;
+  prefillAmount?: number | null;
   serverYield?: { balance: number; profit: number; cyclesApplied: number; cyclesLeft: number; nextCycle?: { id: number; date: Date; yield_rate: number } } | null;
   apiCycles?: ApiCycle[];
   onTriggerKYC: () => void;
@@ -31,16 +32,23 @@ interface DashboardProps {
 
 const t = (lang: 'en' | 'ru') => locales[lang];
 
-export function DashboardPage({ user, contract, lang, isPending = false, serverYield, apiCycles = [], onTriggerKYC, onStartFunding, onOpenPayment }: DashboardProps) {
+export function DashboardPage({ user, contract, lang, isPending = false, prefillAmount = null, serverYield, apiCycles = [], onTriggerKYC, onStartFunding, onOpenPayment }: DashboardProps) {
   const [amount, setAmount] = useState('');
   const [isScheduleOpen, setIsScheduleOpen] = useState(false);
   const [isContractExpanded, setIsContractExpanded] = useState(false);
+  const capitalManagementRef = React.useRef<HTMLDivElement | null>(null);
   const { setModalOverlay } = useHeaderVisibility() ?? { setModalOverlay: () => {} };
 
   useEffect(() => {
     setModalOverlay('cycles', isScheduleOpen);
     return () => setModalOverlay('cycles', false);
   }, [isScheduleOpen, setModalOverlay]);
+
+  useEffect(() => {
+    if (!prefillAmount || !Number.isFinite(prefillAmount) || prefillAmount <= 0) return;
+    setAmount(String(prefillAmount));
+    capitalManagementRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [prefillAmount]);
 
   const principal = contract.amount || 0;
   const clientYieldData = calculateYield(principal, new Date(contract.startDate));
@@ -206,7 +214,7 @@ Dubai, UAE | Date: ${contract.startDate}
           </div>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="luxury-card p-6 flex flex-col justify-between">
+        <motion.div ref={capitalManagementRef} initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="luxury-card p-6 flex flex-col justify-between">
           <div>
             <p className="text-[10px] font-bold uppercase tracking-widest text-gray-400 mb-4">{t(lang).capitalManagement}</p>
             <div className="relative mb-4">

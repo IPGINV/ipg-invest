@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import HeaderV2 from './components/HeaderV2';
 import FooterV2 from './components/FooterV2';
 import { HeaderVisibilityProvider } from './context/HeaderVisibilityContext';
@@ -10,6 +10,7 @@ import { PaymentPage } from './pages/PaymentPage';
 import ContactBinding from './components/ContactBinding';
 import { CalculatorPage } from './pages/CalculatorPage';
 import LoadingScreenV2 from './components/LoadingScreenV2';
+import { LegalModal } from '../shared/LegalModal';
 import { User, Contract, AuthStatus, Transaction } from './types';
 import { locales } from './locales';
 
@@ -67,14 +68,17 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
   const [loadingMinElapsed, setLoadingMinElapsed] = useState(false);
   const [authLoadTimeout, setAuthLoadTimeout] = useState(false);
   const [showPaymentPage, setShowPaymentPage] = useState(false);
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
   const [serverYield, setServerYield] = useState<{ balance: number; profit: number; cyclesApplied: number; cyclesLeft: number; nextCycle?: { id: number; date: Date; yield_rate: number } } | null>(null);
   const [apiCycles, setApiCycles] = useState<{ id: number; cycle_number: number; cycle_date: string; yield_rate: number }[]>([]);
   const [paymentAmount, setPaymentAmount] = useState(0);
+  const [capitalPrefillAmount, setCapitalPrefillAmount] = useState<number | null>(null);
   const isRedirectingRef = useRef(false);
   const fetchUserDataRef = useRef<(() => Promise<void>) | null>(null);
   const hasLoadedDataRef = useRef(false);
   const isFetchingRef = useRef(false);
   const retryTimeoutRef = useRef<number | null>(null);
+  const fundingFlowHandledRef = useRef(false);
 
   const t = locales[lang];
   const envApiBase = (import.meta as any).env?.VITE_API_BASE_URL as string | undefined;
@@ -90,6 +94,30 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
       host.startsWith('10.') ||
       /^172\.(1[6-9]|2\d|3[0-1])\./.test(host)
     );
+  }, []);
+
+  const buildLoginUrl = useCallback((next?: 'funding', amount?: number) => {
+    const base = isLocalLikeHost() ? 'http://localhost:3000/login.html' : 'https://dashboard.ipg-invest.ae/login.html';
+    const url = new URL(base);
+    if (next) {
+      url.searchParams.set('next', next);
+    }
+    if (typeof amount === 'number' && Number.isFinite(amount) && amount > 0) {
+      url.searchParams.set('amount', String(Math.round(amount)));
+    }
+    return url.toString();
+  }, [isLocalLikeHost]);
+
+  const redirectToLogin = useCallback((next?: 'funding', amount?: number) => {
+    if (isRedirectingRef.current) return;
+    isRedirectingRef.current = true;
+    window.location.replace(buildLoginUrl(next, amount));
+  }, [buildLoginUrl]);
+
+  const getFundingAmountFromUrl = useCallback(() => {
+    const params = new URLSearchParams(window.location.search);
+    const parsedAmount = Number(params.get('amount'));
+    return Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : 100;
   }, []);
 
   const buildFallbackContract = useCallback((investorId?: string): Contract => {
@@ -148,8 +176,13 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
       }
       const currentPath = window.location.pathname;
       if (currentPath !== '/login.html' && !currentPath.includes('/login') && !isRedirectingRef.current) {
-        isRedirectingRef.current = true;
-        window.location.href = '/login.html';
+        const params = new URLSearchParams(window.location.search);
+        const amount = Number(params.get('amount'));
+        if (params.get('flow') === 'funding') {
+          redirectToLogin('funding', Number.isFinite(amount) && amount > 0 ? amount : undefined);
+        } else {
+          redirectToLogin();
+        }
       }
       isFetchingRef.current = false;
       return;
@@ -179,8 +212,13 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
         sessionStorage.removeItem('ipg_user_id');
         setAuthStatus(AuthStatus.UNAUTHENTICATED);
         if (!(window as any).__IPG_HOST && window.location.pathname !== '/login.html' && !isRedirectingRef.current) {
-          isRedirectingRef.current = true;
-          window.location.href = '/login.html';
+          const params = new URLSearchParams(window.location.search);
+          const amount = Number(params.get('amount'));
+          if (params.get('flow') === 'funding') {
+            redirectToLogin('funding', Number.isFinite(amount) && amount > 0 ? amount : undefined);
+          } else {
+            redirectToLogin();
+          }
         } else if ((window as any).__IPG_HOST) {
           setRequiresLogin(true);
         }
@@ -284,15 +322,20 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
         if ((window as any).__IPG_HOST) {
           setRequiresLogin(true);
         } else if (window.location.pathname !== '/login.html' && !isRedirectingRef.current) {
-          isRedirectingRef.current = true;
-          window.location.href = '/login.html';
+          const params = new URLSearchParams(window.location.search);
+          const amount = Number(params.get('amount'));
+          if (params.get('flow') === 'funding') {
+            redirectToLogin('funding', Number.isFinite(amount) && amount > 0 ? amount : undefined);
+          } else {
+            redirectToLogin();
+          }
         }
       } else {
         setAuthStatus(AuthStatus.AUTHENTICATED);
       }
     }
     isFetchingRef.current = false;
-  }, [apiBase, envApiBase, userId, isLocalLikeHost, refreshAccessToken, buildFallbackContract]);
+  }, [apiBase, envApiBase, userId, isLocalLikeHost, refreshAccessToken, buildFallbackContract, redirectToLogin]);
 
   fetchUserDataRef.current = fetchUserData;
 
@@ -397,22 +440,30 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     }
   }, []);
 
-  const loginUrl = () => {
-    return isLocalLikeHost() ? 'http://localhost:3000/login.html' : 'https://dashboard.ipg-invest.ae/login.html';
-  };
-
   useEffect(() => {
     if (!requiresLogin) return;
-    window.location.href = loginUrl();
-  }, [requiresLogin]);
+    const params = new URLSearchParams(window.location.search);
+    const amount = Number(params.get('amount'));
+    if (params.get('flow') === 'funding') {
+      redirectToLogin('funding', Number.isFinite(amount) && amount > 0 ? amount : undefined);
+      return;
+    }
+    redirectToLogin();
+  }, [requiresLogin, redirectToLogin]);
 
   useEffect(() => {
     if (authStatus !== AuthStatus.UNAUTHENTICATED) return;
     if (requiresLogin) return;
     if (window.location.pathname !== '/login.html') {
-      window.location.href = '/login.html';
+      const params = new URLSearchParams(window.location.search);
+      const amount = Number(params.get('amount'));
+      if (params.get('flow') === 'funding') {
+        redirectToLogin('funding', Number.isFinite(amount) && amount > 0 ? amount : undefined);
+        return;
+      }
+      redirectToLogin();
     }
-  }, [authStatus, requiresLogin]);
+  }, [authStatus, requiresLogin, redirectToLogin]);
 
   const handleLogout = useCallback(() => {
     sessionStorage.removeItem('ipg_token');
@@ -574,6 +625,46 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     }
   };
 
+  const openFundingForm = useCallback((amount?: number) => {
+    const parsedAmount = Number(amount);
+    const targetAmount = Number.isFinite(parsedAmount) && parsedAmount > 0 ? parsedAmount : 100;
+    setPaymentAmount(targetAmount);
+    setShowPaymentPage(true);
+    setActiveTab('dashboard');
+  }, []);
+
+  const resumePendingFunding = useCallback(async (funding: { source: 'deposit' | 'activate'; amount?: number }) => {
+    if (funding.source === 'deposit') {
+      openFundingForm(funding.amount);
+      return;
+    }
+    await openPaymentIntent(funding.source, funding.amount);
+  }, [openFundingForm, openPaymentIntent]);
+
+  useEffect(() => {
+    if (authStatus !== AuthStatus.AUTHENTICATED || !user) return;
+    if (fundingFlowHandledRef.current) return;
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('flow') !== 'funding') return;
+
+    fundingFlowHandledRef.current = true;
+    const amount = getFundingAmountFromUrl();
+
+    params.delete('flow');
+    params.delete('amount');
+    const nextUrl = `${window.location.pathname}${params.toString() ? `?${params.toString()}` : ''}`;
+    window.history.replaceState({}, '', nextUrl);
+
+    if (!user.emailVerified) {
+      setPendingFunding({ source: 'deposit', amount });
+      setActiveTab('kyc');
+      return;
+    }
+
+    openFundingForm(amount);
+  }, [authStatus, user, getFundingAmountFromUrl, openFundingForm]);
+
   const completeKycFormOnly = async (payload: {
     surname: string;
     name: string;
@@ -628,7 +719,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
       return;
     }
     const funding = pendingFunding || { source: 'deposit' as const, amount: 100 };
-    await openPaymentIntent(funding.source, funding.amount);
+    await resumePendingFunding(funding);
     setPendingFunding(null);
     setActiveTab('dashboard');
   };
@@ -688,7 +779,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
       return;
     }
     const funding = pendingFunding || { source: 'deposit' as const, amount: 100 };
-    await openPaymentIntent(funding.source, funding.amount);
+    await resumePendingFunding(funding);
     setPendingFunding(null);
     setActiveTab('dashboard');
   };
@@ -718,7 +809,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     }
     await fetchUserDataRef.current?.();
     if (pendingFunding) {
-      await openPaymentIntent(pendingFunding.source, pendingFunding.amount);
+      await resumePendingFunding(pendingFunding);
       setPendingFunding(null);
     }
     setActiveTab('dashboard');
@@ -800,6 +891,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
               contract={contract}
               lang={lang}
               isPending={isPendingUser}
+              prefillAmount={capitalPrefillAmount}
               serverYield={serverYield}
               apiCycles={apiCycles}
               onTriggerKYC={() => setActiveTab('kyc')}
@@ -841,7 +933,10 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
           {activeTab === 'calculator' && (
             <CalculatorPage
               lang={lang}
-              onInvest={() => setActiveTab('dashboard')}
+              onInvest={(amount) => {
+                setCapitalPrefillAmount(amount);
+                setActiveTab('dashboard');
+              }}
             />
           )}
 
@@ -857,7 +952,15 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
         </div>
       </main>
 
-        <FooterV2 lang={lang} />
+        <FooterV2 lang={lang} onLegalClick={(t) => setLegalModal(t)} />
+        {legalModal && (
+          <LegalModal
+            type={legalModal}
+            lang={lang}
+            onClose={() => setLegalModal(null)}
+            closeLabel={t.legalModalClose}
+          />
+        )}
 
         {showPaymentPage && (
         <PaymentPage

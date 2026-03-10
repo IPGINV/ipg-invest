@@ -25,6 +25,7 @@ export const TEXTS: Record<'RU' | 'EN', Translation> = {
     managerDesc: "Получите профессиональную консультацию по вопросам инвестиций и партнерства. Мы на связи 24/7.",
     managerTelegramSub: "Прямой чат в Telegram",
     managerWhatsappSub: "Связаться в WhatsApp",
+    managerFacebookSub: "Imperial Pure Gold | Dubai",
     menuDashboard: "Личный Кабинет",
     menuCompany: "О Компании",
     menuProject: "Инвестиционный Проект",
@@ -35,6 +36,7 @@ export const TEXTS: Record<'RU' | 'EN', Translation> = {
     projectTitle: "ЭКОСИСТЕМА БУДУЩЕГО",
     projectDesc: "Наш проект — это синергия реального сектора (добыча и аффинаж золота) и передовых финтех-решений. Мы устраняем барьеры между частным капиталом и рынком драгоценных металлов, предоставляя инструменты, которые раньше были доступны только институциональным игрокам.",
     telegramBtn: "КАНАЛ СООБЩЕСТВА",
+    facebookCommunityBtn: "FACEBOOK СООБЩЕСТВА",
     tokenTitle: "АКТИВ GHS (GOLDEN SHARE)",
     tokenDesc: "GHS — это цифровой сертификат владения, неразрывно связанный с операционной деятельностью Imperial Pure Gold. Это ваш ключ к доле в прибыли от реального оборота золота, защищенный неизменяемостью блокчейна.",
     tokenFeature1: "100% обеспечение физическим металлом",
@@ -49,6 +51,22 @@ export const TEXTS: Record<'RU' | 'EN', Translation> = {
     footerPrivacy: "Конфиденциальность",
     footerRisk: "Риски",
     footerTerms: "Условия",
+    legalModalClose: "Закрыть",
+    contactsTitle: "КОНТАКТЫ",
+    addressTitle: "Юридический адрес",
+    addressEn: "Unit No:BA334, DMCC Business Centre, Level No 1, Jewellery & Gemplex 3, Dubai, United Arab Emirates",
+    addressAr: "BA334،مركز الأعمال ج.م.س، طابق رقم 1، مبنى جولاري& جيمبلكس 3، دبي، الامارات العربية المتحدة",
+    phoneTitle: "Телефон компании",
+    marketingManager: "Менеджер по маркетингу",
+    projectManagersTitle: "Менеджеры проекта",
+    resourcesTitle: "Наши ресурсы",
+    mainSite: "Основной сайт компании",
+    investProject: "Инвестиционный проект Golden Share",
+    telegramChannel: "Telegram - канал",
+    profileLabel: "Профиль",
+    personalManagerLabel: "Персональный менеджер",
+    languageLabel: "Язык",
+    signOut: "Выход",
   },
   EN: {
     navCompany: "COMPANY",
@@ -74,6 +92,7 @@ export const TEXTS: Record<'RU' | 'EN', Translation> = {
     managerDesc: "Receive professional consultation on investment and partnership opportunities. Available 24/7.",
     managerTelegramSub: "Direct Telegram Chat",
     managerWhatsappSub: "Contact via WhatsApp",
+    managerFacebookSub: "Imperial Pure Gold | Dubai",
     menuDashboard: "Investor Dashboard",
     menuCompany: "About Company",
     menuProject: "Investment Project",
@@ -84,6 +103,7 @@ export const TEXTS: Record<'RU' | 'EN', Translation> = {
     projectTitle: "ECOSYSTEM OF THE FUTURE",
     projectDesc: "Our project is a synergy of the real sector (gold mining and refining) and cutting-edge fintech solutions. We eliminate barriers between private capital and the precious metals market, providing tools previously available only to institutional players.",
     telegramBtn: "COMMUNITY CHANNEL",
+    facebookCommunityBtn: "COMMUNITY FACEBOOK",
     tokenTitle: "GHS ASSET (GOLDEN SHARE)",
     tokenDesc: "GHS is a digital certificate of ownership, inextricably linked to the operational activities of Imperial Pure Gold. It is your key to a share in profits from real gold turnover, protected by the immutability of the blockchain.",
     tokenFeature1: "100% Backed by Physical Metal",
@@ -98,16 +118,32 @@ export const TEXTS: Record<'RU' | 'EN', Translation> = {
     footerPrivacy: "Privacy",
     footerRisk: "Risks",
     footerTerms: "Terms",
+    legalModalClose: "Close",
+    contactsTitle: "CONTACTS",
+    addressTitle: "Legal Address",
+    addressEn: "Unit No:BA334, DMCC Business Centre, Level No 1, Jewellery & Gemplex 3, Dubai, United Arab Emirates",
+    addressAr: "BA334،مركز الأعمال ج.م.س، طابق رقم 1، مبنى جولاري& جيمبلكس 3، دبي، الامارات العربية المتحدة",
+    phoneTitle: "Company Phone",
+    marketingManager: "Marketing Manager",
+    projectManagersTitle: "Project Managers",
+    resourcesTitle: "Our Resources",
+    mainSite: "Main Corporate Website",
+    investProject: "Golden Share Investment Project",
+    telegramChannel: "Telegram Channel",
+    profileLabel: "Profile",
+    personalManagerLabel: "Personal Manager",
+    languageLabel: "Language",
+    signOut: "Sign Out",
   }
 };
 
 export const TEAM: Record<Language, TeamMember[]> = {
   RU: [
-    { name: "Rajesh Takurdas Sadhwani", role: "Управляющий по лицензии / Директор", image: "https://picsum.photos/seed/executive1/400/400" },
-    { name: "Osman Nasr Mohammed", role: "Операционный директор", image: "https://picsum.photos/seed/executive2/400/400" }
+    { name: "Rajesh Takurdas Sadhwani", role: "Управляющий по лицензии / Директор", image: "/images/team/rajesh-takurdas-sadhwani.png" },
+    { name: "Osman Nasr Mohammed", role: "Операционный директор", image: "/images/team/osman-nasr-mohammed.png" }
   ],
   EN: [
-    { name: "Rajesh Takurdas Sadhwani", role: "License Manager / Director", image: "https://picsum.photos/seed/executive1/400/400" },
-    { name: "Osman Nasr Mohammed", role: "Operations Director", image: "https://picsum.photos/seed/executive2/400/400" }
+    { name: "Rajesh Takurdas Sadhwani", role: "License Manager / Director", image: "/images/team/rajesh-takurdas-sadhwani.png" },
+    { name: "Osman Nasr Mohammed", role: "Operations Director", image: "/images/team/osman-nasr-mohammed.png" }
   ]
 };

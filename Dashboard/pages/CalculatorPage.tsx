@@ -59,11 +59,12 @@ const getApiBase = () => {
 
 interface CalculatorPageProps {
   lang: 'en' | 'ru';
-  onInvest: () => void;
+  onInvest: (amount: number) => void;
 }
 
 export function CalculatorPage({ lang, onInvest }: CalculatorPageProps) {
   const [principal, setPrincipal] = useState(DEFAULT_INVESTMENT);
+  const [principalInput, setPrincipalInput] = useState(String(DEFAULT_INVESTMENT));
   const [cycles, setCycles] = useState(MAX_CYCLES);
   const [isReinvesting, setIsReinvesting] = useState(true);
   const [reinvestPercentage, setReinvestPercentage] = useState(100);
@@ -127,13 +128,29 @@ export function CalculatorPage({ lang, onInvest }: CalculatorPageProps) {
   }, [principal, cycles, isReinvesting, reinvestPercentage]);
 
   const handlePrincipalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = parseFloat(e.target.value);
-    if (!isNaN(val)) setPrincipal(val);
+    const digitsOnly = e.target.value.replace(/[^0-9]/g, '');
+    setPrincipalInput(digitsOnly);
+
+    if (!digitsOnly) {
+      return;
+    }
+
+    setPrincipal(Number(digitsOnly));
   };
 
   const handleBlurPrincipal = () => {
-    if (principal < MIN_INVESTMENT) setPrincipal(MIN_INVESTMENT);
-    if (principal > MAX_INVESTMENT) setPrincipal(MAX_INVESTMENT);
+    if (!principalInput) {
+      setPrincipal(MIN_INVESTMENT);
+      setPrincipalInput(String(MIN_INVESTMENT));
+      return;
+    }
+
+    let normalizedValue = Number(principalInput);
+    if (normalizedValue < MIN_INVESTMENT) normalizedValue = MIN_INVESTMENT;
+    if (normalizedValue > MAX_INVESTMENT) normalizedValue = MAX_INVESTMENT;
+
+    setPrincipal(normalizedValue);
+    setPrincipalInput(String(normalizedValue));
   };
 
   const downloadCSV = () => {
@@ -156,7 +173,7 @@ export function CalculatorPage({ lang, onInvest }: CalculatorPageProps) {
       initialInvestment: principal,
       cycles,
       reinvestmentEnabled: isReinvesting,
-      reinvestmentPercentage,
+      reinvestmentPercentage: reinvestPercentage,
       calculatedAt: Date.now(),
     };
     sessionStorage.setItem('calculatorData', JSON.stringify(payload));
@@ -168,11 +185,11 @@ export function CalculatorPage({ lang, onInvest }: CalculatorPageProps) {
         initialInvestment: principal,
         cycles,
         reinvestmentEnabled: isReinvesting,
-        reinvestmentPercentage,
+        reinvestmentPercentage: reinvestPercentage,
       }),
     }).catch(() => {});
 
-    onInvest();
+    onInvest(principal);
   };
 
   return (
@@ -205,12 +222,12 @@ export function CalculatorPage({ lang, onInvest }: CalculatorPageProps) {
               <div className="relative">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-stone-400 font-serif italic">$</span>
                 <input
-                  type="number"
-                  value={principal}
+                  type="text"
+                  inputMode="numeric"
+                  autoComplete="off"
+                  value={principalInput}
                   onChange={handlePrincipalChange}
                   onBlur={handleBlurPrincipal}
-                  min={MIN_INVESTMENT}
-                  max={MAX_INVESTMENT}
                   className="input-luxury pl-8 pr-4 py-3 text-lg font-bold text-stone-900"
                 />
               </div>

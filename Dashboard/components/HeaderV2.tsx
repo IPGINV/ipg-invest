@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, Gem, Send, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, History, Calculator, User, Menu, X, Building2, Info, Phone, Globe, Gem, Send, MessageCircle, LogOut, Facebook } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 import { locales } from '../locales';
@@ -25,8 +25,11 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
   hideNavBar = false
 }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [isManagerPopupOpen, setIsManagerPopupOpen] = useState(false);
-  const { headerVisible } = useHeaderVisibility() ?? { headerVisible: true };
+  const visibility = useHeaderVisibility();
+  const headerVisible = visibility?.headerVisible ?? true;
+  const setModalOverlay = visibility?.setModalOverlay;
   const t = locales[lang];
 
   const [currentPrice, setCurrentPrice] = useState(2780);
@@ -80,12 +83,30 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
   }, []);
 
   useEffect(() => {
-    if (isMenuOpen || isManagerPopupOpen) {
+    if (isMenuOpen || isProfileMenuOpen || isManagerPopupOpen) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = 'auto';
     }
-  }, [isMenuOpen, isManagerPopupOpen]);
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [isMenuOpen, isProfileMenuOpen, isManagerPopupOpen]);
+
+  useEffect(() => {
+    setModalOverlay?.('dashboard-header-menu', isMenuOpen);
+    return () => setModalOverlay?.('dashboard-header-menu', false);
+  }, [isMenuOpen, setModalOverlay]);
+
+  useEffect(() => {
+    setModalOverlay?.('dashboard-header-profile', isProfileMenuOpen);
+    return () => setModalOverlay?.('dashboard-header-profile', false);
+  }, [isProfileMenuOpen, setModalOverlay]);
+
+  useEffect(() => {
+    setModalOverlay?.('dashboard-header-manager', isManagerPopupOpen);
+    return () => setModalOverlay?.('dashboard-header-manager', false);
+  }, [isManagerPopupOpen, setModalOverlay]);
 
   const menuItems = [
     { id: 'dashboard', label: t.dashboard, icon: LayoutDashboard },
@@ -104,8 +125,11 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
     ['localhost', '127.0.0.1', '::1'].includes(window.location.hostname);
 
   const getInfoBase = () => (isLocalHost() ? 'http://localhost:3003' : 'https://info.ipg-invest.ae');
+  const profileText = t.profileLabel ?? (lang === 'ru' ? 'Профиль' : 'Profile');
 
-  const goToPersonalCabinet = () => handleNav('dashboard');
+  const openProfileMenu = () => {
+    setIsProfileMenuOpen(true);
+  };
 
   const redirectToCompany = () => {
     setIsMenuOpen(false);
@@ -163,21 +187,16 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
           </div>
 
           <div className="flex items-center gap-4">
-            <div className="flex p-1 rounded-lg border bg-white/5 border-white/10">
-              {(['ru', 'en'] as const).map((l) => (
-                <button key={l} onClick={() => setLang(l)} className={cn('px-3 py-1 text-[10px] font-bold rounded transition-all', lang === l ? 'bg-[#d4af37] text-black shadow-sm' : 'text-white/40 hover:text-white')}>{l.toUpperCase()}</button>
-              ))}
-            </div>
             {isLoggedIn && onLogout && (
               <button onClick={onLogout} className="hidden md:flex items-center justify-center px-4 py-2 rounded-xl bg-white/5 text-white/40 text-[10px] font-bold uppercase hover:text-white transition-all border border-white/10">
                 {t.signOut}
               </button>
             )}
-            <button onClick={() => setIsManagerPopupOpen(true)} className="hidden md:flex items-center justify-center px-6 h-9 rounded-xl bg-[#d4af37] text-black text-[10px] font-bold uppercase hover:brightness-110 transition-all shadow-lg shadow-[#d4af37]/20">
-              {t.contactBtn}
+            <button onClick={openProfileMenu} className="hidden md:flex items-center justify-center px-6 h-9 rounded-xl bg-[#d4af37] text-black text-[10px] font-bold uppercase hover:brightness-110 transition-all shadow-lg shadow-[#d4af37]/20">
+              {profileText}
             </button>
-            <button onClick={() => setIsManagerPopupOpen(true)} className="md:hidden w-9 h-9 rounded-xl bg-[#d4af37] flex items-center justify-center text-black shadow-lg shadow-[#d4af37]/20">
-              <Phone size={16} />
+            <button onClick={openProfileMenu} className="md:hidden w-9 h-9 rounded-xl bg-[#d4af37] flex items-center justify-center text-black shadow-lg shadow-[#d4af37]/20">
+              <User size={16} />
             </button>
           </div>
         </header>
@@ -233,12 +252,94 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
                 <div className="h-px bg-black/5 my-6" />
                 <MenuBtn icon={<Phone size={20}/>} label={t.contactBtn} onClick={() => { setIsMenuOpen(false); setIsManagerPopupOpen(true); }} />
                 <MenuBtn icon={<Globe size={20}/>} label={t.menuCompanySite} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://imperialpuregold.ae'; }} />
+                {isLoggedIn && onLogout && (
+                  <MenuBtn icon={<LogOut size={20}/>} label={t.signOut} onClick={() => { setIsMenuOpen(false); onLogout(); }} />
+                )}
+                <div className="h-px bg-black/5 my-6" />
+                <div className="flex items-center justify-center gap-3">
+                  <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
+                    <Facebook size={18} />
+                  </a>
+                  <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
+                    <Send size={18} />
+                  </a>
+                  <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
+                    <MessageCircle size={18} />
+                  </a>
+                </div>
+                <div className="h-px bg-black/5 my-6" />
               </nav>
               <div className="mt-auto pt-8 border-t border-black/5">
                 <p className="text-[10px] text-black/20 uppercase font-bold">© 2026 Imperial Pure Gold</p>
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* Profile Menu — like Info profile functionality */}
+      <AnimatePresence>
+        {isProfileMenuOpen && (
+          <div className="fixed inset-0 z-[220] flex items-center justify-center p-6">
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setIsProfileMenuOpen(false)} className="absolute inset-0 bg-black/20 backdrop-blur-sm" />
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0, y: 20 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              className="relative bg-white p-8 rounded-[2.5rem] w-full max-w-sm border border-black/5 flex flex-col gap-6 shadow-2xl"
+            >
+              <button onClick={() => setIsProfileMenuOpen(false)} className="absolute top-6 right-6 p-2 text-black/20 hover:text-black"><X size={24} /></button>
+              <div className="text-center space-y-2 mb-2">
+                <h3 className="text-2xl font-playfair font-black text-black tracking-tight uppercase">{profileText}</h3>
+                <div className="h-0.5 w-8 bg-[#d4af37] mx-auto" />
+              </div>
+
+              <button onClick={() => { setIsProfileMenuOpen(false); handleNav('profile'); }} className="flex items-center gap-4 p-5 bg-black/5 rounded-2xl hover:bg-black/10 transition-all text-left group">
+                <div className="w-12 h-12 rounded-xl bg-[#d4af37]/20 flex items-center justify-center text-[#d4af37] group-hover:scale-110 transition-transform">
+                  <User size={24} />
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-black font-bold text-base tracking-tight">{profileText}</span>
+                  <span className="text-black/40 text-[10px] font-bold uppercase tracking-normal">{t.menuDashboard}</span>
+                </div>
+              </button>
+
+              <div className="p-5 bg-black/5 rounded-2xl space-y-4">
+                <div className="flex items-center gap-2 text-black/40">
+                  <Globe size={16} />
+                  <span className="text-[10px] font-black uppercase tracking-normal">{t.languageLabel ?? 'Language'}</span>
+                </div>
+                <div className="flex gap-2">
+                  {(['ru', 'en'] as const).map((l) => (
+                    <button key={l} onClick={() => setLang(l)} className={cn('flex-1 py-3 text-[11px] font-bold rounded-xl transition-all', lang === l ? 'bg-[#d4af37] text-black shadow-md' : 'bg-white text-black/40 hover:text-black')}>
+                      {l === 'ru' ? 'Русский' : 'English'}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-5 bg-black/5 rounded-2xl space-y-4">
+                <div className="flex items-center gap-2 text-black/40">
+                  <MessageCircle size={16} />
+                  <span className="text-[10px] font-black uppercase tracking-normal">{t.personalManagerLabel ?? t.personalManager}</span>
+                </div>
+                <div className="flex flex-col gap-3">
+                  <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group">
+                    <Send size={18} className="text-[#0088cc]" />
+                    <span className="text-sm font-bold text-black tracking-tight">Telegram</span>
+                  </a>
+                  <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group">
+                    <MessageCircle size={18} className="text-green-500" />
+                    <span className="text-sm font-bold text-black tracking-tight">WhatsApp</span>
+                  </a>
+                  <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-3 p-4 bg-white rounded-xl border border-black/5 hover:border-[#d4af37]/30 transition-all group">
+                    <Facebook size={18} className="text-[#1877f2]" />
+                    <span className="text-sm font-bold text-black tracking-tight">Facebook</span>
+                  </a>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
 
@@ -254,17 +355,15 @@ const HeaderV2: React.FC<HeaderV2Props> = ({
             <div className="flex flex-col gap-4 w-full">
               <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#0088cc]/10 text-[#0088cc] group-hover:scale-110 transition-transform"><Send size={24} /></div>
-                <div className="flex flex-col">
-                  <span className="text-black font-bold text-lg">Telegram</span>
-                  <span className="text-black/30 text-[10px] font-bold uppercase">{t.managerTelegramSub}</span>
-                </div>
+                <span className="text-black font-bold text-lg">Telegram</span>
               </a>
               <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-green-500/40 hover:bg-black/[0.08] transition-all group">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-green-500/10 text-green-500 group-hover:scale-110 transition-transform"><MessageCircle size={24} /></div>
-                <div className="flex flex-col">
-                  <span className="text-black font-bold text-lg">WhatsApp</span>
-                  <span className="text-black/30 text-[10px] font-bold uppercase">{t.managerWhatsappSub}</span>
-                </div>
+                <span className="text-black font-bold text-lg">WhatsApp</span>
+              </a>
+              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#1877f2]/40 hover:bg-black/[0.08] transition-all group">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#1877f2]/10 text-[#1877f2] group-hover:scale-110 transition-transform"><Facebook size={24} /></div>
+                <span className="text-black font-bold text-lg">Facebook</span>
               </a>
             </div>
           </div>

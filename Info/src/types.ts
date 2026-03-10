@@ -25,6 +25,7 @@ export interface Translation {
   managerDesc: string;
   managerTelegramSub: string;
   managerWhatsappSub: string;
+  managerFacebookSub: string;
   menuDashboard: string;
   menuCompany: string;
   menuProject: string;
@@ -35,6 +36,7 @@ export interface Translation {
   projectTitle: string;
   projectDesc: string;
   telegramBtn: string;
+  facebookCommunityBtn: string;
   tokenTitle: string;
   tokenDesc: string;
   tokenFeature1: string;
@@ -49,6 +51,22 @@ export interface Translation {
   footerPrivacy: string;
   footerRisk: string;
   footerTerms: string;
+  legalModalClose: string;
+  contactsTitle: string;
+  addressTitle: string;
+  addressEn: string;
+  addressAr: string;
+  phoneTitle: string;
+  marketingManager: string;
+  projectManagersTitle: string;
+  resourcesTitle: string;
+  mainSite: string;
+  investProject: string;
+  telegramChannel: string;
+  profileLabel: string;
+  personalManagerLabel: string;
+  languageLabel: string;
+  signOut: string;
 }
 
 export interface TeamMember {

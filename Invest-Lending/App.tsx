@@ -5,7 +5,6 @@ import {
   ShieldCheck, 
   Lock, 
   Globe, 
-  Mail, 
   Send, 
   Phone, 
   Activity, 
@@ -80,15 +79,17 @@ const translations = {
     menu: "Меню",
     contact: "Связь",
     contactBtn: "Связаться",
-    managerTitle: "Ваш персональный менеджер",
+    managerTitle: "Свяжитесь с нами",
     managerDesc: "Получите профессиональную консультацию по вопросам инвестиций и партнерства. Мы на связи 24/7.",
     managerTelegramSub: "Прямой чат в Telegram",
     managerWhatsappSub: "Связаться в WhatsApp",
+    managerFacebookSub: "Imperial Pure Gold | Dubai",
     menuDashboard: "Личный Кабинет",
     menuCompany: "Компания",
     menuProject: "Проект",
     menuCalculator: "Калькулятор доходности",
     menuCompanySite: "Сайт компании",
+    menuRegistration: "Регистрация",
     marqueeLBMABench: "LBMA БЕНЧМАРК",
     marqueeSpotAU: "SPOT AU",
     marqueeInstLevel: "ИНСТИТУЦИОНАЛЬНЫЙ УРОВЕНЬ",
@@ -118,6 +119,7 @@ const translations = {
     calcLabelForecast: "Прогноз прибыли",
     calcLabelROI: "Чистый ROI",
     calcBtnTelegram: "Подробнее в телеграм канале",
+    calcBtnFacebook: "Подробнее в Facebook",
     calcBtnLock: "Зафиксировать условия",
     regFormTitle: "Регистрация",
     regFormOr: "или",
@@ -146,8 +148,19 @@ const translations = {
     footerPrivacy: "Конфиденциальность",
     footerRisk: "Риски",
     footerTerms: "Условия",
+    legalModalClose: "Закрыть",
+    legalPrivacyTitle: "Политика конфиденциальности",
+    legalPrivacyContent: "Imperial Pure Gold DMCC обязуется защищать персональные данные пользователей в соответствии с применимым законодательством ОАЭ и международными стандартами.\n\nМы собираем только необходимую информацию для оказания услуг: контактные данные, данные для идентификации и финансовой верификации. Информация хранится на защищённых серверах и не передаётся третьим лицам без вашего согласия, за исключением случаев, предусмотренных законом.\n\nВы имеете право на доступ, исправление и удаление своих данных. Для запросов обращайтесь: info@ipg-invest.ae.\n\nОбновлено: март 2026.",
+    legalTermsTitle: "Условия использования",
+    legalTermsContent: "Используя платформу Imperial Pure Gold DMCC, вы соглашаетесь с настоящими условиями.\n\nУслуги предоставляются лицензированной компанией в зоне DMCC (Дубай). Инвестиции в физическое золото несут рыночные риски. Прошлые результаты не гарантируют будущей доходности.\n\nМинимальный возраст пользователя — 18 лет. Клиент несёт ответственность за достоверность предоставленной информации и соблюдение законодательства своей юрисдикции.\n\nВсе споры регулируются законодательством ОАЭ. Imperial Pure Gold DMCC оставляет за собой право изменять условия с уведомлением пользователей.\n\nОбновлено: март 2026.",
+    legalRisksTitle: "Предупреждение о рисках",
+    legalRisksContent: "Инвестиции в драгоценные металлы сопряжены с рисками. Стоимость золота может колебаться под воздействием рыночных, геополитических и макроэкономических факторов.\n\nМодель Fixed Price уменьшает, но не устраняет волатильность. Доходность не гарантирована. Цифровые активы (токены) являются дополнительным инструментом и могут быть подвержены технологическим рискам.\n\nРекомендуется инвестировать только средства, потерю которых вы готовы принять. Перед принятием решений проконсультируйтесь с финансовым специалистом.\n\nImperial Pure Gold DMCC не даёт индивидуальных инвестиционных рекомендаций. Обновлено: март 2026.",
     months: ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'],
     cards: [
+      {
+        title: "Imperial Pure Gold DMCC",
+        paragraphs: ["Лицензированная компания в экономической зоне DMCC (Дубай), созданная для построения безопасных и прибыльных цепочек поставок физического золота между Африкой и Ближним Востоком."]
+      },
       {
         title: "Фиксированные цены",
         paragraphs: ["Работа по модели Fixed Price для защиты капитала.", "Обеспечение предсказуемой доходности до 8% за цикл.", "Эффективная защита от рыночной волатильности котировок."]
@@ -160,10 +173,7 @@ const translations = {
         title: "Цель компании",
         paragraphs: ["Сделать инвестиции в золото технологичным инструментом.", "Доступность и безопасность для требовательных инвесторов.", "Новый стандарт взаимодействия с физическим металлом."]
       },
-      {
-        title: "Imperial Pure Gold DMCC",
-        paragraphs: ["Лицензированная компания в экономической зоне DMCC (Дубай), созданная для построения безопасных и прибыльных цепочек поставок физического золота между Африкой и Ближним Востоком."]
-      }
+      
     ],
     infoCompanyTitle: "О КОМПАНИИ",
     infoCompanyDescTitle: "Imperial Pure Gold DMCC",
@@ -190,15 +200,17 @@ const translations = {
     menu: "Menu",
     contact: "Contact",
     contactBtn: "Contact Us",
-    managerTitle: "Personal Relationship Manager",
+    managerTitle: "Contact Us",
     managerDesc: "Receive professional consultation on investment and partnership opportunities. Available 24/7.",
     managerTelegramSub: "Direct Telegram Chat",
     managerWhatsappSub: "Contact via WhatsApp",
+    managerFacebookSub: "Imperial Pure Gold | Dubai",
     menuDashboard: "Dashboard",
     menuCompany: "Company",
     menuProject: "Project",
     menuCalculator: "Profit Calculator",
     menuCompanySite: "Company website",
+    menuRegistration: "Registration",
     marqueeLBMABench: "LBMA BENCHMARK",
     marqueeSpotAU: "SPOT AU",
     marqueeInstLevel: "INSTITUTIONAL GRADE",
@@ -228,6 +240,7 @@ const translations = {
     calcLabelForecast: "Forecast Return",
     calcLabelROI: "Net ROI",
     calcBtnTelegram: "More info in Telegram",
+    calcBtnFacebook: "More info in Facebook",
     calcBtnLock: "Fix the conditions",
     regFormTitle: "Registration",
     regFormOr: "or",
@@ -239,7 +252,7 @@ const translations = {
     regBtnNext: "Next",
     regBtnBack: "Back",
     regLabelTerms: "I accept",
-    regLinkOffer: "terms",
+    regLinkOffer: "offer",
     regBtnOpen: "Open Dashboard",
     successTitle: "Portfolio Created",
     successDesc: "Your investment panel is ready. Bonus token has been credited to your balance.",
@@ -256,8 +269,19 @@ const translations = {
     footerPrivacy: "Privacy",
     footerRisk: "Risks",
     footerTerms: "Terms",
+    legalModalClose: "Close",
+    legalPrivacyTitle: "Privacy Policy",
+    legalPrivacyContent: "Imperial Pure Gold DMCC is committed to protecting your personal data in accordance with applicable UAE law and international standards.\n\nWe collect only the information necessary to provide our services: contact details, identity and financial verification data. Information is stored on secured servers and is not shared with third parties without your consent, except as required by law.\n\nYou have the right to access, correct and delete your data. For requests, contact: info@ipg-invest.ae.\n\nLast updated: March 2026.",
+    legalTermsTitle: "Terms of Use",
+    legalTermsContent: "By using the Imperial Pure Gold DMCC platform, you agree to these terms.\n\nServices are provided by a licensed company in the DMCC zone (Dubai). Investments in physical gold carry market risks. Past performance does not guarantee future returns.\n\nMinimum user age is 18. The client is responsible for the accuracy of information provided and compliance with the laws of their jurisdiction.\n\nAll disputes are governed by UAE law. Imperial Pure Gold DMCC reserves the right to amend terms with notice to users.\n\nLast updated: March 2026.",
+    legalRisksTitle: "Risk Warning",
+    legalRisksContent: "Investments in precious metals involve risks. The value of gold may fluctuate due to market, geopolitical and macroeconomic factors.\n\nThe Fixed Price model reduces but does not eliminate volatility. Returns are not guaranteed. Digital assets (tokens) are an additional instrument and may be subject to technological risks.\n\nInvest only funds you can afford to lose. Consult a financial adviser before making decisions.\n\nImperial Pure Gold DMCC does not provide individual investment advice. Last updated: March 2026.",
     months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     cards: [
+      {
+        title: "Imperial Pure Gold DMCC",
+        paragraphs: ["Licensed company in the DMCC economic zone (Dubai), created to build secure and profitable supply chains of physical gold between Africa and the Middle East."]
+      },
       {
         title: "Fixed Prices",
         paragraphs: ["Fixed Price model to protect your capital.", "Predictable returns up to 8% per cycle.", "Effective protection against market volatility."]
@@ -270,10 +294,7 @@ const translations = {
         title: "Company Goal",
         paragraphs: ["Making gold investment a technological tool.", "Accessibility and security for demanding investors.", "A new standard for physical metal interaction."]
       },
-      {
-        title: "Imperial Pure Gold DMCC",
-        paragraphs: ["Licensed company in the DMCC economic zone (Dubai), created to build secure and profitable supply chains of physical gold between Africa and the Middle East."]
-      }
+      
     ],
     infoCompanyTitle: "ABOUT COMPANY",
     infoCompanyDescTitle: "Imperial Pure Gold DMCC",
@@ -301,12 +322,12 @@ const translations = {
 // --- TEAM for Info pages ---
 const TEAM: Record<Language, { name: string; role: string; image: string }[]> = {
   RU: [
-    { name: "Rajesh Takurdas Sadhwani", role: "Управляющий по лицензии / Директор", image: "/images/team.svg" },
-    { name: "Osman Nasr Mohammed", role: "Операционный директор", image: "/images/team.svg" }
+    { name: "Rajesh Takurdas Sadhwani", role: "Управляющий по лицензии / Директор", image: "/images/team/rajesh-takurdas-sadhwani.png" },
+    { name: "Osman Nasr Mohammed", role: "Операционный директор", image: "/images/team/osman-nasr-mohammed.png" }
   ],
   EN: [
-    { name: "Rajesh Takurdas Sadhwani", role: "License Manager / Director", image: "/images/team.svg" },
-    { name: "Osman Nasr Mohammed", role: "Operations Director", image: "/images/team.svg" }
+    { name: "Rajesh Takurdas Sadhwani", role: "License Manager / Director", image: "/images/team/rajesh-takurdas-sadhwani.png" },
+    { name: "Osman Nasr Mohammed", role: "Operations Director", image: "/images/team/osman-nasr-mohammed.png" }
   ]
 };
 
@@ -419,8 +440,19 @@ const InlineProjectView = ({ t, lang }: { t: Record<string, any>; lang: Language
               </a>
             </div>
             <div className="hidden md:block">
-              <div className="aspect-square bg-gradient-to-br from-amber-50 to-stone-50 border border-[#d4af37]/20 rounded-2xl flex items-center justify-center">
-                <Globe size={120} strokeWidth={0.5} className="text-[#d4af37]/30" />
+              <div className="relative">
+                <img
+                  src="/images/project/golden-sheare.png"
+                  alt="Golden Share"
+                  className="w-full h-auto rounded-2xl shadow-xl border border-[#d4af37]/20"
+                />
+                <div className="absolute -bottom-5 -right-5 w-28 h-28 bg-white p-2 rounded-2xl shadow-lg border border-black/5 rotate-6">
+                  <img
+                    src="/images/project/token.png"
+                    alt="Token"
+                    className="w-full h-full object-cover rounded-xl"
+                  />
+                </div>
               </div>
             </div>
           </div>
@@ -568,8 +600,10 @@ export default function App({ apiBase }: AppProps) {
   const [currencyRates, setCurrencyRates] = useState({ AED: 3.67, RUB: 91.42 });
   const [currentCard, setCurrentCard] = useState(0);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
   const [lockedAmount, setLockedAmount] = useState<number | null>(null);
   const [infoView, setInfoView] = useState<'company' | 'project' | null>(null);
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
 
   const resolveLocalBase = (port: number) => {
     const host = window.location.hostname;
@@ -614,10 +648,16 @@ export default function App({ apiBase }: AppProps) {
     const params = new URLSearchParams(window.location.search);
     const view = params.get('view');
     const stepParam = params.get('step');
+    const decodedSearch = decodeURIComponent(window.location.search || '');
+    const encodedRegistrationStep = decodedSearch.includes('step=REGISTRATION');
     
     if (view === 'calculator' || stepParam === 'SIMULATION') {
       setStep('SIMULATION');
       // Очищаем параметры из URL после обработки
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+    if (stepParam === 'REGISTRATION' || encodedRegistrationStep) {
+      setStep('REGISTRATION');
       window.history.replaceState({}, '', window.location.pathname);
     }
   }, []);
@@ -765,7 +805,7 @@ export default function App({ apiBase }: AppProps) {
       <InteractiveBackground />
 
       {/* Marquee — Info standard h-8 */}
-      <div className="fixed top-0 w-full z-[100] bg-[#0a0a0a] border-b border-white/5 h-8 flex items-center overflow-hidden">
+      <div className={`fixed top-0 w-full z-[100] bg-[#0a0a0a] border-b border-white/5 h-8 flex items-center overflow-hidden transition-all duration-500 ease-out ${isOfferModalOpen ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <div className="flex animate-marquee whitespace-nowrap">
           {[1, 2].map((i) => (
             <div key={i} className="flex items-center shrink-0">
@@ -782,7 +822,7 @@ export default function App({ apiBase }: AppProps) {
       </div>
 
       {/* Header — Info standard h-16 */}
-      <header className="fixed top-8 left-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-3 md:px-12 h-16 flex justify-between items-center">
+      <header className={`fixed top-8 left-0 w-full z-[90] bg-[#0a0a0a]/90 backdrop-blur-xl border-b border-white/5 px-3 md:px-12 h-16 flex justify-between items-center transition-all duration-500 ease-out ${isOfferModalOpen ? '-translate-y-full opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
         <div className="flex items-center gap-3 cursor-pointer group" onClick={() => setIsMenuOpen(!isMenuOpen)}>
           <div className="flex items-center gap-3 p-1 pr-4 rounded-xl border bg-white/5 border-white/10 hover:bg-white/10 transition-all">
             <div className="w-8 h-8 gold-gradient rounded-lg flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform">
@@ -822,11 +862,15 @@ export default function App({ apiBase }: AppProps) {
               <div className="flex flex-col gap-4 w-full">
                  <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all group">
                     <div className="w-12 h-12 rounded-xl bg-[#0088cc]/20 flex items-center justify-center text-[#0088cc] group-hover:scale-110 transition-transform"><Send size={24} /></div>
-                    <div className="flex flex-col"><span className="text-white font-black text-base">Telegram</span><span className="text-white/30 text-[10px] font-mono uppercase tracking-widest">{t.managerTelegramSub}</span></div>
+                    <span className="text-white font-black text-base">Telegram</span>
                  </a>
                  <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-green-500/40 hover:bg-white/[0.08] transition-all group">
                     <div className="w-12 h-12 rounded-xl bg-green-500/20 flex items-center justify-center text-green-500 group-hover:scale-110 transition-transform"><MessageCircle size={24} /></div>
-                    <div className="flex flex-col"><span className="text-white font-black text-base">WhatsApp</span><span className="text-white/30 text-[10px] font-mono uppercase tracking-widest">{t.managerWhatsappSub}</span></div>
+                    <span className="text-white font-black text-base">WhatsApp</span>
+                 </a>
+                 <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-white/5 border border-white/10 rounded-2xl hover:border-[#1877f2]/40 hover:bg-white/[0.08] transition-all group">
+                    <div className="w-12 h-12 rounded-xl bg-[#1877f2]/20 flex items-center justify-center text-[#1877f2] group-hover:scale-110 transition-transform"><Facebook size={24} /></div>
+                    <span className="text-white font-black text-base">Facebook</span>
                  </a>
               </div>
            </div>
@@ -877,7 +921,7 @@ export default function App({ apiBase }: AppProps) {
                       <h3 className="text-xl font-['Playfair_Display'] font-black tracking-tight text-stone-900 mb-2">{t.infoLicenseTitle}</h3>
                       <p className="text-stone-500 text-sm font-mono tracking-widest">DMCC-944655</p>
                     </div>
-                    <a href="/licenses/ipg-license.pdf" download className="flex items-center gap-2 px-6 py-3 bg-[#d4af37] text-stone-900 font-black text-[10px] font-mono uppercase tracking-widest rounded-2xl hover:brightness-110 transition-all shadow-lg">
+                    <a href="https://imperialpuregold.ae/license.pdf" target="_blank" rel="noreferrer" className="flex items-center gap-2 px-6 py-3 bg-[#d4af37] text-stone-900 font-black text-[10px] font-mono uppercase tracking-widest rounded-2xl hover:brightness-110 transition-all shadow-lg">
                       <Download size={14} /> {t.infoLicenseDownload}
                     </a>
                   </div>
@@ -886,8 +930,8 @@ export default function App({ apiBase }: AppProps) {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
                   {TEAM[lang].map((member, idx) => (
                     <div key={idx} className="luxury-card p-6 group overflow-hidden">
-                      <div className="aspect-square overflow-hidden rounded-2xl mb-4 border border-stone-100 bg-stone-100 flex items-center justify-center">
-                        <Building2 size={48} className="text-stone-300" />
+                      <div className="aspect-square overflow-hidden rounded-2xl mb-4 border border-stone-100 bg-stone-100">
+                        <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
                       </div>
                       <h4 className="text-stone-900 font-['Playfair_Display'] font-black tracking-tight text-lg">{member.name}</h4>
                       <p className="text-[#d4af37] text-[10px] font-mono font-black uppercase tracking-widest mt-2">{member.role}</p>
@@ -903,6 +947,35 @@ export default function App({ apiBase }: AppProps) {
         </div>
       )}
 
+      {/* Legal Modal: Privacy, Terms, Risks */}
+      {legalModal && (
+        <div className="fixed inset-0 z-[280] flex items-center justify-center p-4 md:p-8">
+          <div className="absolute inset-0 bg-[#0c0c0e]/90 backdrop-blur-sm" onClick={() => setLegalModal(null)} aria-hidden />
+          <div className="relative w-full max-w-2xl max-h-[85vh] overflow-hidden glass-card rounded-2xl md:rounded-3xl border-white/10 shadow-2xl flex flex-col">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-white/10 flex-shrink-0">
+              <h3 className="text-lg md:text-xl font-playfair font-black text-white">
+                {legalModal === 'privacy' && (t.legalPrivacyTitle as string)}
+                {legalModal === 'terms' && (t.legalTermsTitle as string)}
+                {legalModal === 'risks' && (t.legalRisksTitle as string)}
+              </h3>
+              <button onClick={() => setLegalModal(null)} className="p-2 text-white/40 hover:text-white rounded-lg transition-colors" aria-label={t.legalModalClose as string}>
+                <X size={24} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4 md:p-6 text-sm md:text-base text-white/80 leading-relaxed whitespace-pre-line">
+              {legalModal === 'privacy' && (t.legalPrivacyContent as string)}
+              {legalModal === 'terms' && (t.legalTermsContent as string)}
+              {legalModal === 'risks' && (t.legalRisksContent as string)}
+            </div>
+            <div className="p-4 md:p-6 border-t border-white/10 flex-shrink-0">
+              <button onClick={() => setLegalModal(null)} className="w-full py-3 rounded-xl bg-white/10 border border-white/20 text-white font-bold text-sm hover:bg-white/20 transition-colors">
+                {t.legalModalClose}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hamburger — Info standard: left slide */}
       {isMenuOpen && (
         <>
@@ -913,7 +986,12 @@ export default function App({ apiBase }: AppProps) {
                 <span className="font-playfair font-black text-[10px] uppercase tracking-tight text-[#d4af37]">Imperial</span>
                 <span className="font-playfair font-black text-[10px] uppercase tracking-tight text-black">Pure Gold</span>
               </div>
-              <button onClick={() => setIsMenuOpen(false)} className="p-2 text-black/40 hover:text-black"><X size={24} /></button>
+              <div className="flex items-center gap-2">
+                <button onClick={() => { setIsMenuOpen(false); nextStep('REGISTRATION'); }} className="px-4 py-2 rounded-xl bg-[#d4af37] text-black text-[10px] font-mono font-black uppercase tracking-widest hover:brightness-110 transition-all shadow-md">
+                  {t.menuRegistration}
+                </button>
+                <button onClick={() => setIsMenuOpen(false)} className="p-2 text-black/40 hover:text-black"><X size={24} /></button>
+              </div>
             </div>
             <nav className="flex flex-col gap-1 w-full">
               <button onClick={handleOpenDashboard} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
@@ -941,8 +1019,21 @@ export default function App({ apiBase }: AppProps) {
                 <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><Globe size={20} /></span>
                 <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuCompanySite}</span>
               </button>
+              <div className="h-px bg-black/5 my-4" />
+              <div className="flex items-center justify-center gap-3 -mt-2">
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
+                  <Facebook size={18} />
+                </a>
+                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
+                  <Send size={18} />
+                </a>
+                <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
+                  <MessageCircle size={18} />
+                </a>
+              </div>
+              <div className="h-px bg-black/5 mt-2 mb-4" />
             </nav>
-            <div className="mt-auto pt-8 border-t border-black/5">
+            <div className="mt-auto pt-6 border-t border-black/5">
               <p className="text-[10px] font-mono text-black/20 uppercase tracking-widest">© {new Date().getFullYear()} Imperial Pure Gold</p>
             </div>
           </div>
@@ -962,8 +1053,8 @@ export default function App({ apiBase }: AppProps) {
               <HeroTextSlider slides={t.heroSlider} />
               <div className="flex flex-col sm:flex-row gap-4 md:gap-6 w-full max-w-lg lg:max-w-none items-center lg:items-start">
                 <button onClick={() => nextStep('SIMULATION')} className="gold-gradient w-full lg:w-auto lg:px-16 py-7 rounded-3xl text-black font-black text-base md:text-xl uppercase tracking-widest shadow-2xl active:scale-95 transition-all hover:brightness-110 flex items-center justify-center">{t.heroBtnStart} <ChevronRight className="inline ml-2" size={28} /></button>
-                <button onClick={() => nextStep('SIMULATION')} className="bg-white/5 border border-white/10 w-full py-7 rounded-3xl text-white font-black text-[10px] font-mono uppercase tracking-widest hover:bg-white/[0.12] transition-all">
-                  {t.heroBtnAbout}
+                <button onClick={() => nextStep('REGISTRATION')} className="w-full py-7 rounded-3xl bg-[#d4af37] border border-[#f4d27a]/70 text-black font-black text-base md:text-xl uppercase tracking-widest shadow-2xl shadow-[#d4af37]/35 hover:brightness-110 active:scale-[0.99] transition-all">
+                  {t.menuRegistration}
                 </button>
               </div>
               <div className="hidden lg:flex gap-16 mt-24 opacity-60">
@@ -1061,6 +1152,7 @@ export default function App({ apiBase }: AppProps) {
                    <div className="mt-auto">
                       <div className="flex flex-col gap-4">
                         <button onClick={() => window.open('https://t.me/GoldenShareClub', '_blank')} className="bg-white/5 border border-white/10 w-full py-6 rounded-3xl text-white/40 font-black text-[10px] font-times uppercase tracking-widest flex flex-col items-center justify-center gap-2 hover:text-white transition-all group"><div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d4af37]/20 transition-colors"><Send size={16} className="text-[#d4af37]" /></div><span>{t.calcBtnTelegram}</span></button>
+                        <button onClick={() => window.open('https://www.facebook.com/share/1Dox5wK2MT/', '_blank')} className="bg-white/5 border border-white/10 w-full py-6 rounded-3xl text-white/40 font-black text-[10px] font-times uppercase tracking-widest flex flex-col items-center justify-center gap-2 hover:text-white transition-all group"><div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center group-hover:bg-[#d4af37]/20 transition-colors"><Facebook size={16} className="text-[#d4af37]" /></div><span>{t.calcBtnFacebook}</span></button>
                       </div>
                    </div>
                 </div>
@@ -1081,6 +1173,7 @@ export default function App({ apiBase }: AppProps) {
                   buildLoginUrl={buildLoginUrl}
                   onBack={() => nextStep('SIMULATION')}
                   envDashboard={(import.meta as any).env?.VITE_DASHBOARD_APP_URL as string | undefined}
+                  onOfferModalVisibilityChange={setIsOfferModalOpen}
                 />
               </div>
             </div>
@@ -1110,25 +1203,35 @@ export default function App({ apiBase }: AppProps) {
         )}
       </main>
 
-      {/* FOOTER - два столбца: Комплаенс | Контакты */}
-      <footer className="bg-[#0a0a0a] text-white pt-3 pb-1.5 border-t border-white/5 relative overflow-hidden">
+      {/* FOOTER - контакты */}
+      <footer className="bg-[#0a0a0a] text-white pt-5 pb-4 border-t border-white/5 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-2 gap-4 md:gap-8 mb-3">
-            <div className="flex flex-col items-start">
-              <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] mb-1">{t.footerCompliance}</h4>
-              <div className="flex flex-col gap-0.5 text-left">
-                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest">{t.footerPrivacy}</a>
-                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest">{t.footerTerms}</a>
-                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest">{t.footerRisk}</a>
-              </div>
+          <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] text-center md:text-left">
+                Официальные каналы
+              </h4>
+              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
+                <Facebook size={14} />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Официальный Facebook</span>
+              </a>
+              <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-start gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
+                <Send size={14} />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Официальный Telegram</span>
+              </a>
             </div>
-            <div className="flex flex-col items-end">
-              <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] mb-1">{(t.footerContacts as string) || t.footerNetwork}</h4>
-              <div className="flex flex-col gap-0.5 text-right">
-                <a href="mailto:info@ipg-invest.ae" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest break-all"><Mail size={8} /> info@ipg-invest.ae</a>
-                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest"><Send size={8} /> Telegram</a>
-                <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[10px] font-mono transition-colors font-bold uppercase tracking-widest"><MessageCircle size={8} /> {t.footerSupport}</a>
-              </div>
+            <div className="space-y-2">
+              <h4 className="text-[10px] font-mono font-black uppercase tracking-widest text-[#d4af37] text-center md:text-right">
+                Контакты менеджера
+              </h4>
+              <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-end gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
+                <Send size={14} />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Telegram</span>
+              </a>
+              <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="flex items-center justify-center md:justify-end gap-2 rounded-xl border border-white/10 bg-white/5 px-3 py-3 text-white/80 hover:text-[#d4af37] hover:border-[#d4af37]/40 hover:bg-white/[0.08] transition-all">
+                <MessageCircle size={14} />
+                <span className="text-[10px] font-mono font-black uppercase tracking-widest">Whatsapp</span>
+              </a>
             </div>
           </div>
           <div className="pt-2 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-2">

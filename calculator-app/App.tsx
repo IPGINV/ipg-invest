@@ -1,12 +1,14 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { MAX_CYCLES, MIN_INVESTMENT, MAX_INVESTMENT, DEFAULT_INVESTMENT, CYCLE_DAYS, API_ENDPOINTS } from './constants';
+import { LegalModal } from '../shared/LegalModal';
+import { Footer } from '../shared/Footer';
 import { calculateInvestment } from './utils/calculatorLogic';
 import { CurrencyInput, RangeSlider, Toggle } from './components/InputGroup';
 import { SummaryCard } from './components/SummaryCard';
 import { GrowthChart } from './components/GrowthChart';
 import { ResultsTable } from './components/ResultsTable';
 import { Button } from './components/Button';
-import { Calculator, ArrowRight, AlertTriangle, Gem, Menu, X, Send, User, MessageCircle, Mail, LayoutDashboard, Building2, Info, Phone, Globe } from 'lucide-react';
+import { Calculator, ArrowRight, AlertTriangle, Gem, Menu, X, Send, User, MessageCircle, Mail, LayoutDashboard, Building2, Info, Phone, Globe, LogOut, Facebook } from 'lucide-react';
 import { locales } from './locales';
 
 const App: React.FC = () => {
@@ -20,6 +22,7 @@ const App: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isContactExpanded, setIsContactExpanded] = useState(false);
   const [isManagerModalOpen, setIsManagerModalOpen] = useState(false);
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
   const [lang, setLang] = useState<'ru' | 'en'>('ru');
   const [currentPrice, setCurrentPrice] = useState(2050.5);
   const [yearlyGrowth, setYearlyGrowth] = useState(8.4);
@@ -135,6 +138,15 @@ const App: React.FC = () => {
     else window.location.href = 'https://calculator.ipg-invest.ae';
   };
 
+  const handleLogout = () => {
+    setIsMenuOpen(false);
+    sessionStorage.removeItem('ipg_token');
+    sessionStorage.removeItem('ipg_refresh_token');
+    sessionStorage.removeItem('ipg_user_id');
+    const loginUrl = isLocalHost ? 'http://localhost:3000/login.html' : 'https://dashboard.ipg-invest.ae/login.html';
+    window.location.href = loginUrl;
+  };
+
   const handleInvest = async () => {
     if (validationError) {
       setIsModalOpen(true);
@@ -149,9 +161,6 @@ const App: React.FC = () => {
       calculatedAt: Date.now()
     };
     
-    // Save to session storage
-    sessionStorage.setItem('calculatorData', JSON.stringify(payload));
-
     // Save to API (non-blocking)
     fetch(`${apiBase}${API_ENDPOINTS.CALCULATE}`, {
       method: 'POST',
@@ -164,9 +173,11 @@ const App: React.FC = () => {
       })
     }).catch(() => {});
 
-    const isLocal = window.location.hostname === 'localhost';
-    const dashboardUrl = isLocal ? 'http://localhost:3000' : 'https://ipg-invest.ae/dashboard';
-    window.location.href = `${dashboardUrl}?calculator=true`;
+    const dashboardBase = isLocalHost ? 'http://localhost:3000' : 'https://dashboard.ipg-invest.ae';
+    const fundingUrl = new URL(`${dashboardBase}/`);
+    fundingUrl.searchParams.set('flow', 'funding');
+    fundingUrl.searchParams.set('amount', String(initialInvestment));
+    window.location.href = fundingUrl.toString();
   };
 
   const MenuBtn = ({ icon, label, onClick, active = false }: { icon: React.ReactNode; label: string; onClick: () => void; active?: boolean }) => (
@@ -351,6 +362,22 @@ const App: React.FC = () => {
               <div className="h-px bg-black/5 my-6" />
               <MenuBtn icon={<Phone size={20}/>} label={t.contactBtn} onClick={() => { setIsMenuOpen(false); setIsManagerModalOpen(true); }} />
               <MenuBtn icon={<Globe size={20}/>} label={t.menuCompanySite} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://imperialpuregold.ae'; }} />
+              {typeof sessionStorage !== 'undefined' && sessionStorage.getItem('ipg_token') && (
+                <MenuBtn icon={<LogOut size={20}/>} label={t.signOut} onClick={handleLogout} />
+              )}
+              <div className="h-px bg-black/5 my-6" />
+              <div className="flex items-center justify-center gap-3">
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
+                  <Facebook size={18} />
+                </a>
+                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
+                  <Send size={18} />
+                </a>
+                <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
+                  <MessageCircle size={18} />
+                </a>
+              </div>
+              <div className="h-px bg-black/5 my-6" />
             </nav>
             <div className="mt-auto pt-8 border-t border-black/5">
               <p className="text-[10px] text-black/20 uppercase font-bold">© 2026 Imperial Pure Gold</p>
@@ -370,47 +397,30 @@ const App: React.FC = () => {
             <div className="flex flex-col gap-4 w-full">
               <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#d4af37]/40 hover:bg-black/[0.08] transition-all group">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#0088cc]/10 text-[#0088cc] group-hover:scale-110 transition-transform"><Send size={24} /></div>
-                <div className="flex flex-col"><span className="text-black font-bold text-lg">Telegram</span><span className="text-black/30 text-[10px] font-bold uppercase">{t.managerTelegramSub}</span></div>
+                <span className="text-black font-bold text-lg">Telegram</span>
               </a>
               <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-green-500/40 hover:bg-black/[0.08] transition-all group">
                 <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-green-500/10 text-green-500 group-hover:scale-110 transition-transform"><MessageCircle size={24} /></div>
-                <div className="flex flex-col"><span className="text-black font-bold text-lg">WhatsApp</span><span className="text-black/30 text-[10px] font-bold uppercase">{t.managerWhatsappSub}</span></div>
+                <span className="text-black font-bold text-lg">WhatsApp</span>
+              </a>
+              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="flex items-center gap-5 p-5 bg-black/5 border border-black/5 rounded-2xl hover:border-[#1877f2]/40 hover:bg-black/[0.08] transition-all group">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[#1877f2]/10 text-[#1877f2] group-hover:scale-110 transition-transform"><Facebook size={24} /></div>
+                <span className="text-black font-bold text-lg">Facebook</span>
               </a>
             </div>
           </div>
         </div>
       )}
 
-      {/* Footer - Infov2 standard (65% smaller) */}
-      <footer className="bg-[#0a0a0a] text-white pt-3 pb-1.5 border-t border-white/5 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-4 relative z-10">
-          <div className="grid grid-cols-2 gap-4 md:gap-8 mb-3">
-            <div className="flex flex-col items-start">
-              <h4 className="text-[7px] font-black uppercase tracking-widest text-[#d4af37] mb-1">{t.footerCompliance}</h4>
-              <div className="flex flex-col gap-0.5 text-left">
-                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">{t.footerPrivacy}</a>
-                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">{t.footerTerms}</a>
-                <a href="#" className="text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold">{t.footerRisk}</a>
-              </div>
-            </div>
-            <div className="flex flex-col items-end">
-              <h4 className="text-[7px] font-black uppercase tracking-widest text-[#d4af37] mb-1">{t.footerNetwork}</h4>
-              <div className="flex flex-col gap-0.5 text-right">
-                <a href="mailto:info@ipg-invest.ae" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold break-all"><Mail size={8} /> info@ipg-invest.ae</a>
-                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold"><Send size={8} /> Telegram</a>
-                <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="flex items-center justify-end gap-1 text-white/30 hover:text-[#d4af37] text-[8px] transition-colors font-bold"><MessageCircle size={8} /> {t.footerSupport}</a>
-              </div>
-            </div>
-          </div>
-          <div className="pt-2 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-2">
-            <div className="flex items-center gap-2">
-              <div className="w-4 h-4 gold-gradient rounded flex items-center justify-center shadow-lg"><Gem className="text-black" size={8} /></div>
-              <span className="font-playfair font-black text-[7px] uppercase tracking-tight text-white/40">Imperial Pure Gold</span>
-            </div>
-            <p className="text-[7px] text-white/20 font-medium tracking-wide">© {new Date().getFullYear()} IPG DMCC. {t.rights.toUpperCase()}</p>
-          </div>
-        </div>
-      </footer>
+      <Footer t={t} onLegalClick={(type) => setLegalModal(type)} />
+      {legalModal && (
+        <LegalModal
+          type={legalModal}
+          lang={lang}
+          onClose={() => setLegalModal(null)}
+          closeLabel={t.legalModalClose}
+        />
+      )}
     </div>
   );
 };

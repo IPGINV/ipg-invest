@@ -1,0 +1,159 @@
+INVESTMENT OFFER
+on the conclusion of an investment agreement
+with confidentiality conditions
+Imperial Pure Gold DMCC, a legal entity registered and existing under the laws of the United Arab Emirates, represented by Managing Director Rajesh Thakurdas Sadhwani, operating under license No. DMCC-944655,
+This document is a investment offer within the meaning of the applicable civil legislation of the UAE.
+Acceptance means full and unconditional acceptance of the terms of this Offer.
+TERMS AND DEFINITIONS
+The Offer is this document, which is publicly available.
+Acceptance is the full and unconditional acceptance of the terms of the Offer by transferring Investments to the Investment Recipient.
+Investor – an individual or legal entity providing investments to the Investment Recipient for the implementation of the goals provided for in this Agreement.
+The recipient of investments is Imperial Pure Gold DMCC, a company that attracts investments to carry out business activities in accordance with the subject of this Agreement.
+Investments are monetary funds contributed by the Investor as targeted financing to obtain profit within the framework of the implementation of the investment project of the Investment Recipient.
+The Golden Share token is a digital bonus asset awarded to the Investor as part of the loyalty program. Each token is the digital equivalent of 1 (one) gram of physical 999.9-purity gold, stored in a certified vault in the UAE.
+The supply cycle is the complete operational period, including the procurement, logistics, and sale of precious metals, at the end of which profit is calculated and distributed.
+LBMA (London Bullion Market Association) is the London-based association of bullion market participants, which sets global quality standards and price benchmarks for gold and silver.
+The Individual Investment Number (IIN) is a unique identifier assigned to the Investor in the Investment Recipient's information system. The IIN corresponds to the Investor's ID in their personal account and is used to record all financial transactions, including investments, dividends, and the accrual and conversion of gold tokens.
+2. SUBJECT OF THE OFFER
+2.1. The Investor provides targeted financing (investments), and the Investment Recipient undertakes to effectively use the funds received to carry out business activities related to the trading of precious metals, with the aim of generating profit and its subsequent distribution between the Parties in accordance with the terms of this Agreement.
+2.2. The implementation of the investment project is carried out on the basis of supply contract No. [Supply contract number], within the framework of which the Investment Recipient purchases and sells precious metals.
+2.3. The Investor provides Investments on the terms of entrepreneurial risk and is aware of the possibility of lack of profit.
+2.3. This Offer is not:
+loan agreement;
+bank deposit;
+collective investment scheme;
+public attraction of deposits;
+offering of securities.
+2.4. The investor does not acquire a share, corporate rights or the right to participate in the management of the company.
+3. ACCEPTANCE PROCEDURE
+3.1. Acceptance of the Offer is recognized as:
+transfer of Investments in USDT (TRC-20) to the specified crypto wallet of the Investment Recipient or
+another method of payment expressly permitted by the Investment Recipient.
+3.2. From the moment of Acceptance:
+the contract is considered concluded;
+The investor is assigned an Individual Taxpayer Identification Number (ITIN);
+The Investor confirms that he/she has read all the terms of the Offer.
+4. PAYMENT PROCEDURE AND INVESTMENT AMOUNT
+4.1. The minimum and maximum amount of Investments is determined by the tariffs published by the Investment Recipient in the Investor’s personal account.
+4.2. All calculations are carried out at the rate of 1 USDT = 1 USD.
+4.3. The investor assumes all risks associated with the use of cryptocurrency.
+4.2. Investments are transferred by the Investor in USDT cryptocurrency (TRC-20 network) to the crypto wallet specified by the Investment Recipient. The Investor's investment obligations are considered fulfilled once the full amount is credited to the Recipient's account. All settlements are made at the exchange rate of 1 USDT = 1 USD.
+4.3. Other methods of making investments may be agreed upon by the Parties in an additional agreement to this Agreement.
+4.4. The fact of crediting funds means that the investor accepts all investment risks.
+5. PROJECT TIMELINE AND IMPLEMENTATION PROCEDURE
+5.1. The investment period is determined by the tariff chosen by the Investor and is specified in the Investor's personal account.
+5.2 The recipient of investments carries out economic activities both by its own and by attracted forces, independently selecting performers and contractors and bearing full responsibility for their actions.
+6. DISTRIBUTION OF PROFITS AND DISTRIBUTION OF PROFIT
+6.1. Formula for calculating the Investor’s income:
+Investor's share in the delivery cycle (%)= (Investor's Investment Amount / Total Delivery Cycle Cost) × 100%
+Investor's Income per Cycle= Net Profit of the Cycle x Investor's Share in the Cycle (%)
+Annual Income of the Investor= Investor Income per Cycle x Number of Cycles per Year
+Investor's total capital= Initial investment amount + Annual income amount.
+6.2. The Investor’s income is generated solely in the presence of net profit based on the results of commercial activities.
+6.3. A negative financial result does not create an obligation for the Recipient to compensate for the Investor’s losses.A.
+7. Golden Shear Bonus Program
+7.1. General Provisions: To encourage long-term cooperation, the Investment Recipient implements a loyalty program under which the Investor receives gold tokens. A gold token is not a security, a digital asset, or a secured obligation.
+7.2. Token accrual conditions:
+Starting bonus:1 token upon conclusion of the first Agreement.
+Loyalty Bonus:1 token for every 4 completed delivery cycles.
+Investment Volume Bonus:
+from 10,000 USD → 1 token
+from 20,000 USD → 3 tokens
+from 50,000 USD → 6 tokens
+Referral program:
+1 token for each attracted Investor.
+1 token for every 5,000 USD invested by the attracted Investor.
+Top 3 Quarter Rating:
+1st place by investment volume → 5 tokens
+2nd place → 3 tokens
+3rd place → 1 token
+Reinvestment Bonus: 3 tokens upon reinvestment of the entire dividend amount for a period of at least 6 months.
+7.3. Token conversion procedure:
+Conversion periods: twice a year (6 months after the start of investment and at the end of the Investment Period).
+Cost calculation: The price of tokens is determined by the official LBMA Gold Price PM rate on the date of the conversion application.
+Methods of obtaining:
+1) Money transfer to the details specified by the Investor;
+2) Transfer of a physical gold bar of the corresponding weight
+Deadlines: Payment or transfer of the bullion shall be made within 10 (ten) banking days from the date of receipt by the Investment Recipient of a written request from the Investor.
+7.4. Reporting: All information about accrued bonuses and the status of the “gold” account is available to the Investor in his personal account.
+7.5Token conversion is carried out solely at the discretion of the Recipient and subject to technical feasibility.
+8. RIGHTS AND RESPONSIBILITIES OF THE PARTIES
+8.1. The Investor undertakes to:
+Make investments in the amount and in the manner stipulated by this offer and its tariff plan, posted in the investor’s personal account.
+Do not claim the amount of invested funds before the end of the Investment Period specified in the Investor’s personal account.
+Promptly notify the Investment Recipient of any changes to their personal data and payment details through the Investor's personal account.
+8.2. The recipient of investments undertakes to:
+Ensure that investments are used strictly for their intended purpose.
+Return the investment amount in full within 3 (three) banking days after the end of the Investment Period.
+Immediately inform the Investor of any circumstances that may negatively affect the results of business activities.
+Regularly and fully accrue and pay dividends, gold tokens, and referral program rewards.
+Maintain transparent records of all transactions and provide the Investor with access to a personal account for monitoring.
+Ensure secure storage of physical gold, which serves as collateral for the tokens, in accordance with DMCC regulations.
+Use the provided investments to achieve the goals, while performing organizational, support and other functions necessary for the implementation of the Project and the achievement of the results of economic activity.
+Bear the costs of adjusting the Project and other documentation (if such adjustments are necessary).
+To bear the costs of managing the process of economic activity.
+Promptly notify the Investor of all changes that affect or may affect economic activity and/or the results of economic activity and jeopardize the fulfillment of obligations under the Agreement.
+Perform other duties imposed by the Agreement
+If payments to the "Investor" are delayed for more than 5 banking days, a penalty of 0.1% per day of the outstanding balance will be charged. Interest is calculated on the outstanding balance.
+8.3. The investor has the right to:
+Receive dividends in the amount and within the timeframes established by this Agreement.
+Exercise control over the activities of the Investment Recipient and/or other economic entities by reviewing the reports in the personal account, without interfering with their operational and business activities.
+Transfer (assign) rights and obligations under the Agreement to third parties only with the written consent of the Investment Recipient and subject to the third parties' acceptance of the terms and obligations under the Agreement. Partial and/or full transfer of rights and obligations is formalized by the relevant agreement.
+8.4. The recipient of investments has the right to:
+Require the Investor to properly fulfill its obligations under the Agreement.
+Independently determine the volumes and directions of use of investments within the scope of the Agreement.
+Transfer (assign) its rights and obligations under the Agreement to third parties only with the written consent of the Investor and subject to the acceptance by third parties of the terms and obligations under the Agreement.
+Not to return investments until the end of supply contract No. [Supply contract number], under which the Investment Recipient purchases and sells precious metals.
+Refunds of funds (investments) specified in the Investor's personal account are processed after the investment agreement expires, upon the Investor's request, to the details specified in the request, within three (3) business days. When submitting a refund request, the following information is required: preferred form of payment, bank account details/crypto wallet/cash, recipient's full name, passport details, and individual investment number.
+Refuse investment without explanation.
+An increase in the amount of Investments received by the Investment Recipient from third parties and/or invested personally, in order to achieve the result of economic activity within the framework of the Agreement, is not grounds for reducing the scope of the Investor’s property rights.
+Use other rights provided by the Agreement.
+8.5. The recipient of investments is obliged to:
+The investment recipient undertakes to pay the Investor income in the amount and within the timeframes stipulated by the relevant tariff specified in the Investor's personal account.
+9. INVESTMENT RETURN PROCEDURE
+9.1. The principal investment amount will be refunded within 3 (three) business days following the end date of the Investment Period, as specified in the Investor's personal account, based on the Investor's written request. The investment amount will be refunded regardless of whether the Project generates profit or achieves a financial result. In the event of insufficient funds on the part of the Investment Recipient, the return of the investment amount will take priority over profit distribution and other payments to project participants.
+9.2. The investor has the right to return his investment at any time before the end date of the investment period without accrual of income, interest, penalties or other payments in the event of the occurrence of one or more of the following circumstances.
+9.2.1. Material breach by the Investment Recipient of the terms of this agreement.
+9.2.2. Failure to fulfill or improper fulfillment of obligations that continues for more than 30 calendar days from the date of receipt of written notice from the Investor.
+9.2.3. Use of investment amounts, in whole or in part, not in accordance with the purposes defined by this agreement and/or the business plan.
+9.3. In the return application, the Investor must indicate: the preferred form of payment (bank transfer, cryptocurrency, cash), full payment details, the recipient's full name, passport details and their Individual Investment Number (IIN).
+9.4. The investor sends a written notice of the request for early return of the investment amount through the personal account.
+9.5. The recipient of investments is obliged to return the investment amount in full within ___ days from the date of receipt of the application for early return of investments.
+9.6. The refund is made by a one-time payment using the details specified by the Investor.
+10. LIABILITY OF THE PARTIES
+10.1 Mutual liability under the Agreement.
+For failure to perform or improper performance of obligations under the Agreement, the Parties shall be liable in accordance with the current legislation of the UAE.
+The penalty under the Agreement shall be paid only on the basis of a justified written request of the Parties.
+Payment of the penalty does not release the Parties from fulfilling their obligations under the Agreement.
+10.2 Investor's Liability
+In the event of a violation of the deadlines for making Investments under this Agreement, the “Investment Recipient” shall have the right to extend the period for fulfilling its obligations in proportion to the period of delay in fulfilling its obligations by the “Investor”.
+10.3 Responsibilities of the Investment Recipient
+The recipient of investments is responsible for any discrepancy between the results of economic activity and the Project.
+In the event of a delay in the payment of dividends or the return of the principal amount of investments for more than 5 (five) banking days, the Recipient of Investments shall pay the Investor a penalty in the amount of 0.1% (zero point one percent) of the amount of debt for each day of delay.
+10.3. Limitation of Liability.
+The Recipient's total liability may not exceed the amount of investments actually received. The Recipient is not liable for lost profits, consequential damages, market risks, or the actions of third parties.
+11. FORCE MAJEURE
+11.1. The Parties shall be released from liability for failure to fulfill obligations if it was a consequence of force majeure circumstances that the Parties could not foresee or prevent.
+11.2. Such circumstances include: natural disasters, military actions, terrorist acts, mass riots, epidemics, pandemics, as well as legislative acts of state bodies that make it impossible to fulfill obligations.
+11.3. The Party referring to force majeure is obliged to notify the other Party in writing of the occurrence of these circumstances within 5 (five) working days.
+11.4. If force majeure circumstances persist for more than 3 (three) months, the Parties shall negotiate to develop a further plan of action or decide to terminate the Agreement.
+12. DISPUTE RESOLUTION AND PRIVACY POLICY
+12.1. All disputes and disagreements will be resolved through negotiation. If agreement is not reached, the dispute will be referred to the DIFC Courts in accordance with UAE law.
+12.2. By mutual agreement of the parties, information about the Investor's personal data, the amount of his investments and the dividends received shall be deemed confidential within the framework of this Agreement.
+12.3 Confidential information is not provided to third parties, with the exception of requests from law enforcement and judicial authorities of the UAE.
+12.4. Any information is considered confidential, including:
+investment conditions;
+the size of Investments and income;
+personal data;
+information about wallets, transactions, business models.
+12.5. The Investor undertakes to:
+not to disclose Confidential Information to third parties;
+use it exclusively within the framework of this Offer.
+12.6. For each violation of confidentiality, the Investor shall pay a fine.
+100,000 (one hundred thousand) US dollars, without limitation on damages.
+11.4. The duty of confidentiality remains in effect for 5 years after the termination of the relationship.
+12.7. The seat of arbitration shall be the DIFC, which means that any dispute arising out of or in connection with this agreement shall be finally settled by arbitration in the DIFC in accordance with the Arbitration Rules.
+12.8 The Parties have agreed to conduct the Arbitration proceedings in English.
+13. FINAL PROVISIONS.
+13.1. The offer is valid indefinitely until its withdrawal.
+13.2. The Investment Recipient has the right to unilaterally amend the terms of the Offer. The new version applies to Investments made after publication.

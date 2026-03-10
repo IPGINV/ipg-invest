@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Header from './components/Header';
-import Footer from './components/Footer';
+import { Footer } from '../../shared/Footer';
 import CompanyView from './components/CompanyView';
 import ProjectView from './components/ProjectView';
+import { LegalModal } from '../../shared/LegalModal';
 import { TEXTS } from './constants';
 import { Language, ViewState } from './types';
 import { motion, AnimatePresence } from 'motion/react';
@@ -25,6 +26,7 @@ function App({ apiBase }: AppProps) {
     return value === 'project' ? 'project' : 'company';
   });
 
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
   const t = TEXTS[lang];
 
   useEffect(() => {
@@ -72,7 +74,15 @@ function App({ apiBase }: AppProps) {
         </AnimatePresence>
       </main>
 
-      <Footer t={t} />
+      <Footer t={t} onLegalClick={(type) => setLegalModal(type)} />
+      {legalModal && (
+        <LegalModal
+          type={legalModal}
+          lang={lang}
+          onClose={() => setLegalModal(null)}
+          closeLabel={t.legalModalClose}
+        />
+      )}
     </div>
   );
 }

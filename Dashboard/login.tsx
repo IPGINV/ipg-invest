@@ -1,4 +1,4 @@
-﻿import './index.css';
+import './index.css';
 import React, { useMemo, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 
@@ -21,6 +21,7 @@ type LoginResult = {
 const LoginApp: React.FC = () => {
   const params = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : new URLSearchParams();
   const urlPrefill = params.get('login') || params.get('email') || '';
+  const amountParam = params.get('amount') || '';
 
   const [login, setLogin] = useState(urlPrefill);
   const [password, setPassword] = useState('');
@@ -38,6 +39,8 @@ const LoginApp: React.FC = () => {
   const nextFlow = useMemo(() => {
     return params.get('next');
   }, [params]);
+
+  const registrationUrl = 'http://localhost:5192/?step%3DREGISTRATION';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -70,6 +73,15 @@ const LoginApp: React.FC = () => {
       setTimeout(() => {
         if (nextFlow === 'kyc') {
           window.location.href = '/?flow=kyc';
+          return;
+        }
+        if (nextFlow === 'funding') {
+          const target = new URL('/', window.location.origin);
+          target.searchParams.set('flow', 'funding');
+          if (amountParam) {
+            target.searchParams.set('amount', amountParam);
+          }
+          window.location.href = target.toString();
           return;
         }
         if (nextFlow === 'profile') {
@@ -129,6 +141,15 @@ const LoginApp: React.FC = () => {
           >
             {loading ? 'Вход...' : 'Войти'}
           </button>
+          <div className="text-center pt-1">
+            <button
+              type="button"
+              onClick={() => window.location.href = registrationUrl}
+              className="text-sm text-white/55 hover:text-[#d4af37] transition-colors"
+            >
+              Нет аккаунта? Регистрация
+            </button>
+          </div>
         </form>
       </div>
     </div>

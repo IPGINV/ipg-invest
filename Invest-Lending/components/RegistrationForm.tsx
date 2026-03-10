@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Mail, Lock, Chrome, Send, ChevronRight, ArrowLeft } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Mail, Lock, Chrome, Send, ChevronRight, ArrowLeft, X } from 'lucide-react';
 
 type Lang = 'RU' | 'EN';
 type Translations = Record<string, string | string[]>;
@@ -13,6 +13,7 @@ interface RegistrationFormProps {
   buildLoginUrl: (flow?: string) => string;
   onBack?: () => void;
   envDashboard?: string;
+  onOfferModalVisibilityChange?: (open: boolean) => void;
 }
 
 export const RegistrationForm: React.FC<RegistrationFormProps> = ({
@@ -23,7 +24,8 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   resolveLocalBase,
   buildLoginUrl,
   onBack,
-  envDashboard
+  envDashboard,
+  onOfferModalVisibilityChange
 }) => {
   const [isLogin, setIsLogin] = useState(false);
   const [email, setEmail] = useState('');
@@ -32,6 +34,31 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [telegramLoading, setTelegramLoading] = useState(false);
+  const [isOfferModalOpen, setIsOfferModalOpen] = useState(false);
+  const [offerText, setOfferText] = useState('');
+  const [offerLoading, setOfferLoading] = useState(false);
+  const [offerError, setOfferError] = useState('');
+  const registrationUrl = 'http://localhost:5192/?step%3DREGISTRATION';
+
+  const offerLines = useMemo(
+    () => offerText.split('\n').map((line) => line.trim()).filter(Boolean),
+    [offerText]
+  );
+
+  const offerSections = useMemo(() => {
+    const isTopLevelNumberedHeading = (line: string) => /^\d+\.\s+\S+/.test(line);
+    const isAllCapsHeading = (line: string) =>
+      /^(?!\d)(?=.*[A-ZА-ЯЁ])[A-ZА-ЯЁ0-9\s"«»\-()]+$/.test(line) && line.length >= 6;
+
+    return offerLines
+      .map((line, index) => {
+        if (!isTopLevelNumberedHeading(line) && !isAllCapsHeading(line)) return null;
+        const id = `offer-section-${index}`;
+        return { id, line };
+      })
+      .filter((item): item is { id: string; line: string } => Boolean(item))
+      .slice(0, 30);
+  }, [offerLines]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -133,6 +160,62 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
     }
   };
 
+  const openOfferModal = async () => {
+    setIsOfferModalOpen(true);
+    setOfferLoading(true);
+    setOfferError('');
+    const offerFile = lang === 'RU' ? 'offer-ru.txt' : 'offer-en.txt';
+    try {
+      const res = await fetch(`/legal/${offerFile}`);
+      if (!res.ok) {
+        throw new Error('Failed to load offer text');
+      }
+      const text = await res.text();
+      setOfferText(text);
+    } catch {
+      setOfferError(
+        lang === 'RU'
+          ? 'Не удалось загрузить текст оферты. Попробуйте позже.'
+          : 'Could not load the offer text. Please try again later.'
+      );
+    } finally {
+      setOfferLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isOfferModalOpen) return;
+    const originalOverflow = document.body.style.overflow;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsOfferModalOpen(false);
+      }
+    };
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOfferModalOpen]);
+
+  useEffect(() => {
+    onOfferModalVisibilityChange?.(isOfferModalOpen);
+  }, [isOfferModalOpen, onOfferModalVisibilityChange]);
+
+  useEffect(() => {
+    return () => {
+      onOfferModalVisibilityChange?.(false);
+    };
+  }, [onOfferModalVisibilityChange]);
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
   return (
     <section className="min-h-[100dvh] w-full flex flex-col md:min-h-0 md:py-8">
       {/* Mobile: full-screen layout with scroll */}
@@ -228,11 +311,21 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                       checked={agreeTerms}
                       onChange={(e) => setAgreeTerms(e.target.checked)}
                     />
-                    <label htmlFor="terms" className="text-[11px] md:text-xs text-white/40 leading-relaxed cursor-pointer select-none">
-                      {(t.regLabelTerms as string)}{' '}
-                      <span className="text-[#d4af37] hover:underline">{(t.regLinkOffer as string)}</span>{' '}
-                      {lang === 'RU' ? 'и условиями обработки данных.' : 'and data processing terms.'}
-                    </label>
+                    <div className="text-[11px] md:text-xs text-white/40 leading-relaxed select-none">
+                      <label htmlFor="terms" className="cursor-pointer">
+                        {(t.regLabelTerms as string)}{' '}
+                      </label>
+                      <button
+                        type="button"
+                        onClick={openOfferModal}
+                        className="text-[#d4af37] hover:underline transition-colors font-semibold"
+                      >
+                        {(t.regLinkOffer as string)}
+                      </button>{' '}
+                      <label htmlFor="terms" className="cursor-pointer">
+                        {lang === 'RU' ? 'и условиями обработки данных.' : 'and data processing terms.'}
+                      </label>
+                    </div>
                   </div>
                 )}
 
@@ -256,6 +349,18 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                   </span>
                   <ChevronRight size={20} />
                 </button>
+
+                {isLogin && (
+                  <div className="text-center pt-1">
+                    <button
+                      type="button"
+                      onClick={() => window.location.href = registrationUrl}
+                      className="text-[12px] md:text-sm text-white/55 hover:text-[#d4af37] transition-colors"
+                    >
+                      {lang === 'RU' ? 'Нет аккаунта? Регистрация' : "Don't have an account? Registration"}
+                    </button>
+                  </div>
+                )}
               </form>
 
               <div className="mt-8">
@@ -284,15 +389,17 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                 </div>
               </div>
 
-              <div className="mt-8 text-center">
-                <button
-                  type="button"
-                  onClick={handleLoginToggle}
-                  className="min-h-[44px] px-4 py-2 text-[11px] md:text-xs font-bold uppercase tracking-widest text-white/40 hover:text-[#d4af37] active:text-[#d4af37] transition-colors touch-manipulation"
-                >
-                  {isLogin ? (lang === 'RU' ? 'Нет аккаунта? Регистрация' : "Don't have an account? Registration") : (lang === 'RU' ? 'Уже есть аккаунт? Войти' : 'Already have an account? Sign in')}
-                </button>
-              </div>
+              {!isLogin && (
+                <div className="mt-8 text-center">
+                  <button
+                    type="button"
+                    onClick={handleLoginToggle}
+                    className="min-h-[44px] px-4 py-2 text-[11px] md:text-xs font-bold uppercase tracking-widest text-white/40 hover:text-[#d4af37] active:text-[#d4af37] transition-colors touch-manipulation"
+                  >
+                    {lang === 'RU' ? 'Уже есть аккаунт? Войти' : 'Already have an account? Sign in'}
+                  </button>
+                </div>
+              )}
             </div>
 
             {!isLogin && (
@@ -306,6 +413,87 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
           </div>
         </div>
       </div>
+      {isOfferModalOpen && (
+        <div className="fixed inset-0 z-[1300] bg-black/75 backdrop-blur-sm p-3 md:p-6 flex items-center justify-center">
+          <div className="w-full max-w-5xl h-[88vh] md:h-[82vh] glass-card border border-[#d4af37]/25 rounded-2xl md:rounded-3xl flex flex-col overflow-hidden shadow-2xl shadow-black/50">
+            <div className="px-4 md:px-6 py-4 border-b border-white/10 flex items-center justify-between gap-4">
+              <div>
+                <h3 className="text-base md:text-lg font-black uppercase tracking-wide text-white">
+                  {lang === 'RU' ? 'Публичная оферта' : 'Investment Offer'}
+                </h3>
+                <p className="text-[11px] md:text-xs text-white/40 mt-1">
+                  {lang === 'RU' ? 'Договор инвестирования и условия конфиденциальности' : 'Investment agreement and confidentiality terms'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsOfferModalOpen(false)}
+                className="min-h-[40px] min-w-[40px] rounded-xl border border-white/15 bg-white/5 text-white/70 hover:text-[#d4af37] hover:border-[#d4af37]/40 transition-colors flex items-center justify-center"
+                aria-label={t.legalModalClose as string}
+              >
+                <X size={18} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto px-4 md:px-7 py-5 md:py-6">
+              {offerLoading ? (
+                <p className="text-white/60 text-sm">{lang === 'RU' ? 'Загрузка...' : 'Loading...'}</p>
+              ) : offerError ? (
+                <p className="text-red-300 text-sm">{offerError}</p>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-[250px_minmax(0,1fr)] gap-4 md:gap-6">
+                  <aside className="md:sticky md:top-0 md:self-start rounded-2xl border border-white/10 bg-black/20 p-3 md:p-4 h-fit">
+                    <p className="text-[10px] font-mono uppercase tracking-widest text-white/40 mb-3">
+                      {lang === 'RU' ? 'Оглавление' : 'Contents'}
+                    </p>
+                    <div className="max-h-[28vh] md:max-h-[58vh] overflow-y-auto space-y-1.5 pr-1">
+                      {offerSections.map((section) => (
+                        <button
+                          key={section.id}
+                          type="button"
+                          onClick={() => scrollToSection(section.id)}
+                          className="w-full text-left text-[11px] md:text-xs text-white/65 hover:text-[#d4af37] transition-colors leading-snug"
+                        >
+                          {section.line}
+                        </button>
+                      ))}
+                    </div>
+                  </aside>
+                  <div className="space-y-3 text-sm md:text-[15px] leading-relaxed text-white/80">
+                    {offerLines.map((line, index) => {
+                      const section = offerSections.find((item) => item.id === `offer-section-${index}`);
+                      const isMajorHeading = section && !/^\d+\.\d+/.test(line);
+                      return (
+                        <p
+                          key={`${index}-${line.slice(0, 16)}`}
+                          id={section?.id}
+                          className={
+                            isMajorHeading
+                              ? 'pt-2 text-[#f4d27a] font-bold uppercase tracking-wide'
+                              : section
+                                ? 'pt-1 text-white font-semibold'
+                                : ''
+                          }
+                        >
+                          {line}
+                        </p>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+            <div className="px-4 md:px-6 py-3 border-t border-white/10 flex justify-end">
+              <button
+                type="button"
+                onClick={() => setIsOfferModalOpen(false)}
+                className="min-h-[42px] px-5 rounded-xl bg-white/5 border border-white/15 text-white/70 hover:text-[#d4af37] hover:border-[#d4af37]/40 text-xs font-bold uppercase tracking-widest transition-colors"
+              >
+                {t.legalModalClose as string}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </section>
   );
 };

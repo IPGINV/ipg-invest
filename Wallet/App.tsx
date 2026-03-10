@@ -1,8 +1,9 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
+import { LegalModal } from '../shared/LegalModal';
 import PriceChart from './components/PriceChart';
-import { ArrowUpRight, ArrowDownLeft, Wallet, Info, ChevronLeft, ChevronRight, Copy, CheckCircle, Send, User, MessageCircle } from 'lucide-react';
+import { ArrowUpRight, ArrowDownLeft, Wallet, Info, ChevronLeft, ChevronRight, Copy, CheckCircle, Send, User, MessageCircle, Facebook } from 'lucide-react';
 import { Language, TimeRange, Transaction, WalletState, ChartDataPoint } from './types';
 import { TRANSLATIONS } from './constants';
 
@@ -63,6 +64,7 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
   const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [withDrawModalOpen, setWithdrawModalOpen] = useState(false);
+  const [legalModal, setLegalModal] = useState<'privacy' | 'terms' | 'risks' | null>(null);
 
   // Market Data
   const [currentPrice, setCurrentPrice] = useState(2780);
@@ -480,6 +482,9 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
               <a href="https://wa.me/971529657370" target="_blank" className="flex items-center justify-center gap-3 w-full py-3 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/20 rounded-xl hover:bg-[#25D366] hover:text-black transition-all">
                 <MessageCircle size={18} /> WhatsApp
               </a>
+              <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" className="flex items-center justify-center gap-3 w-full py-3 bg-[#1877f2]/10 text-[#1877f2] border border-[#1877f2]/20 rounded-xl hover:bg-[#1877f2] hover:text-white transition-all">
+                <Facebook size={18} /> Facebook
+              </a>
             </div>
           </div>
         </div>
@@ -538,7 +543,15 @@ const App: React.FC<AppProps> = ({ apiBase, userId }) => {
         </div>
       )}
 
-      <Footer lang={lang} />
+      <Footer lang={lang} onLegalClick={(type) => setLegalModal(type)} />
+      {legalModal && (
+        <LegalModal
+          type={legalModal}
+          lang={lang}
+          onClose={() => setLegalModal(null)}
+          closeLabel={t.legalModalClose}
+        />
+      )}
     </div>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Gem, Menu, Send, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe } from 'lucide-react';
+import { Gem, Menu, Send, User, X, LayoutDashboard, Building2, Info, Calculator, Phone, Globe, LogOut, MessageCircle, Facebook } from 'lucide-react';
 import { Language, CurrencyRates } from '../types';
 import { TRANSLATIONS } from '../constants';
 
@@ -56,6 +56,14 @@ const Header: React.FC<HeaderProps> = ({
   const openApp = (app: 'dashboard' | 'info' | 'invest' | 'calculator') => {
     setIsMenuOpen(false);
     window.location.href = buildAppUrl(app);
+  };
+
+  const handleLogout = () => {
+    setIsMenuOpen(false);
+    sessionStorage.removeItem('ipg_token');
+    sessionStorage.removeItem('ipg_refresh_token');
+    sessionStorage.removeItem('ipg_user_id');
+    window.location.href = `${buildAppUrl('dashboard')}/login.html`;
   };
 
   const MenuBtn = ({ icon, label, onClick, active = false }: { icon: React.ReactNode; label: string; onClick: () => void; active?: boolean }) => (
@@ -130,6 +138,22 @@ const Header: React.FC<HeaderProps> = ({
               <div className="h-px bg-black/5 my-6" />
               <MenuBtn icon={<Phone size={20}/>} label={t.contactBtn} onClick={() => { setIsMenuOpen(false); onManagerClick(); }} />
               <MenuBtn icon={<Globe size={20}/>} label={t.menuCompanySite} onClick={() => { setIsMenuOpen(false); window.location.href = 'https://imperialpuregold.ae'; }} />
+              {typeof sessionStorage !== 'undefined' && sessionStorage.getItem('ipg_token') && (
+                <MenuBtn icon={<LogOut size={20}/>} label={t.signOut} onClick={handleLogout} />
+              )}
+              <div className="h-px bg-black/5 my-6" />
+              <div className="flex items-center justify-center gap-3">
+                <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
+                  <Facebook size={18} />
+                </a>
+                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
+                  <Send size={18} />
+                </a>
+                <a href="https://api.whatsapp.com/send/?phone=447776177435&text&type=phone_number&app_absent=0" target="_blank" rel="noreferrer" className="w-10 h-10 rounded-xl border border-black/10 bg-black/5 flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
+                  <MessageCircle size={18} />
+                </a>
+              </div>
+              <div className="h-px bg-black/5 my-6" />
             </nav>
             <div className="mt-auto pt-8 border-t border-black/5">
               <p className="text-[10px] text-black/20 uppercase font-bold">© 2026 Imperial Pure Gold</p>

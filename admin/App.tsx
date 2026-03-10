@@ -110,7 +110,7 @@ const Header = ({ title, onOpenMenu }: { title: string; onOpenMenu: () => void }
   );
 };
 
-const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield, onConfirmDocuments, onRejectDocuments, documents = [], pendingDeposits = [], onConfirmDeposit, apiBase }: { 
+const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield, onConfirmDocuments, onRejectDocuments, documents = [], pendingDeposits = [], investorTransactions = [], onConfirmDeposit, apiBase }: { 
   investor: Investor, 
   onClose: () => void, 
   onUpdate: (u: Investor) => Promise<void> | void;
@@ -120,6 +120,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
   onRejectDocuments?: () => Promise<void>;
   documents?: { id: number; doc_type: string; file_url: string; status: string; uploaded_at: string }[];
   pendingDeposits?: Transaction[];
+  investorTransactions?: Transaction[];
   onConfirmDeposit?: (txId: string, amount: number) => Promise<void>;
   apiBase?: string;
 }) => {
@@ -168,6 +169,14 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
   const removeWallet = (index: number) => {
     const updatedWallets = (editedInvestor.cryptoWallets || []).filter((_, i) => i !== index);
     setEditedInvestor({ ...editedInvestor, cryptoWallets: updatedWallets });
+  };
+
+  const transactionLabels: Record<string, string> = {
+    DEPOSIT: 'Депозит',
+    WITHDRAWAL: 'Вывод',
+    PROFIT_ACCRUAL: 'Начисление доходности',
+    GHS_BONUS: 'Бонус GHS',
+    GHS_PURCHASE: 'Покупка токенов'
   };
 
   return (
@@ -343,7 +352,7 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold text-slate-800">TX #{dep.id}</p>
                         <p className="text-xs text-slate-500 mono truncate">{dep.tx_hash || '—'}</p>
-                        <p className="text-xs text-amber-700 mt-1">{dep.date} • {dep.amount} GHS</p>
+                        <p className="text-xs text-amber-700 mt-1">{dep.date} • {dep.amount} {dep.currency}</p>
                       </div>
                       <div className="flex items-center gap-2">
                         <input
@@ -490,6 +499,53 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
                 <div className="col-span-full py-10 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400">
                   <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="mb-2"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
                   <p className="text-xs font-medium">Нет загруженных документов</p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest border-b pb-2">История транзакций</h3>
+            <div className="space-y-3">
+              {investorTransactions.length ? investorTransactions.map((tx) => (
+                <div key={tx.id} className="p-4 bg-slate-50 border border-slate-200 rounded-2xl">
+                  <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <span className="text-sm font-black text-slate-900">
+                          {transactionLabels[tx.rawType || ''] || tx.rawType || tx.type}
+                        </span>
+                        <span className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider ${
+                          tx.status === 'SUCCESS'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : tx.status === 'FAILED'
+                              ? 'bg-red-100 text-red-700'
+                              : 'bg-amber-100 text-amber-700'
+                        }`}>
+                          {tx.status}
+                        </span>
+                      </div>
+                      <p className="text-xs text-slate-500">{tx.date}</p>
+                      {tx.comment ? (
+                        <p className="text-xs text-slate-600 mt-2 break-words">{tx.comment}</p>
+                      ) : null}
+                      {tx.tx_hash ? (
+                        <p className="text-[11px] text-slate-500 mt-2 mono break-all">TX: {tx.tx_hash}</p>
+                      ) : null}
+                    </div>
+                    <div className="text-left md:text-right shrink-0">
+                      <p className={`text-base font-black ${
+                        tx.type === TransactionType.WITHDRAWAL ? 'text-red-600' : 'text-emerald-700'
+                      }`}>
+                        {tx.type === TransactionType.WITHDRAWAL ? '-' : '+'}{tx.amount.toLocaleString()} {tx.currency}
+                      </p>
+                      <p className="text-[10px] text-slate-400 uppercase tracking-widest mt-1">ID: {tx.id}</p>
+                    </div>
+                  </div>
+                </div>
+              )) : (
+                <div className="py-10 border-2 border-dashed border-slate-100 rounded-2xl flex flex-col items-center justify-center text-slate-400">
+                  <p className="text-xs font-medium">Транзакций пока нет</p>
                 </div>
               )}
             </div>
@@ -1013,10 +1069,12 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
             investorName,
             type: typeMap[tx.type] || TransactionType.DEPOSIT,
             amount: Number(tx.amount) || 0,
-            currency: 'USD',
+            currency: tx.type === 'GHS_BONUS' || tx.type === 'GHS_PURCHASE' ? 'GHS' : 'USD',
             date: new Date(tx.created_at).toLocaleString('ru-RU'),
             status: statusMap[tx.status] || 'PENDING',
-            tx_hash: tx.tx_hash || undefined
+            tx_hash: tx.tx_hash || undefined,
+            comment: tx.comment || undefined,
+            rawType: tx.type
           };
         });
 
@@ -1071,6 +1129,14 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
       .then(data => setInvestorDocuments(Array.isArray(data) ? data : []))
       .catch(() => setInvestorDocuments([]));
   }, [selectedInvestor, userIdMap, base]);
+
+  useEffect(() => {
+    if (!selectedInvestor) return;
+    const freshInvestor = investors.find((inv) => inv.id === selectedInvestor.id);
+    if (freshInvestor && freshInvestor !== selectedInvestor) {
+      setSelectedInvestor(freshInvestor);
+    }
+  }, [investors, selectedInvestor]);
 
   // Filtering Logic: поиск + верификация
   const filteredInvestors = useMemo(() => {
@@ -1483,6 +1549,7 @@ function AdminAppContent({ apiBase, onLogout }: AppProps & { onLogout: () => voi
           pendingDeposits={transactions.filter(
             (t) => t.investorId === selectedInvestor.id && t.type === TransactionType.DEPOSIT && t.status === 'PENDING'
           )}
+          investorTransactions={transactions.filter((t) => t.investorId === selectedInvestor.id)}
           apiBase={base}
           onConfirmDeposit={async (txId, amount) => {
             const token = sessionStorage.getItem(ADMIN_TOKEN_KEY);

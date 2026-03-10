@@ -12,6 +12,7 @@ export const TRANSLATIONS = {
     menuProject: "Project",
     menuCalculator: "Profit Calculator",
     menuCompanySite: "Company website",
+    signOut: "Sign Out",
     footerCompliance: "Compliance",
     footerNetwork: "Contacts",
     footerSupport: "VIP Support",
@@ -20,6 +21,7 @@ export const TRANSLATIONS = {
     footerPrivacy: "Privacy",
     footerRisk: "Risks",
     footerTerms: "Terms",
+    legalModalClose: "Close",
     // Wallet Specific
     balanceTitle: "Total GHS Balance",
     goldEquiv: "Gold Equivalent",
@@ -52,6 +54,7 @@ export const TRANSLATIONS = {
     menuProject: "Проект",
     menuCalculator: "Калькулятор доходности",
     menuCompanySite: "Сайт компании",
+    signOut: "Выход",
     footerCompliance: "Комплаенс",
     footerNetwork: "Контакты",
     footerSupport: "VIP Поддержка",
@@ -60,6 +63,7 @@ export const TRANSLATIONS = {
     footerPrivacy: "Конфиденциальность",
     footerRisk: "Риски",
     footerTerms: "Условия",
+    legalModalClose: "Закрыть",
     // Wallet Specific
     balanceTitle: "Баланс GHS",
     goldEquiv: "Золотой Эквивалент",

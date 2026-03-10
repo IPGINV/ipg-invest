@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { DollarSign, Info } from 'lucide-react';
 
 interface NumberInputProps {
@@ -11,14 +11,41 @@ interface NumberInputProps {
 }
 
 export const CurrencyInput: React.FC<NumberInputProps> = ({ label, value, onChange, min, max, error }) => {
+  const [draftValue, setDraftValue] = useState(() => (value === '' || value === null || value === undefined ? '' : String(value)));
+
+  useEffect(() => {
+    const normalized = value === '' || value === null || value === undefined ? '' : String(value);
+    setDraftValue((current) => (current === normalized ? current : normalized));
+  }, [value]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    // Remove non-numeric chars for processing
-    const val = e.target.value.replace(/[^0-9]/g, '');
-    onChange(Number(val));
+    const digitsOnly = e.target.value.replace(/[^0-9]/g, '');
+    setDraftValue(digitsOnly);
+
+    if (!digitsOnly) {
+      return;
+    }
+
+    onChange(Number(digitsOnly));
   };
 
-  // Format display value with commas
-  const displayValue = value ? Number(value).toLocaleString('en-US') : '';
+  const handleBlur = () => {
+    if (!draftValue) {
+      if (typeof min === 'number') {
+        const normalizedMin = String(min);
+        setDraftValue(normalizedMin);
+        onChange(min);
+      }
+      return;
+    }
+
+    let normalizedValue = Number(draftValue);
+    if (typeof min === 'number' && normalizedValue < min) normalizedValue = min;
+    if (typeof max === 'number' && normalizedValue > max) normalizedValue = max;
+
+    setDraftValue(String(normalizedValue));
+    onChange(normalizedValue);
+  };
 
   return (
     <div className="w-full">
@@ -29,10 +56,13 @@ export const CurrencyInput: React.FC<NumberInputProps> = ({ label, value, onChan
         </div>
         <input
           type="text"
-          value={displayValue}
+          inputMode="numeric"
+          autoComplete="off"
+          value={draftValue}
           onChange={handleChange}
+          onBlur={handleBlur}
           className={`w-full bg-white border ${error ? 'border-red-500' : 'border-slate-200'} rounded-2xl py-4 pl-12 pr-5 text-slate-900 placeholder-slate-300 focus:border-[#d4af37]/60 focus:ring-2 focus:ring-[#d4af37]/20 outline-none transition-all font-mono text-lg font-bold`}
-          placeholder="10,000"
+          placeholder="10000"
         />
       </div>
       {error ? (

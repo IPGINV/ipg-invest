@@ -2,9 +2,9 @@ const express = require('express');
 const { query } = require('../db');
 const { asyncHandler, parseLimit } = require('./utils');
 const { authMiddleware, adminMiddleware, requireActiveVerifiedUser } = require('../middleware/auth');
+const { applyDepositBonuses } = require('../services/depositBonuses');
 
 const router = express.Router();
-const FIRST_DEPOSIT_BONUS_RATE = Number(process.env.FIRST_DEPOSIT_BONUS_RATE || 0);
 
 router.get(
   '/',
@@ -49,7 +49,7 @@ router.post(
       [user_id, type, amount, normalizedStatus, comment || null]
     );
 
-    let bonus = null;
+    let bonuses = [];
     if (type === 'DEPOSIT' && normalizedStatus === 'completed') {
       const firstDepositCheck = await query(
         `SELECT id
@@ -63,27 +63,14 @@ router.post(
       );
 
       const isFirstCompletedDeposit = String(firstDepositCheck.rows[0]?.id || '') === String(rows[0].id);
-      if (isFirstCompletedDeposit) {
-        const depositAmount = Number(amount) || 0;
-        const bonusAmount = Number((depositAmount * FIRST_DEPOSIT_BONUS_RATE).toFixed(8));
-        if (bonusAmount > 0) {
-          await query(
-            `INSERT INTO balances (user_id, currency, amount)
-             VALUES ($1, 'GHS', $2)
-             ON CONFLICT (user_id, currency)
-             DO UPDATE SET amount = balances.amount + EXCLUDED.amount`,
-            [user_id, bonusAmount]
-          );
-          await query(
-            `INSERT INTO transactions (user_id, type, amount, status, comment)
-             VALUES ($1, 'GHS_BONUS', $2, 'completed', $3)`,
-            [user_id, bonusAmount, `First deposit bonus (${(FIRST_DEPOSIT_BONUS_RATE * 100).toFixed(2)}%)`]
-          );
-          bonus = { amount: bonusAmount, currency: 'GHS', reason: 'first_deposit' };
-        }
-      }
+      bonuses = await applyDepositBonuses({
+        userId: user_id,
+        depositTxId: rows[0].id,
+        depositAmount: Number(amount) || 0,
+        isFirstCompletedDeposit
+      });
     }
-    res.status(201).json({ ...rows[0], bonus });
+    res.status(201).json({ ...rows[0], bonuses, bonus: bonuses[0] || null });
   })
 );
 
@@ -128,6 +115,14 @@ router.patch(
       [finalAmount, txId]
     );
 
+    await query(
+      `INSERT INTO balances (user_id, currency, amount)
+       VALUES ($1, 'USD', $2)
+       ON CONFLICT (user_id, currency)
+       DO UPDATE SET amount = balances.amount + EXCLUDED.amount`,
+      [tx.user_id, finalAmount]
+    );
+
     const { rows: contractRows } = await query(
       `SELECT id, amount_invested, start_date, end_date
        FROM contracts
@@ -162,31 +157,19 @@ router.patch(
       [tx.user_id]
     );
     const isFirstCompletedDeposit = firstDepositCheck.length && String(firstDepositCheck[0].id) === String(txId);
-    let bonus = null;
-    if (isFirstCompletedDeposit) {
-      const bonusAmount = Number((finalAmount * FIRST_DEPOSIT_BONUS_RATE).toFixed(8));
-      if (bonusAmount > 0) {
-        await query(
-          `INSERT INTO balances (user_id, currency, amount)
-           VALUES ($1, 'GHS', $2)
-           ON CONFLICT (user_id, currency)
-           DO UPDATE SET amount = balances.amount + EXCLUDED.amount`,
-          [tx.user_id, bonusAmount]
-        );
-        await query(
-          `INSERT INTO transactions (user_id, type, amount, status, comment)
-           VALUES ($1, 'GHS_BONUS', $2, 'completed', $3)`,
-          [tx.user_id, bonusAmount, `First deposit bonus (${(FIRST_DEPOSIT_BONUS_RATE * 100).toFixed(2)}%)`]
-        );
-        bonus = { amount: bonusAmount, currency: 'GHS', reason: 'first_deposit' };
-      }
-    }
+    const bonuses = await applyDepositBonuses({
+      userId: tx.user_id,
+      depositTxId: txId,
+      depositAmount: finalAmount,
+      isFirstCompletedDeposit
+    });
 
     res.json({
       success: true,
       transaction_id: txId,
       amount: finalAmount,
-      bonus
+      bonuses,
+      bonus: bonuses[0] || null
     });
   })
 );

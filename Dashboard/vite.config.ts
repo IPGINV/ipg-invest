@@ -34,6 +34,9 @@ export default defineConfig(({ mode }) => {
       resolve: {
         alias: {
           '@': rootDir,
+          'react': path.resolve(__dirname, 'node_modules/react'),
+          'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+          'lucide-react': path.resolve(__dirname, 'node_modules/lucide-react'),
         }
       },
       build: {

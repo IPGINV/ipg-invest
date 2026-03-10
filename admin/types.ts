@@ -61,6 +61,8 @@ export interface Transaction {
   date: string;
   status: 'SUCCESS' | 'PENDING' | 'FAILED';
   tx_hash?: string;
+  comment?: string;
+  rawType?: string;
 }
 
 export interface PaymentIntent {

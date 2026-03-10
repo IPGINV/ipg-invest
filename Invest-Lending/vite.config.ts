@@ -4,39 +4,43 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ mode }) => {
-    const env = loadEnv(mode, '.', '');
-    return {
-      server: {
-        port: Number(env.VITE_PORT) || 5182,
-        host: '0.0.0.0',
-      },
-      plugins: [tailwindcss(), react()],
-      define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
-        'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
+  const env = loadEnv(mode, '.', '');
+  return {
+    server: {
+      port: Number(env.VITE_PORT) || 5182,
+      host: '0.0.0.0',
+    },
+    plugins: [tailwindcss(), react()],
+    define: {
+      'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
+      'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
+    },
+    resolve: {
+      alias: {
+        '@': path.resolve(__dirname, '.'),
+        'react': path.resolve(__dirname, 'node_modules/react'),
+        'react-dom': path.resolve(__dirname, 'node_modules/react-dom'),
+        'react/jsx-runtime': path.resolve(__dirname, 'node_modules/react/jsx-runtime.js'),
+        'lucide-react': path.resolve(__dirname, 'node_modules/lucide-react'),
+      }
+    },
+    build: {
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'vendor': ['react', 'react-dom'],
+            'icons': ['lucide-react']
+          }
         }
       },
-      build: {
-        rollupOptions: {
-          output: {
-            manualChunks: {
-              'vendor': ['react', 'react-dom'],
-              'icons': ['lucide-react']
-            }
-          }
-        },
-        target: 'es2015',
-        minify: 'terser',
-        terserOptions: {
-          compress: {
-            drop_console: false,
-            drop_debugger: true
-          }
+      target: 'es2015',
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: false,
+          drop_debugger: true
         }
       }
-    };
+    }
+  };
 });
