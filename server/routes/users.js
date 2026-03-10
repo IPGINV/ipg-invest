@@ -448,10 +448,10 @@ router.post(
       );
       await query(
         `INSERT INTO user_verifications (user_id, type, status, metadata, verified_at)
-         VALUES ($1, 'documents', 'uploaded', jsonb_build_object('doc_type', $2), NULL)
+         VALUES ($1, 'documents', 'uploaded', jsonb_build_object('doc_type', $2::text), NULL)
          ON CONFLICT (user_id, type) DO UPDATE
          SET status = 'uploaded',
-             metadata = jsonb_build_object('doc_type', $2),
+             metadata = jsonb_build_object('doc_type', $2::text),
              updated_at = NOW()`,
         [req.params.id, resolvedDocType]
       );
