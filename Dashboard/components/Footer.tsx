@@ -36,7 +36,7 @@ const Footer: React.FC<FooterProps> = ({ lang }) => {
             <ul className="space-y-1.5 text-[6px] md:text-[8px] font-bold uppercase tracking-widest text-white/50">
               <li className="flex items-center gap-1 hover:text-white transition-colors cursor-pointer">
                 <a href="mailto:info@ipg-invest.ae" className="flex items-center gap-1">
-                  <i className="fa-solid fa-envelope text-[10px]"></i> <span className="break-all">info@ipg-invest.ae</span>
+                  <i className="fa-solid fa-envelope text-[10px]"></i> <span className="break-all">INFO@IPG-INVEST.AE</span>
                 </a>
               </li>
             </ul>

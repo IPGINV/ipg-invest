@@ -52,7 +52,7 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
             </h4>
             <div className="flex flex-col items-start text-left gap-4 sm:hidden">
               <a href="mailto:info@ipg-invest.ae" className="flex items-center justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
-                <Mail size={14} className="text-[#d4af37]/50 flex-shrink-0" /> info@ipg-invest.ae
+                <Mail size={14} className="text-[#d4af37]/50 flex-shrink-0" /> INFO@IPG-INVEST.AE
               </a>
               <a href="mailto:info@imperialpuregold.ae" className="flex items-center justify-start gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                 <Mail size={14} className="text-[#d4af37]/50 flex-shrink-0" /> info@imperialpuregold.ae
@@ -64,7 +64,7 @@ export const Footer: React.FC<FooterProps> = ({ t, onLegalClick }) => {
             <div className="hidden sm:grid sm:grid-cols-2 gap-x-8 gap-y-5">
               <div className="space-y-4">
                 <a href="mailto:info@ipg-invest.ae" className="flex items-center gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
-                  <Mail size={14} className="text-[#d4af37]/50" /> info@ipg-invest.ae
+                  <Mail size={14} className="text-[#d4af37]/50" /> INFO@IPG-INVEST.AE
                 </a>
                 <a href="mailto:info@imperialpuregold.ae" className="flex items-center gap-3 text-white/40 hover:text-[#d4af37] text-[11px] transition-colors font-bold uppercase tracking-tight">
                   <Mail size={14} className="text-[#d4af37]/50" /> info@imperialpuregold.ae
