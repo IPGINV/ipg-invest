@@ -16,8 +16,10 @@ const isAllowedWebhookIp = (ip) => {
   return allowlist.includes(normalized);
 };
 
-const isVerifiedUser = (user) => Boolean(user.email_verified || (user.telegram_id && String(user.telegram_id).trim()));
-const hasSubmittedKyc = (user) => ['kyc_submitted', 'documents_uploaded', 'contact_binding', 'completed'].includes(String(user.onboarding_step || ''));
+const isStrictlyVerified = (user) => {
+  const step = String(user.onboarding_step || '').trim().toLowerCase();
+  return Boolean(user.email_verified) && step === 'completed';
+};
 
 router.post(
   '/precheck',
@@ -28,7 +30,7 @@ router.post(
     }
     const userId = req.user.id;
     const { rows } = await query(
-      `SELECT id, email_verified, telegram_id, onboarding_step
+      `SELECT id, email_verified, onboarding_step
        FROM users
        WHERE id = $1
        LIMIT 1`,
@@ -37,16 +39,11 @@ router.post(
     if (!rows.length) return res.status(404).json({ error: 'User not found' });
     const user = rows[0];
 
-    const verified = isVerifiedUser(user);
+    const verified = isStrictlyVerified(user);
     if (verified) {
       return res.json({ nextStep: 'gateway_direct', verified: true });
     }
-
-    if (!hasSubmittedKyc(user)) {
-      return res.json({ nextStep: 'kyc_required', verified: false });
-    }
-
-    return res.json({ nextStep: 'gateway_direct', verified: false, kycSubmitted: true });
+    return res.json({ nextStep: 'kyc_required', verified: false, strictVerificationRequired: true });
   })
 );
 
@@ -66,14 +63,14 @@ router.post(
     }
 
     const { rows: users } = await query(
-      `SELECT id, email_verified, telegram_id, onboarding_step
+      `SELECT id, email_verified, onboarding_step
        FROM users
        WHERE id = $1
        LIMIT 1`,
       [userId]
     );
     if (!users.length) return res.status(404).json({ error: 'User not found' });
-    if (!isVerifiedUser(users[0]) && !hasSubmittedKyc(users[0])) {
+    if (!isStrictlyVerified(users[0])) {
       return res.status(403).json({ error: 'VerificationRequired', nextStep: 'kyc_required' });
     }
 

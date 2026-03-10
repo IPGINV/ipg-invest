@@ -12,6 +12,8 @@ if (!token) {
 const bot = new TelegramBot(token, { polling: true });
 
 let cachedBotUsername = process.env.TELEGRAM_BOT_USERNAME || 'IPGIVESTREG_bot';
+const pendingContactRegistrations = new Map();
+const PENDING_CONTACT_TTL_MS = 15 * 60 * 1000;
 
 const normalizeDashboardLoginUrl = (rawUrl) => {
   const fallback = 'https://dashboard.ipg-invest.ae/login.html';
@@ -47,6 +49,100 @@ const generateTempPassword = () => {
     core += alphabet[Math.floor(Math.random() * alphabet.length)];
   }
   return `${core}!`;
+};
+
+const upsertTelegramRegisteredUser = async ({
+  telegramId,
+  telegramUsername,
+  telegramFirstName,
+  chatId,
+  phoneNumber
+}) => {
+  const loginAlias = `@${telegramUsername}`;
+  const tempPassword = generateTempPassword();
+  const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+  const byTelegramId = await query(
+    `SELECT id
+     FROM users
+     WHERE telegram_id = $1
+     LIMIT 1`,
+    [String(telegramId)]
+  );
+
+  let userId;
+  if (byTelegramId.rows.length) {
+    userId = byTelegramId.rows[0].id;
+    await query(
+      `UPDATE users
+       SET telegram_username = $1,
+           telegram_chat_id = $2,
+           phone = COALESCE($3, phone),
+           password_hash = $4,
+           password_plain = $5,
+           status = 'active',
+           onboarding_step = CASE
+             WHEN onboarding_step IS NULL OR onboarding_step = '' THEN 'registered'
+             ELSE onboarding_step
+           END,
+           updated_at = NOW()
+       WHERE id = $6`,
+      [telegramUsername, String(chatId), phoneNumber || null, passwordHash, tempPassword, userId]
+    );
+  } else {
+    const byTelegramUsername = await query(
+      `SELECT id
+       FROM users
+       WHERE telegram_username = $1
+       LIMIT 1`,
+      [telegramUsername]
+    );
+    if (byTelegramUsername.rows.length) {
+      return { conflict: true };
+    }
+
+    const fullName = telegramFirstName || `Telegram User ${telegramId}`;
+    const syntheticEmail = `tg_${telegramId}@telegram.ipg.local`;
+    const created = await query(
+      `INSERT INTO users (
+        email, password_hash, password_plain, full_name, investor_id,
+        telegram_id, telegram_username, telegram_chat_id, phone,
+        email_verified, status, registration_method, registration_date, onboarding_step
+      ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, false, 'active', 'telegram', NOW(), 'registered')
+      RETURNING id`,
+      [
+        syntheticEmail,
+        passwordHash,
+        tempPassword,
+        fullName,
+        generateInvestorId(),
+        String(telegramId),
+        telegramUsername,
+        String(chatId),
+        phoneNumber || null
+      ]
+    );
+    userId = created.rows[0].id;
+  }
+
+  try {
+    await query(
+      `INSERT INTO user_verifications (user_id, type, status, verified_at, metadata)
+       VALUES ($1, 'telegram', 'verified', NOW(), $2::jsonb)
+       ON CONFLICT (user_id, type) DO UPDATE
+       SET status = 'verified',
+           verified_at = NOW(),
+           metadata = COALESCE(EXCLUDED.metadata, user_verifications.metadata),
+           updated_at = NOW()`,
+      [userId, JSON.stringify({ source: 'telegram-register', telegram_id: String(telegramId), phone: phoneNumber || null })]
+    );
+  } catch (error) {
+    if (error?.code !== '42P01') {
+      console.warn('[telegram-bot] verification upsert failed:', error?.message || error);
+    }
+  }
+
+  return { loginAlias, tempPassword };
 };
 
 const resolveBotUsername = async () => {
@@ -125,104 +221,23 @@ bot.onText(/\/start(?:\s+(.+))?/, async (msg, match) => {
       );
       return;
     }
-
-    const loginAlias = `@${telegramUsername}`;
-    const tempPassword = generateTempPassword();
-    const passwordHash = await bcrypt.hash(tempPassword, 10);
-
-    const byTelegramId = await query(
-      `SELECT id
-       FROM users
-       WHERE telegram_id = $1
-       LIMIT 1`,
-      [String(telegramId)]
-    );
-
-    let userId;
-    if (byTelegramId.rows.length) {
-      userId = byTelegramId.rows[0].id;
-      await query(
-        `UPDATE users
-         SET telegram_username = $1,
-             telegram_chat_id = $2,
-             password_hash = $3,
-             password_plain = $4,
-             status = 'active',
-             onboarding_step = CASE
-               WHEN onboarding_step IS NULL OR onboarding_step = '' THEN 'registered'
-               ELSE onboarding_step
-             END,
-             updated_at = NOW()
-         WHERE id = $5`,
-        [telegramUsername, String(chatId), passwordHash, tempPassword, userId]
-      );
-    } else {
-      const byTelegramUsername = await query(
-        `SELECT id
-         FROM users
-         WHERE telegram_username = $1
-         LIMIT 1`,
-        [telegramUsername]
-      );
-      if (byTelegramUsername.rows.length) {
-        await bot.sendMessage(
-          chatId,
-          'Этот username уже связан с другим аккаунтом. Обратитесь в поддержку.'
-        );
-        return;
-      }
-
-      const fullName = telegramFirstName || `Telegram User ${telegramId}`;
-      const syntheticEmail = `tg_${telegramId}@telegram.ipg.local`;
-      const created = await query(
-        `INSERT INTO users (
-          email, password_hash, password_plain, full_name, investor_id,
-          telegram_id, telegram_username, telegram_chat_id,
-          email_verified, status, registration_method, registration_date, onboarding_step
-        ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, false, 'active', 'telegram', NOW(), 'registered')
-        RETURNING id`,
-        [
-          syntheticEmail,
-          passwordHash,
-          tempPassword,
-          fullName,
-          generateInvestorId(),
-          String(telegramId),
-          telegramUsername,
-          String(chatId)
-        ]
-      );
-      userId = created.rows[0].id;
-    }
-
-    try {
-      await query(
-        `INSERT INTO user_verifications (user_id, type, status, verified_at, metadata)
-         VALUES ($1, 'telegram', 'verified', NOW(), $2::jsonb)
-         ON CONFLICT (user_id, type) DO UPDATE
-         SET status = 'verified',
-             verified_at = NOW(),
-             metadata = COALESCE(EXCLUDED.metadata, user_verifications.metadata),
-             updated_at = NOW()`,
-        [userId, JSON.stringify({ source: 'telegram-register', telegram_id: String(telegramId) })]
-      );
-    } catch (error) {
-      if (error?.code !== '42P01') {
-        console.warn('[telegram-bot] verification upsert failed:', error?.message || error);
-      }
-    }
-
-    const loginUrlObj = new URL(getDashboardUrl());
-    loginUrlObj.searchParams.set('login', loginAlias);
-    loginUrlObj.searchParams.set('next', 'profile');
-    const loginUrl = loginUrlObj.toString();
-    await sendRegistrationWelcome({
-      chatId,
-      firstName: telegramFirstName,
-      loginAlias,
-      tempPassword,
-      loginUrl
+    pendingContactRegistrations.set(String(chatId), {
+      telegramId: String(telegramId),
+      telegramUsername,
+      telegramFirstName,
+      createdAt: Date.now()
     });
+    await bot.sendMessage(
+      chatId,
+      'Для завершения регистрации поделитесь контактом (телефоном) через кнопку ниже.',
+      {
+        reply_markup: {
+          keyboard: [[{ text: 'Поделиться контактом', request_contact: true }]],
+          one_time_keyboard: true,
+          resize_keyboard: true
+        }
+      }
+    );
     return;
   }
 
@@ -324,9 +339,73 @@ bot.onText(/\/help/, async (msg) => {
   );
 });
 
-bot.on('message', (msg) => {
+bot.on('message', async (msg) => {
+  if (msg.contact) {
+    const chatId = msg.chat.id;
+    const key = String(chatId);
+    const pending = pendingContactRegistrations.get(key);
+    if (!pending) {
+      return;
+    }
+    if (Date.now() - Number(pending.createdAt || 0) > PENDING_CONTACT_TTL_MS) {
+      pendingContactRegistrations.delete(key);
+      await bot.sendMessage(chatId, 'Сессия регистрации истекла. Нажмите ссылку регистрации снова.');
+      return;
+    }
+
+    const telegramId = String(msg.from?.id || '');
+    if (!telegramId || telegramId !== String(pending.telegramId)) {
+      await bot.sendMessage(chatId, 'Контакт должен быть отправлен из того же Telegram аккаунта.');
+      return;
+    }
+
+    const contactUserId = String(msg.contact.user_id || '');
+    if (contactUserId && contactUserId !== telegramId) {
+      await bot.sendMessage(chatId, 'Пожалуйста, отправьте ваш собственный контакт.');
+      return;
+    }
+
+    const phoneNumber = String(msg.contact.phone_number || '').trim();
+    if (!phoneNumber) {
+      await bot.sendMessage(chatId, 'Не удалось получить телефон. Повторите попытку.');
+      return;
+    }
+
+    const result = await upsertTelegramRegisteredUser({
+      telegramId,
+      telegramUsername: String(pending.telegramUsername || ''),
+      telegramFirstName: String(pending.telegramFirstName || ''),
+      chatId,
+      phoneNumber
+    });
+    pendingContactRegistrations.delete(key);
+
+    if (result?.conflict) {
+      await bot.sendMessage(chatId, 'Этот username уже связан с другим аккаунтом. Обратитесь в поддержку.');
+      return;
+    }
+
+    const loginUrlObj = new URL(getDashboardUrl());
+    loginUrlObj.searchParams.set('login', String(result.loginAlias || ''));
+    loginUrlObj.searchParams.set('next', 'profile');
+    const loginUrl = loginUrlObj.toString();
+    await sendRegistrationWelcome({
+      chatId,
+      firstName: String(pending.telegramFirstName || ''),
+      loginAlias: String(result.loginAlias || ''),
+      tempPassword: String(result.tempPassword || ''),
+      loginUrl
+    });
+    await bot.sendMessage(chatId, 'Регистрация завершена.', {
+      reply_markup: {
+        remove_keyboard: true
+      }
+    });
+    return;
+  }
+
   if (!msg.text || msg.text.startsWith('/')) return;
-  bot.sendMessage(
+  await bot.sendMessage(
     msg.chat.id,
     'Use the website button to continue. The bot will send the required link automatically.'
   );

@@ -572,6 +572,14 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     [refreshAccessToken]
   );
 
+  const fileToDataUrl = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(new Error('Failed to read document file'));
+      reader.readAsDataURL(file);
+    });
+
   const openPaymentIntent = async (source: 'deposit' | 'activate', amount?: number) => {
     const base = resolveBase();
     const parsedAmount = Number(amount);
@@ -670,13 +678,14 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
     name: string;
     email: string;
     phone: string;
-    documentFileName: string;
+    documentFile: File | null;
   }) => {
     if (!user) return;
     setKycLoading(true);
+    setKycPageError('');
     try {
       const base = resolveBase();
-      await fetch(`${base}/users/${user.id}/kyc`, {
+      const kycRes = await fetch(`${base}/users/${user.id}/kyc`, {
         method: 'POST',
         headers: authHeaders(),
         body: JSON.stringify({
@@ -686,14 +695,33 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
           phone: payload.phone
         })
       });
-      if (payload.documentFileName) {
-        await fetch(`${base}/users/${user.id}/documents`, {
+      const kycBody = await kycRes.json().catch(() => ({}));
+      if (!kycRes.ok) {
+        throw new Error(kycBody.error || 'Failed to save KYC profile');
+      }
+
+      if (payload.documentFile) {
+        const fileData = await fileToDataUrl(payload.documentFile);
+        const docRes = await fetch(`${base}/users/${user.id}/documents`, {
           method: 'POST',
           headers: authHeaders(),
-          body: JSON.stringify({ file_url: payload.documentFileName, doc_type: 'passport' })
+          body: JSON.stringify({
+            file_name: payload.documentFile.name,
+            file_data: fileData,
+            doc_type: 'passport'
+          })
         });
+        const docBody = await docRes.json().catch(() => ({}));
+        if (!docRes.ok) {
+          throw new Error(docBody.error || 'Failed to upload document');
+        }
       }
       await fetchUserDataRef.current?.();
+      setKycPageError(
+        lang === 'ru'
+          ? 'Анкета отправлена. Завершение верификации выполняется после проверки документов администратором.'
+          : 'KYC data submitted. Verification is completed after admin reviews your documents.'
+      );
     } finally {
       setKycLoading(false);
     }
@@ -880,7 +908,7 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
               <p className="text-sm">
                 {lang === 'ru'
                   ? 'Ð—Ð°Ð²ÐµÑ€ÑˆÐ¸Ñ‚Ðµ Ð¿Ð¾Ð´Ñ‚Ð²ÐµÑ€Ð¶Ð´ÐµÐ½Ð¸Ðµ email/telegram Ð¸ Ð·Ð°Ð³Ñ€ÑƒÐ·Ð¸Ñ‚Ðµ Ð´Ð¾ÐºÑƒÐ¼ÐµÐ½Ñ‚Ñ‹.'
-                  : 'Complete email/telegram verification and upload documents.'}
+                  : 'Complete the KYC form, upload a document, and wait for admin verification.'}
               </p>
             </div>
           )}
@@ -924,9 +952,6 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
               loading={kycLoading}
               verificationError={kycPageError}
               completeKyc={completeKycFormOnly}
-              onComplete={handleKycPageComplete}
-              onEmailResend={resendEmailVerification}
-              onTelegramOpen={openTelegramBinding}
             />
           )}
 

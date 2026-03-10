@@ -463,7 +463,12 @@ const UserProfileModal = ({ investor, onClose, onUpdate, onDelete, onAccrueYield
             <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {(documents?.length ? documents : editedInvestor.documents || []).map((doc: any) => {
                 const fileUrl = doc.file_url || '';
-                const previewUrl = !fileUrl ? '' : fileUrl.startsWith('http') || fileUrl.startsWith('data:') ? fileUrl : (fileUrl.startsWith('/') ? fileUrl : '/' + fileUrl);
+                const normalized = !fileUrl ? '' : fileUrl.startsWith('/') ? fileUrl : `/${fileUrl}`;
+                const previewUrl = !fileUrl
+                  ? ''
+                  : fileUrl.startsWith('http') || fileUrl.startsWith('data:')
+                    ? fileUrl
+                    : `${String(apiBase || '').replace(/\/$/, '')}${normalized}`;
                 const d = typeof doc.id === 'number' ? { id: String(doc.id), name: doc.doc_type || doc.file_url?.split('/').pop() || 'Документ', type: (doc.doc_type || 'PASSPORT').toUpperCase(), uploadDate: doc.uploaded_at ? new Date(doc.uploaded_at).toLocaleDateString('ru-RU') : '', previewUrl } : doc;
                 return (
                 <div 

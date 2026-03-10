@@ -1,17 +1,40 @@
 const express = require('express');
 const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
+const fs = require('fs');
+const path = require('path');
 const { query } = require('../db');
 const { asyncHandler, parseLimit } = require('./utils');
 const { withInvestorDisplayId } = require('../services/investorDisplayId');
 const { adminMiddleware, ownerOrAdminMiddleware } = require('../middleware/auth');
 const { calculateUserYield } = require('../services/yieldCalculator');
 const router = express.Router();
+const uploadRoot = process.env.UPLOAD_DIR || path.join(__dirname, '..', 'uploads');
+const allowedDocMime = new Set([
+  'image/jpeg',
+  'image/png',
+  'image/webp',
+  'application/pdf'
+]);
 
 const generateInvestorId = () => {
   const random = crypto.randomBytes(4).toString('hex').toUpperCase();
   return `INV-${random}`;
 };
+
+const ensureDir = async (targetDir) => {
+  await fs.promises.mkdir(targetDir, { recursive: true });
+};
+
+const extFromMime = (mime) => {
+  if (mime === 'image/jpeg') return '.jpg';
+  if (mime === 'image/png') return '.png';
+  if (mime === 'image/webp') return '.webp';
+  if (mime === 'application/pdf') return '.pdf';
+  return '';
+};
+
+const safeBasename = (value) => String(value || '').replace(/[^a-zA-Z0-9._-]/g, '_');
 
 router.get(
   '/',
@@ -256,16 +279,22 @@ router.post(
     }
 
     const { surname, name, email, phone } = req.body || {};
+    const surnameTrimmed = String(surname || '').trim();
+    const nameTrimmed = String(name || '').trim();
+    const phoneTrimmed = String(phone || '').trim();
+    if (!surnameTrimmed || !nameTrimmed || !phoneTrimmed) {
+      return res.status(400).json({ error: 'surname, name and phone are required' });
+    }
     const fullName = [surname, name].filter(Boolean).join(' ').trim();
     const { rows } = await query(
       `UPDATE users
        SET full_name = CASE WHEN $1 <> '' THEN $1 ELSE full_name END,
            email = COALESCE($2, email),
            phone = COALESCE($3, phone),
-           onboarding_step = 'kyc_submitted'
+           onboarding_step = 'kyc_profile_completed'
        WHERE id = $4
        RETURNING id, full_name, email, phone, onboarding_step`,
-      [fullName, email || null, phone || null, req.params.id]
+      [fullName, email || null, phoneTrimmed, req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'User not found' });
     res.json({ success: true, user: rows[0] });
@@ -290,8 +319,15 @@ router.post(
   adminMiddleware,
   asyncHandler(async (req, res) => {
     const userId = req.params.id;
-    const { rows: userRows } = await query(`SELECT id, email_verified FROM users WHERE id = $1`, [userId]);
+    const { rows: userRows } = await query(`SELECT id, email_verified, full_name, phone, passport_file_path FROM users WHERE id = $1`, [userId]);
     if (!userRows.length) return res.status(404).json({ error: 'User not found' });
+    const profileCompleted =
+      Boolean(String(userRows[0].full_name || '').trim()) &&
+      Boolean(String(userRows[0].phone || '').trim()) &&
+      Boolean(String(userRows[0].passport_file_path || '').trim());
+    if (!profileCompleted) {
+      return res.status(400).json({ error: 'Cannot verify user: profile fields and document must be completed first.' });
+    }
     const { rows: docRows } = await query(
       `SELECT id FROM user_documents WHERE user_id = $1 LIMIT 1`,
       [userId]
@@ -353,21 +389,54 @@ router.post(
       return res.status(403).json({ error: 'Forbidden' });
     }
 
-    const { file_url, doc_type } = req.body || {};
-    if (!file_url) {
-      return res.status(400).json({ error: 'file_url is required' });
+    const { file_url, doc_type, file_name, file_data } = req.body || {};
+    let resolvedFileUrl = String(file_url || '').trim();
+    let resolvedDocType = String(doc_type || 'passport').trim() || 'passport';
+
+    if (!resolvedFileUrl) {
+      if (!file_data || typeof file_data !== 'string') {
+        return res.status(400).json({ error: 'file_url or file_data is required' });
+      }
+      const m = file_data.match(/^data:([^;]+);base64,(.+)$/);
+      if (!m) {
+        return res.status(400).json({ error: 'file_data must be a valid base64 data URL' });
+      }
+      const mime = String(m[1] || '').toLowerCase();
+      if (!allowedDocMime.has(mime)) {
+        return res.status(400).json({ error: 'Unsupported document format. Use JPG, PNG, WEBP or PDF.' });
+      }
+      const base64Part = m[2] || '';
+      const buffer = Buffer.from(base64Part, 'base64');
+      if (!buffer.length) {
+        return res.status(400).json({ error: 'Empty document payload' });
+      }
+      if (buffer.length > 10 * 1024 * 1024) {
+        return res.status(400).json({ error: 'Document is too large. Maximum size is 10MB.' });
+      }
+
+      const userFolder = path.join(uploadRoot, 'kyc', `user-${req.params.id}`);
+      await ensureDir(userFolder);
+      const fromNameExt = path.extname(safeBasename(file_name || '')).toLowerCase();
+      const ext = fromNameExt || extFromMime(mime) || '.bin';
+      const fileName = `${Date.now()}_${crypto.randomBytes(4).toString('hex')}${ext}`;
+      const absolutePath = path.join(userFolder, fileName);
+      await fs.promises.writeFile(absolutePath, buffer);
+      resolvedFileUrl = `/uploads/kyc/user-${req.params.id}/${fileName}`;
+      if (!doc_type && mime === 'application/pdf') {
+        resolvedDocType = 'passport_pdf';
+      }
     }
 
     const { rows } = await query(
       `UPDATE users
        SET passport_file_path = $1,
            onboarding_step = CASE
-             WHEN onboarding_step IN ('registered', 'email_verified') THEN 'documents_uploaded'
+             WHEN onboarding_step IN ('registered', 'email_verified', 'kyc_submitted', 'kyc_profile_completed') THEN 'documents_uploaded'
              ELSE onboarding_step
            END
        WHERE id = $2
        RETURNING id, passport_file_path, onboarding_step`,
-      [file_url, req.params.id]
+      [resolvedFileUrl, req.params.id]
     );
     if (!rows.length) return res.status(404).json({ error: 'User not found' });
 
@@ -375,7 +444,7 @@ router.post(
       await query(
         `INSERT INTO user_documents (user_id, doc_type, file_url, status, uploaded_at)
          VALUES ($1, $2, $3, 'uploaded', NOW())`,
-        [req.params.id, doc_type || 'passport', file_url]
+        [req.params.id, resolvedDocType, resolvedFileUrl]
       );
       await query(
         `INSERT INTO user_verifications (user_id, type, status, metadata, verified_at)
@@ -384,7 +453,7 @@ router.post(
          SET status = 'uploaded',
              metadata = jsonb_build_object('doc_type', $2),
              updated_at = NOW()`,
-        [req.params.id, doc_type || 'passport']
+        [req.params.id, resolvedDocType]
       );
     } catch (error) {
       if (error?.code !== '42P01') {
