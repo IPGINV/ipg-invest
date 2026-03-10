@@ -207,10 +207,10 @@ const Header: React.FC<HeaderProps> = ({ t, lang, setLang, setView, currentView 
               </button>
 
               <div className="flex items-center justify-center gap-3">
-                <a href="https://t.me/GoldenShareClub" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
+                <a href="https://t.me/IPG_Mark" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-[#0088cc] hover:border-[#0088cc]/40 hover:bg-[#0088cc]/10 transition-all" aria-label="Telegram">
                   <Send size={18} />
                 </a>
-                <a href="https://wa.me/971529657370" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
+                <a href="https://wa.me/447776177435" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-green-600 hover:border-green-500/40 hover:bg-green-500/10 transition-all" aria-label="WhatsApp">
                   <MessageCircle size={18} />
                 </a>
                 <a href="https://www.facebook.com/share/1Dox5wK2MT/" target="_blank" rel="noreferrer" className="w-11 h-11 rounded-xl border border-black/10 bg-black/[0.03] flex items-center justify-center text-[#1877f2] hover:border-[#1877f2]/40 hover:bg-[#1877f2]/10 transition-all" aria-label="Facebook">
