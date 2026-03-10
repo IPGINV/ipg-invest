@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Mail, Lock, Chrome, Send, ChevronRight, ArrowLeft, X } from 'lucide-react';
+import { Mail, Lock, Send, ChevronRight, ArrowLeft, X } from 'lucide-react';
 
 type Lang = 'RU' | 'EN';
 type Translations = Record<string, string | string[]>;
@@ -132,6 +132,10 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
   const handleTelegramRegister = async () => {
     if (telegramLoading) return;
+    if (!isLogin && !agreeTerms) {
+      setError(lang === 'RU' ? 'Примите оферту' : 'Please accept the offer');
+      return;
+    }
     setTelegramLoading(true);
     setError('');
     try {
@@ -337,7 +341,7 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
 
                 <button
                   type="submit"
-                  disabled={loading}
+                  disabled={loading || (!isLogin && !agreeTerms)}
                   className="w-full min-h-[52px] md:min-h-[56px] gold-gradient text-black py-4 rounded-2xl font-black uppercase tracking-widest text-xs md:text-sm shadow-lg shadow-[#d4af37]/20 hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 touch-manipulation"
                 >
                   <span>
@@ -370,23 +374,15 @@ export const RegistrationForm: React.FC<RegistrationFormProps> = ({
                     {(t.regFormOr as string)} {lang === 'RU' ? 'через' : 'via'}
                   </span>
                 </div>
-
-                <div className="grid grid-cols-2 gap-3 md:gap-4">
-                  {[
-                    { icon: Chrome, label: 'Google', onClick: undefined as undefined | (() => void), disabled: true },
-                    { icon: Send, label: 'Telegram', onClick: handleTelegramRegister, disabled: telegramLoading },
-                  ].map((social) => (
-                    <button
-                      key={social.label}
-                      type="button"
-                      onClick={social.onClick}
-                      disabled={social.disabled}
-                      className="flex flex-col items-center justify-center min-h-[56px] md:min-h-[64px] p-4 rounded-2xl bg-white/5 border border-white/10 hover:bg-white/10 active:bg-white/15 transition-all group touch-manipulation disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      <social.icon size={22} className="text-white/40 group-hover:text-[#d4af37] transition-colors" />
-                    </button>
-                  ))}
-                </div>
+                <button
+                  type="button"
+                  onClick={handleTelegramRegister}
+                  disabled={telegramLoading}
+                  className="w-full min-h-[52px] md:min-h-[56px] bg-white/5 border border-white/10 text-white py-4 rounded-2xl font-black uppercase tracking-widest text-xs md:text-sm hover:bg-white/10 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Send size={18} className="text-[#d4af37]" />
+                  <span>{lang === 'RU' ? 'Регистрация через Telegram' : 'Registration via Telegram'}</span>
+                </button>
               </div>
 
               {!isLogin && (

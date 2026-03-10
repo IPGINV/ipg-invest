@@ -44,7 +44,6 @@ import {
   RefreshCw,
   TrendingUp as TrendUpIcon,
   CircleDollarSign,
-  BarChart3,
   Languages
 } from 'lucide-react';
 import { RegistrationForm } from './components/RegistrationForm';
@@ -805,12 +804,6 @@ export default function App({ apiBase }: AppProps) {
     setInfoView(view);
   };
 
-  const openCalculator = () => {
-    setIsMenuOpen(false);
-    openRegistrationGeneric();
-  };
-
-
   const currentPrice = marketData[marketData.length - 1]?.price || 2780;
   const lbmaDateLabel = new Intl.DateTimeFormat(lang === 'RU' ? 'ru-RU' : 'en-GB', {
     day: '2-digit',
@@ -1007,10 +1000,6 @@ export default function App({ apiBase }: AppProps) {
               <button onClick={() => openInfoView('project')} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
                 <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><Info size={20} /></span>
                 <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuProject}</span>
-              </button>
-              <button onClick={openCalculator} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
-                <span className="w-8 h-8 flex items-center justify-center flex-shrink-0 text-black/20 group-hover:text-[#d4af37]"><BarChart3 size={20} /></span>
-                <span className="text-sm font-black uppercase tracking-widest flex-1 text-left">{t.menuCalculator}</span>
               </button>
               <div className="h-px bg-black/5 my-6" />
               <button onClick={() => { setIsMenuOpen(false); setIsManagerModalOpen(true); }} className="flex items-center gap-4 p-4 rounded-2xl transition-all text-left w-full group text-black/60 hover:bg-black/5 hover:text-black">
