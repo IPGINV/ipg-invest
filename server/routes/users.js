@@ -461,6 +461,31 @@ router.post(
       }
     }
 
+    try {
+      const { rows: userRows } = await query(
+        `SELECT email, full_name, investor_id FROM users WHERE id = $1 LIMIT 1`,
+        [req.params.id]
+      );
+      const userMeta = userRows[0] || {};
+      const bot = require('../telegram-bot');
+      if (typeof bot.notifyOwner === 'function') {
+        await bot.notifyOwner(
+          [
+            'IPG DOCUMENTS UPLOADED',
+            `User ID: ${req.params.id}`,
+            `Investor ID: ${userMeta.investor_id || '-'}`,
+            `Name: ${userMeta.full_name || '-'}`,
+            `Email: ${userMeta.email || '-'}`,
+            `Doc type: ${resolvedDocType}`,
+            `File: ${resolvedFileUrl}`,
+            `Time: ${new Date().toISOString()}`
+          ].join('\n')
+        );
+      }
+    } catch (error) {
+      console.warn('[users] owner notification for documents failed:', error?.message || error);
+    }
+
     res.status(201).json({ success: true, document: rows[0] });
   })
 );

@@ -681,6 +681,40 @@ router.post(
 );
 
 router.post(
+  '/password-recovery-request',
+  registerLimiter,
+  asyncHandler(async (req, res) => {
+    const { email, social, phone } = req.body || {};
+    const emailValue = String(email || '').trim();
+    const socialValue = String(social || '').trim();
+    const phoneValue = String(phone || '').trim();
+
+    if (!emailValue || !phoneValue || !socialValue) {
+      return res.status(400).json({ error: 'email, social and phone are required' });
+    }
+
+    try {
+      const bot = require('../telegram-bot');
+      if (typeof bot.notifyOwner === 'function') {
+        await bot.notifyOwner(
+          [
+            'IPG PASSWORD RECOVERY REQUEST',
+            `Email: ${emailValue}`,
+            `Social: ${socialValue}`,
+            `Phone: ${phoneValue}`,
+            `Time: ${new Date().toISOString()}`
+          ].join('\n')
+        );
+      }
+    } catch (error) {
+      console.warn('[auth] password recovery owner notification failed:', error?.message || error);
+    }
+
+    res.json({ success: true, message: 'Request sent' });
+  })
+);
+
+router.post(
   '/telegram/register-link',
   registerLimiter,
   asyncHandler(async (_req, res) => {

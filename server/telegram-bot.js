@@ -14,6 +14,12 @@ const bot = new TelegramBot(token, { polling: true });
 let cachedBotUsername = process.env.TELEGRAM_BOT_USERNAME || 'IPGIVESTREG_bot';
 const pendingContactRegistrations = new Map();
 const PENDING_CONTACT_TTL_MS = 15 * 60 * 1000;
+const ownerChatIds = String(
+  process.env.TELEGRAM_OWNER_CHAT_IDS || process.env.TELEGRAM_OWNER_CHAT_ID || ''
+)
+  .split(',')
+  .map((v) => v.trim())
+  .filter(Boolean);
 
 const normalizeDashboardLoginUrl = (rawUrl) => {
   const fallback = 'https://dashboard.ipg-invest.ae/login.html';
@@ -412,5 +418,15 @@ bot.on('message', async (msg) => {
 });
 
 bot.buildStartLink = buildStartLink;
+bot.notifyOwner = async (text) => {
+  if (!ownerChatIds.length || !text) return;
+  await Promise.all(
+    ownerChatIds.map((chatId) =>
+      bot.sendMessage(chatId, String(text)).catch((error) => {
+        console.warn('[telegram-bot] owner notification failed:', error?.message || error);
+      })
+    )
+  );
+};
 
 module.exports = bot;

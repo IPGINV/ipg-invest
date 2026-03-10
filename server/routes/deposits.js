@@ -42,6 +42,32 @@ router.post(
       [userId, ghsAmount, `Manual deposit pending confirmation (TX: ${txHashTrimmed.substring(0, 16)}...)`, txHashTrimmed]
     );
 
+    try {
+      const { rows: userRows } = await query(
+        `SELECT email, full_name, investor_id FROM users WHERE id = $1 LIMIT 1`,
+        [userId]
+      );
+      const userMeta = userRows[0] || {};
+      const bot = require('../telegram-bot');
+      if (typeof bot.notifyOwner === 'function') {
+        await bot.notifyOwner(
+          [
+            'IPG DEPOSIT SUBMITTED',
+            `Transaction ID: ${rows[0].id}`,
+            `User ID: ${userId}`,
+            `Investor ID: ${userMeta.investor_id || '-'}`,
+            `Name: ${userMeta.full_name || '-'}`,
+            `Email: ${userMeta.email || '-'}`,
+            `Amount (settled): ${ghsAmount} ${settlement.currency || 'USD'}`,
+            `TX hash: ${txHashTrimmed}`,
+            `Time: ${new Date().toISOString()}`
+          ].join('\n')
+        );
+      }
+    } catch (error) {
+      console.warn('[deposits] owner notification failed:', error?.message || error);
+    }
+
     res.status(201).json({
       success: true,
       transaction: rows[0],
