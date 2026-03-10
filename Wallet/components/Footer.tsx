@@ -1,5 +1,5 @@
 import React from 'react';
-import { Footer } from '../../shared/Footer';
+import { Footer } from '../shared/Footer';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../constants';
 

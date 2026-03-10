@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import Header from './components/Header';
-import { Footer } from '../../shared/Footer';
+import { Footer } from './shared/Footer';
 import CompanyView from './components/CompanyView';
 import ProjectView from './components/ProjectView';
-import { LegalModal } from '../../shared/LegalModal';
+import { LegalModal } from './shared/LegalModal';
 import { TEXTS } from './constants';
 import { Language, ViewState } from './types';
 import { motion, AnimatePresence } from 'motion/react';

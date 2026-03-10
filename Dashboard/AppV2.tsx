@@ -10,7 +10,7 @@ import { PaymentPage } from './pages/PaymentPage';
 import ContactBinding from './components/ContactBinding';
 import { CalculatorPage } from './pages/CalculatorPage';
 import LoadingScreenV2 from './components/LoadingScreenV2';
-import { LegalModal } from '../shared/LegalModal';
+import { LegalModal } from './shared/LegalModal';
 import { User, Contract, AuthStatus, Transaction } from './types';
 import { locales } from './locales';
 
@@ -996,4 +996,3 @@ const AppV2: React.FC<AppV2Props> = ({ apiBase, userId }) => {
 };
 
 export default AppV2;
-

@@ -1,7 +1,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import Header from './components/Header';
 import Footer from './components/Footer';
-import { LegalModal } from '../shared/LegalModal';
+import { LegalModal } from './shared/LegalModal';
 import PriceChart from './components/PriceChart';
 import { ArrowUpRight, ArrowDownLeft, Wallet, Info, ChevronLeft, ChevronRight, Copy, CheckCircle, Send, User, MessageCircle, Facebook } from 'lucide-react';
 import { Language, TimeRange, Transaction, WalletState, ChartDataPoint } from './types';
